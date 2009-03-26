@@ -1,0 +1,1015 @@
+# data file for the FLTK User Interface Designer (FLUID)
+version 2.1000 
+header_name {.h} 
+code_name {.cpp} 
+gridx 1 
+gridy 1 
+snap 0
+decl {\#include "EditorIncl.h"} {public
+} 
+
+decl {\#include "EditorDef.h"} {public
+} 
+
+decl {\#include "Tools.h"} {public
+} 
+
+decl {\#include "Model.h"} {public
+} 
+
+decl {\#include "AnimationUI.h"} {public
+} 
+
+class MappingUI {open
+} {
+  Function {CreateUI()} {} {
+    {fltk::Window} window {
+      label {UV mapping viewer}
+      xywh {399 430 657 381} hide resizable
+    } {
+      {fltk::Group} view {
+        xywh {0 22 657 359} resizable
+        extra_code {\#include "View.h"}
+        class UVViewWindow
+      } {}
+      {fltk::MenuBar} {} {open
+        xywh {0 0 656 23}
+      } {
+        {fltk::PopupMenu} {} {
+          label Edit open
+          xywh {11 11 84 12}
+        } {
+          {fltk::Item} {} {
+            label {Flip UVs}
+            callback {flipUVs();}
+            }
+          {fltk::Item} {} {
+            label {Mirror UVs}
+            callback {mirrorUVs();}
+            }
+        }
+      }
+    }
+  }
+  decl {\#include "MappingCB.h"} {public
+  }
+} 
+
+class ArchiveListUI {open
+} {
+  Function {ArchiveListUI(const ArchiveList& s)} {open
+  } {
+    {fltk::Window} window {
+      label {Texture archives} open
+      xywh {389 171 589 314} hide resizable
+    } {
+      {fltk::ReturnButton} {} {
+        label OK
+        callback {SET_WIDGET_VALUE(window, true);
+window->hide();}
+        private xywh {361 281 125 25}
+      }
+      {fltk::Button} {} {
+        label Cancel
+        callback {window->hide();}
+        private xywh {493 281 88 25}
+      }
+      {fltk::Input} edit {
+        private xywh {7 248 479 25}
+      }
+      {fltk::Button} {} {
+        label Browse
+        callback {static std::string fn;
+bool r=FileOpenDlg("Select zip/sdz file:","Zip archives\\0zip,sdz\\0",fn);
+if (r) edit->value(fn.c_str());
+edit->redraw();}
+        xywh {493 248 88 25}
+        extra_code {\#include <fltk/file_chooser.h>}
+      }
+      {fltk::Browser} archlist {
+        callback {fltk::Widget *w=selected();
+if (w) edit->value( ((string*)w->user_data())->c_str() );}
+        xywh {6 8 480 228}
+      } {}
+      {fltk::Button} {} {
+        label Remove
+        callback {fltk::Widget *w=selected();
+if (w) {
+settings.archives.erase(*(string*)w->user_data());
+archlist->remove(w);
+archlist->redraw();
+}}
+        xywh {491 8 93 25}
+      }
+      {fltk::Button} {} {
+        label Add
+        callback {if(!strlen(edit->value())) return;
+if (settings.archives.find(edit->value())==settings.archives.end()) {
+archlist->add(edit->value(), &*settings.archives.insert(edit->value()).first);
+archlist->redraw();
+}}
+        xywh {493 215 88 27}
+      }
+    }
+    code {settings=s;
+for (set<string>::iterator i=settings.archives.begin();i!=settings.archives.end();++i)
+{ archlist->add(i->c_str(), &*i); }} {}
+  }
+  decl {ArchiveList settings;} {public
+  }
+  Function {~ArchiveListUI()} {open
+  } {
+    code {delete window;} {}
+  }
+  Function {selected()} {open private return_type {fltk::Widget*}
+  } {
+    code {for (int a=0;a<archlist->children();a++)
+if(archlist->child(a)->selected()) return archlist->child(a);
+return 0;} {}
+  }
+} 
+
+class TexGroupUI {} {
+  Function {CreateUI()} {open
+  } {
+    {fltk::Window} window {
+      label {Texture Group Manager} open
+      xywh {284 166 791 728} hide resizable modal
+    } {
+      {fltk::Button} {} {
+        label {Add selected to group}
+        callback {AddToGroup();}
+        xywh {212 37 138 25}
+      }
+      {fltk::TiledGroup} {} {
+        xywh {3 68 784 657} resizable
+      } {
+        {fltk::ScrollGroup} groupTexBrowser {open
+          xywh {0 0 204 657} box DOWN_BOX
+          class TextureBrowser
+        } {}
+        {fltk::ScrollGroup} texBrowser {open
+          xywh {204 0 580 657} resizable box DOWN_BOX color 0xffffff00
+          extra_code {\#include "TextureBrowser.h"}
+          class TextureBrowser
+        } {}
+      }
+      {fltk::Choice} groups {
+        label {Group:}
+        callback {SelectGroup();}
+        xywh {53 4 154 25}
+      } {}
+      {fltk::Button} {} {
+        label {Set group name}
+        callback {SetGroupName();}
+        xywh {609 37 111 25}
+      }
+      {fltk::Button} {} {
+        label {Remove group}
+        callback {RemoveGroup();}
+        xywh {356 4 107 25}
+      }
+      {fltk::Button} {} {
+        label {Add group}
+        callback {AddGroup();}
+        xywh {356 37 107 25}
+      }
+      {fltk::Button} {} {
+        label Close
+        callback {window->hide();}
+        xywh {704 4 82 25}
+      }
+      {fltk::Button} {} {
+        label {Remove selected from group}
+        callback {RemoveFromGroup();}
+        xywh {14 37 188 25}
+      }
+      {fltk::Button} {} {
+        label {Select All}
+        callback {texBrowser->SelectAll();}
+        xywh {212 4 138 25}
+      }
+      {fltk::Button} {} {
+        label {Load group from file}
+        callback {LoadGroup();}
+        xywh {471 4 131 25}
+      }
+      {fltk::Button} {} {
+        label {Save group to file}
+        callback {SaveGroup();}
+        xywh {471 37 131 25}
+      }
+    }
+  }
+  decl {\#include "TexGroupCB.h"} {public
+  }
+} 
+
+class TexBuilderUI {} {
+  Function {CreateUI()} {open
+  } {
+    {fltk::Window} window {
+      label {S3O Texture Builder}
+      xywh {390 46 568 269} hide
+    } {
+      {fltk::TabGroup} {} {open
+        xywh {5 6 558 268}
+      } {
+        {fltk::Group} {} {
+          label {Texture 2} open
+          xywh {0 25 558 231}
+        } {
+          {fltk::Group} {} {
+            label {Input textures} open
+            xywh {6 5 548 113} align 17 box THIN_DOWN_BOX
+          } {
+            {fltk::Input} selfIllumTex {
+              label {Self-illumination: grayscale texture indicating how much light the surface generates}
+              xywh {15 77 348 21} align 5
+            }
+            {fltk::Button} {} {
+              label Browse
+              callback {Browse(selfIllumTex);}
+              xywh {424 78 94 23}
+            }
+            {fltk::Button} {} {
+              label Browse
+              callback {Browse(reflectTex);}
+              xywh {424 25 94 28}
+            }
+            {fltk::Input} reflectTex {
+              label {Reflection: grayscale texture indicating reflectiveness of the model}
+              xywh {17 28 347 22} align 5
+            }
+          }
+          {fltk::Group} {} {
+            label {Output texture} open
+            xywh {6 122 548 75} align 17 box THIN_DOWN_BOX
+          } {
+            {fltk::Input} output2 {
+              label {Texture 2}
+              xywh {14 34 349 21} align 5
+            }
+            {fltk::Button} {} {
+              label Browse
+              callback {Browse(output2, true);}
+              xywh {427 39 93 23}
+            }
+          }
+          {fltk::Button} {} {
+            label {Build texture 2}
+            callback {BuildTexture2();}
+            tooltip {Build texture 2 from the reflection and self-illumination images}
+            xywh {219 201 113 27}
+          }
+        }
+        {fltk::Group} {} {
+          label {Texture 1} open
+          xywh {0 25 558 227} hide
+        } {
+          {fltk::Group} {} {
+            label {Input textures} open
+            xywh {6 5 548 113} align 17 box THIN_DOWN_BOX
+          } {
+            {fltk::Input} colorTex {
+              label {Color texture: RGB texture}
+              xywh {17 29 348 22} align 5
+            }
+            {fltk::Input} teamColorTex {
+              label {Team color: grayscale texture indicating the amount of team color}
+              xywh {17 78 314 22} align 5
+            }
+            {fltk::Button} {} {
+              label Browse
+              callback {Browse(colorTex);}
+              xywh {425 28 94 23}
+            }
+            {fltk::Button} {} {
+              label Browse
+              callback {Browse (teamColorTex);}
+              xywh {425 79 94 23}
+            }
+            {fltk::CheckButton} invertTeamCol {
+              label Invert
+              xywh {337 78 64 25}
+            }
+          }
+          {fltk::Group} {} {
+            label {Output texture} open
+            xywh {6 122 548 69} align 17 box THIN_DOWN_BOX
+          } {
+            {fltk::Input} output1 {
+              label {Texture 1}
+              xywh {15 34 349 21} align 5
+            }
+            {fltk::Button} {} {
+              label Browse
+              callback {Browse(output1, true);}
+              xywh {427 31 93 23}
+            }
+          }
+          {fltk::Button} {} {
+            label {Build texture 1}
+            callback {BuildTexture1();}
+            tooltip {Build texture 1 from the RGB color image and Team color grayscale image.}
+            xywh {213 200 117 25}
+          }
+        }
+      }
+    }
+  }
+  decl {\#include "TexBuilderCB.h"} {public
+  }
+} 
+
+class RotatorUI {} {
+  decl {void ApplyRotation(bool absolute, int axis, fltk::Input* o);} {public
+  }
+  Function {CreateUI(IEditor *editor)} {open
+  } {
+    {fltk::Window} window {
+      label {Object Rotator} open
+      xywh {469 321 233 251} horizontal hide resizable labelsize 13
+    } {
+      {fltk::Group} {} {
+        label {Apply absolute rotation} open
+        xywh {10 18 217 89} box THIN_DOWN_BOX
+      } {
+        {fltk::Input} inputAbsX {
+          label {Around X axis}
+          callback {ApplyRotation(true, 0, o);}
+          xywh {93 3 93 23} type Numeric
+        }
+        {fltk::Input} inputAbsY {
+          label {Around Y axis}
+          callback {ApplyRotation(true, 1,o);}
+          xywh {93 28 93 23} type Numeric
+        }
+        {fltk::Input} inputAbsZ {
+          label {Around Z axis}
+          callback {ApplyRotation(true, 2,o);}
+          xywh {93 53 93 24} type Numeric
+        }
+      }
+      {fltk::Group} {} {
+        label {Apply relative rotation} open
+        xywh {8 122 219 92} box THIN_DOWN_BOX
+      } {
+        {fltk::Input} inputRelX {
+          label {Around X axis}
+          callback {ApplyRotation(false, 0,o);}
+          xywh {93 5 95 23} type Numeric
+        }
+        {fltk::Input} inputRelY {
+          label {Around Y axis}
+          callback {ApplyRotation(false, 1,o);}
+          xywh {93 30 95 23} type Numeric
+        }
+        {fltk::Input} inputRelZ {
+          label {Around Z axis}
+          callback {ApplyRotation(false, 2,o);}
+          xywh {93 55 95 24} type Numeric
+        }
+      }
+      {fltk::Button} {} {
+        label {Reset rotation}
+        callback {ResetRotation();}
+        xywh {7 218 107 27}
+      }
+      {fltk::Button} {} {
+        label {Apply Rotation}
+        callback {ApplyRotationToGeom();}
+        xywh {120 218 106 27}
+      }
+    }
+    code {editorCallback=editor;} {}
+  }
+  decl {IEditor *editorCallback;} {}
+  decl {void Update();} {public
+  }
+  decl {void Show();} {public
+  }
+  decl {~RotatorUI();} {public
+  }
+  decl {void Hide();} {public
+  }
+  decl {void ResetRotation();} {public
+  }
+  decl {void ApplyRotationToGeom();} {public
+  }
+} 
+
+class EditorUI {open
+} {
+  Function {EditorUI()} {open
+  } {
+    {fltk::Window} window {
+      callback {menuFileExit();} open
+      xywh {504 176 724 552} resizable labelfont 4 textfont 4 visible
+    } {
+      {fltk::Group} toolbox {open
+        xywh {0 19 37 501}
+      } {
+        {fltk::Button} selectCameraTool {
+          callback {SetTool(tools.camera);}
+          tooltip {Move the camera in one of the views (middle button to zoom)}
+          xywh {2 1 35 35} type RADIO
+          image not_inlined {D:/DEV/Studio/MyProjects/upspring/src/buttons_/camera.gif} shortcut 0x31
+          extra_code {SET_WIDGET_VALUE(o,true);}
+        }
+        {fltk::Button} selectMoveTool {
+          callback {SetTool(tools.move);}
+          tooltip {Move the selected objects in a mapview}
+          xywh {2 36 35 35} type RADIO
+          image not_inlined {D:/DEV/Studio/MyProjects/upspring/src/buttons_/move.gif} shortcut 0x32
+        }
+        {fltk::Button} selectRotateTool {
+          callback {SetTool(tools.rotate);}
+          tooltip {Rotate objects}
+          xywh {2 71 35 35} type RADIO
+          image not_inlined {D:/DEV/Studio/MyProjects/upspring/src/buttons_/rotate.gif} shortcut 0x33
+        }
+        {fltk::Button} selectScaleTool {
+          callback {SetTool(tools.scale);}
+          tooltip {Scale the selected objects (If they can be scaled)}
+          xywh {2 106 35 35} type RADIO
+          image not_inlined {D:/DEV/Studio/MyProjects/upspring/src/buttons_/scale.gif} shortcut 0x34
+        }
+        {fltk::Button} selectTextureTool {
+          callback {SetTool(tools.texmap);}
+          tooltip {Enable polygon selection mode. When this is on, you can click on a texture in the 3DO textures tab, or you can click on the color tool to give the selected polygons a color.}
+          xywh {2 275 35 35} type RADIO
+          image not_inlined {D:/DEV/Studio/MyProjects/upspring/src/buttons_/texture.gif} shortcut 0x35
+        }
+        {fltk::Button} selectColorTool {
+          callback {SetTool(tools.color);}
+          tooltip {Set polygon color. To use this, first select the texture mode, because it will allow you to select the polygons. When you have selected them, click this button to choose a color.}
+          xywh {2 175 35 32}
+          image not_inlined {D:/DEV/Studio/MyProjects/upspring/src/buttons_/color.gif} shortcut 0x36
+        }
+        {fltk::Button} selectFlipTool {
+          label Flip
+          callback {SetTool(tools.flip);}
+          tooltip {Flip the selected polygons}
+          xywh {2 207 35 34} shortcut 0x66
+        }
+        {fltk::InvisibleBox} {} {
+          xywh {2 344 35 156} resizable
+        }
+        {fltk::Button} selectRotateTexTool {
+          label {Rot T}
+          callback {SetTool(tools.rotateTex);}
+          tooltip {Rotate 3DO texture.}
+          xywh {2 241 35 34}
+        }
+        {fltk::Button} selectOriginMoveTool {
+          label Orig
+          callback {SetTool(tools.originMove);}
+          tooltip {Select origin move tool}
+          xywh {2 141 35 34} type RADIO
+        }
+        {fltk::Button} selectCurvedPolyTool {
+          label Curv
+          callback {SetTool(tools.toggleCurvedPoly);}
+          tooltip {Toggle polygon curved-surface mode}
+          xywh {2 310 35 36} hide
+        }
+      }
+      {fltk::Output} status {
+        label status
+        xywh {1 525 719 26} align 84 box THIN_UP_BOX color 0xcfcfcf00
+      }
+      {fltk::TiledGroup} viewsGroup {open selected
+        xywh {38 18 427 505} resizable
+        extra_code {\#include "ViewsGroup.h"}
+        class ViewsGroup
+      } {}
+      {fltk::TabGroup} {} {open
+        xywh {464 19 260 505} color 0xc7c4bc00 textsize 10
+      } {
+        {fltk::Group} {} {
+          label Model
+          xywh {4 23 252 481} hide box PLASTIC_UP_BOX labelsize 10
+        } {
+          {fltk::Input} inputCenterX {
+            label {Model center X}
+            callback {uiModelStateChanged(&model->mid.x,o);}
+            xywh {113 7 114 22} type Numeric when ENTER_KEY
+          }
+          {fltk::Input} inputCenterY {
+            label {Model center Y}
+            callback {uiModelStateChanged(&model->mid.y,o);}
+            xywh {113 33 114 22} type Numeric when ENTER_KEY
+          }
+          {fltk::Input} inputCenterZ {
+            label {Model center Z}
+            callback {uiModelStateChanged(&model->mid.z,o);}
+            xywh {113 60 114 22} type Numeric when ENTER_KEY
+          }
+          {fltk::Button} {} {
+            label Estimate
+            callback {uiCalculateMidPos();}
+            xywh {139 86 88 15}
+          }
+          {fltk::Input} inputRadius {
+            label {Radius:}
+            callback {uiModelStateChanged(&model->radius,o);}
+            xywh {114 120 114 22} type Numeric when ENTER_KEY
+          }
+          {fltk::Button} {} {
+            label Estimate
+            callback {uiCalculateRadius ();}
+            xywh {138 145 89 16}
+          }
+          {fltk::Input} inputHeight {
+            label {Model height:}
+            callback {uiModelStateChanged(&model->height, o);}
+            xywh {112 181 114 22} type Numeric when ENTER_KEY
+          }
+          {fltk::InvisibleBox} {} {
+            xywh {22 212 222 239} resizable
+          }
+        }
+        {fltk::Group} objectView {
+          label Objects
+          xywh {4 23 253 481} hide box PLASTIC_UP_BOX labelsize 10
+        } {
+          {fltk::Browser} objectTree {
+            label Objects open
+            xywh {22 265 204 200} type Multi when NEVER resizable
+          } {}
+          {fltk::Button} {} {
+            label Delete
+            callback {uiDeleteSelection();}
+            tooltip {Delete the selected objects}
+            xywh {3 78 55 25} hide shortcut 0xffff
+          }
+          {fltk::Button} {} {
+            label {Add empty}
+            callback {uiAddObject();}
+            tooltip {Add an empty object}
+            xywh {20 192 83 25} shortcut 0x80065
+          }
+          {fltk::Button} {} {
+            label Copy
+            callback {uiCopy();}
+            tooltip {Shortcut: Ctrl+C}
+            xywh {19 223 70 25} shortcut 0x40063
+          }
+          {fltk::Button} {} {
+            label Cut
+            callback {uiCut();}
+            tooltip {Shortcut: Ctrl+X}
+            xywh {95 223 65 25} shortcut 0x40078
+          }
+          {fltk::Button} {} {
+            label Paste
+            callback {uiPaste();}
+            tooltip {Shortcut: Ctrl+V}
+            xywh {165 223 78 25} hotspot shortcut 0x40076
+          }
+          {fltk::Button} {} {
+            label {Apply transform}
+            callback {uiApplyTransform();}
+            tooltip {Apply the current object transformation to itself. This is basically the same as "Use current position as Object Origin" from 3DO builder, expect that rotation and scaling is removed here as well.}
+            xywh {144 111 101 25}
+          }
+          {fltk::Button} {} {
+            label {Uniform scale}
+            callback {uiUniformScale();}
+            tooltip {Scale the selected objects by a given factor}
+            xywh {144 84 101 23}
+          }
+          {fltk::Button} {} {
+            label {Set name}
+            callback {MdlObject *obj=GetSingleSel();
+if (obj) browserSetObjectName(obj);}
+            tooltip {Edit the name of the selected object}
+            xywh {107 192 70 25}
+          }
+          {fltk::Input} inputPosX {
+            label {X pos:}
+            callback {uiObjectPositionChanged(0, o);}
+            xywh {58 86 66 19} type Numeric when ENTER_KEY
+          }
+          {fltk::Input} inputPosY {
+            label {Y pos:}
+            callback {uiObjectPositionChanged(1, o);}
+            xywh {58 110 66 19} type Numeric when ENTER_KEY
+          }
+          {fltk::Input} inputPosZ {
+            label {Z pos:}
+            callback {uiObjectPositionChanged(2, o);}
+            xywh {58 134 66 19} type Numeric when ENTER_KEY
+          }
+          {fltk::Input} inputScaleX {
+            label {X scale}
+            callback {uiObjectStateChanged(&MdlObject::scale, &Vector3::x, o);}
+            xywh {173 13 66 19} type Numeric when ENTER_KEY
+          }
+          {fltk::Input} inputScaleY {
+            label {Y scale}
+            callback {uiObjectStateChanged(&MdlObject::scale, &Vector3::y, o);}
+            xywh {173 37 66 19} type Numeric when ENTER_KEY
+          }
+          {fltk::Input} inputScaleZ {
+            label {Z scale}
+            callback {uiObjectStateChanged(&MdlObject::scale, &Vector3::z, o);}
+            xywh {173 61 66 19} type Numeric when ENTER_KEY
+          }
+          {fltk::Input} inputRotX {
+            label {X rotation:}
+            callback {uiObjectRotationChanged(0, o);}
+            tooltip {Rotation around X axis}
+            xywh {59 13 66 19} type Numeric when ENTER_KEY
+          }
+          {fltk::Input} inputRotZ {
+            label {Z rotation:}
+            callback {uiObjectRotationChanged(2, o);}
+            tooltip {Rotation around Z axis}
+            xywh {59 61 66 20} type Numeric when ENTER_KEY
+          }
+          {fltk::Input} inputRotY {
+            label {Y rotation:}
+            callback {uiObjectRotationChanged(1, o);}
+            tooltip {Rotation around Y axis}
+            xywh {59 37 66 19} type Numeric when ENTER_KEY
+          }
+          {fltk::Button} {} {
+            label Swap
+            callback {uiSwapObjects();}
+            xywh {180 192 63 25}
+          }
+          {fltk::Button} {} {
+            label {Rotator UI}
+            callback {uiRotator->Show();}
+            xywh {144 140 101 24}
+          }
+          {fltk::CheckButton} chkOnlyMoveOrigin {
+            label {Only move origin}
+            tooltip {When changing object position, only move the origin and not the geometry and child objects. Similar to the origin-move tool}
+            xywh {17 158 116 25}
+          }
+        }
+        {fltk::Group} {} {
+          label Mapping open
+          xywh {4 23 253 481} box PLASTIC_UP_BOX labelsize 10
+        } {
+          {fltk::Choice} mappingChooser {
+            label {Texture mapping}
+            xywh {25 28 200 23} align 5
+          } {
+            {fltk::Item} {} {
+              label {S3O: 2 UV mapped textures}
+              callback {SetMapping(MAPPING_S3O);}
+              }
+            {fltk::Item} {} {
+              label {3DO: per-polygon texture}
+              callback {SetMapping(MAPPING_3DO);}
+              }
+          }
+          {fltk::Group} texGroupS3O {
+            label {S3O mapping settings} open
+            xywh {12 68 227 259} box THIN_DOWN_BOX
+          } {
+            {fltk::Input} inputTexture1 {
+              label {Texture 1}
+              callback {model->SetTextureName(0, o->value());}
+              tooltip {S3O texture 1, this specifies color. Alpha channel is used for teamcolor.}
+              xywh {14 24 185 31} align 5 when CHANGED
+              class {fltk::FileInput}
+            }
+            {fltk::Input} inputTexture2 {
+              label {Texture 2}
+              callback {model->SetTextureName(1, o->value());}
+              tooltip {S3O texture 2, green=reflectivity, red=self illumination,blue=unused}
+              xywh {14 100 185 35} align 5 when CHANGED
+              class {fltk::FileInput}
+            }
+            {fltk::Button} {} {
+              label Browse
+              callback {BrowseForTexture (0);}
+              xywh {103 60 85 25}
+            }
+            {fltk::Button} {} {
+              label Browse
+              callback {BrowseForTexture(1);}
+              xywh {104 140 85 25}
+            }
+            {fltk::Button} {} {
+              label Reload
+              callback {ReloadTexture(0);}
+              xywh {13 60 85 25}
+            }
+            {fltk::Button} {} {
+              label Reload
+              callback {ReloadTexture(1);}
+              xywh {14 140 85 25}
+            }
+            {fltk::Button} {} {
+              label {Example team color:}
+              callback {o->color(SetTeamColor());
+o->redraw();}
+              xywh {155 174 33 25} align 4
+            }
+            {fltk::Choice} {} {
+              label {Current rendering method}
+              xywh {15 226 188 24} align 5
+            } {
+              {fltk::Item} {} {
+                label {Full (teamcolor, reflection, self-illumination)}
+                callback {uiSetRenderMethod(RM_S3OFULL);}
+                }
+              {fltk::Item} {} {
+                label {Basic (only texture 1: color+teamcolor)}
+                callback {uiSetRenderMethod(RM_S3OBASIC);}
+                }
+              {fltk::Item} {} {
+                label {Texture 1 color}
+                callback {uiSetRenderMethod(RM_TEXTURE0COLOR);}
+                }
+              {fltk::Item} {} {
+                label {Texture 2 color}
+                callback {uiSetRenderMethod(RM_TEXTURE1COLOR);}
+                }
+            }
+          }
+          {fltk::Group} texGroup3DO {
+            label {3DO mapping settings} open
+            xywh {12 347 227 122} resizable box THIN_DOWN_BOX
+          } {
+            {fltk::Button} {} {
+              label {Convert to S3O texturing}
+              callback {ConvertToS3O();}
+              xywh {12 10 201 25}
+            }
+          }
+        }
+        {fltk::Group} {} {
+          label {3DO Textures}
+          xywh {4 23 252 481} hide resizable box PLASTIC_UP_BOX labelsize 10
+        } {
+          {fltk::Browser} texBrowser {open
+            xywh {2 55 249 425} resizable
+            extra_code {\#include "TextureBrowser.h"}
+            class TextureBrowser
+          } {}
+          {fltk::Choice} textureGroupMenu {
+            label {Texture group:}
+            callback {SelectTextureGroup(o, v);} open
+            xywh {99 2 151 24}
+          } {}
+          {fltk::Button} {} {
+            label {Add unit textures}
+            callback {uiAddUnitTextures();}
+            xywh {3 28 112 24}
+          }
+        }
+      }
+      {fltk::ProgressBar} progress {
+        xywh {542 525 169 25} hide
+      }
+      {fltk::MenuBar} menu {open
+        xywh {2 0 645 19}
+      } {
+        {fltk::PopupMenu} menuFile {
+          label File open
+          xywh {355 10 60 15}
+        } {
+          {fltk::Item} {} {
+            label New
+            callback {menuFileNew();}
+            shortcut 0x4006e
+          }
+          {fltk::Divider} {} {
+            }
+          {fltk::Item} {} {
+            label {Load model}
+            callback {menuFileLoad();}
+            shortcut 0x4006f
+          }
+          {fltk::Item} {} {
+            label {Save model}
+            callback {menuFileSave();}
+            shortcut 0x40073
+          }
+          {fltk::Item} {} {
+            label {Save model as}
+            callback {menuFileSaveAs();}
+            }
+          {fltk::Divider} {} {
+            }
+          {fltk::Item} {} {
+            label Exit
+            callback {menuFileExit();}
+            }
+        }
+        {fltk::PopupMenu} {} {
+          label Edit open
+          xywh {9 9 73 10}
+        } {
+          {fltk::Item} menuEdit_Undo {
+            label Undo
+            callback {menuEditUndo();}
+            shortcut 0x4007a
+          }
+          {fltk::Item} menuEdit_Redo {
+            label Redo
+            callback {menuEditRedo();}
+            shortcut 0x40079
+          }
+          {fltk::Item} {} {
+            label {Show undo buffer viewer}
+            callback {menuEditShowUndoBufferViewer();}
+            }
+          {fltk::ItemGroup} {} {
+            label Optimize open
+            } {
+            {fltk::Item} {} {
+              label {All objects}
+              callback {menuEditOptimizeAll();}
+              }
+            {fltk::Item} {} {
+              label {Selected objects}
+              callback {menuEditOptimizeSelected();}
+              }
+          }
+        }
+        {fltk::PopupMenu} menuObject {
+          label Object open
+          xywh {235 0 85 10}
+        } {
+          {fltk::Item} {} {
+            label {Insert object from file}
+            callback {menuObjectLoad();}
+            }
+          {fltk::Item} {} {
+            label {Save object}
+            callback {menuObjectSave();}
+            shortcut 0x80073
+          }
+          {fltk::Item} {} {
+            label {Replace object (keep child objects)}
+            callback {menuObjectReplace();}
+            shortcut 0x80072
+          }
+          {fltk::Item} {} {
+            label {Merge object into parent}
+            callback {menuObjectMerge();}
+            shortcut 0x6d
+          }
+          {fltk::Item} {} {
+            label {Approximate Object Origins}
+            callback {menuObjectApproxOffset();}
+            }
+          {fltk::ItemGroup} {} {
+            label Reset open
+            } {
+            {fltk::Item} {} {
+              label {object position}
+              callback {menuObjectResetPos();}
+              shortcut 0x40071
+            }
+            {fltk::Item} {} {
+              label {object rotation+scale}
+              callback {menuObjectResetScaleRot();}
+              shortcut 0x40077
+            }
+            {fltk::Item} {} {
+              label {object position+rotation+scale}
+              callback {menuObjectResetTransform();}
+              shortcut 0x40065
+            }
+          }
+          {fltk::Item} {} {
+            label {Recalculate vertex normals}
+            callback {menuObjectRecalcNormals();}
+            }
+          {fltk::Item} {} {
+            label {Flip all polygons}
+            callback {menuObjectFlipPolygons();}
+            }
+          {fltk::Item} {} {
+            label {Generate csurf debug info}
+            callback {menuObjectGenCSurf();}
+            }
+        }
+        {fltk::PopupMenu} {} {
+          label {Texture Mapping} open
+          xywh {9 9 114 10}
+        } {
+          {fltk::Item} {} {
+            label {Export model for UV mapping}
+            callback {menuMappingExportUV();}
+            }
+          {fltk::Item} {} {
+            label {Import UV coordinates from model}
+            callback {menuMappingImportUV();}
+            }
+          {fltk::Item} {} {
+            label {Show UV mapping}
+            callback {uiMapping->Show();}
+            }
+          {fltk::Item} {} {
+            label {Show S3O texture builder}
+            callback {uiTexBuilder->Show();}
+            }
+        }
+        {fltk::PopupMenu} menuAnimation {
+          label Animation open
+          xywh {9 2 96 17}
+        } {
+          {fltk::Item} {} {
+            label {Show timeline}
+            callback {uiTimeline->Show();}
+            }
+          {fltk::Item} {} {
+            label {Show object IK properties}
+            callback {uiIK->Show();}
+            hide
+          }
+          {fltk::Item} {} {
+            label {Show track editor}
+            callback {uiAnimTrackEditor->Show();}
+            }
+        }
+        {fltk::PopupMenu} menuScript {
+          label Scripts open
+          xywh {9 2 71 17}
+        } {
+          {fltk::Item} {} {
+            label {Load script}
+            callback {menuScriptLoad();}
+            }
+          {fltk::ItemGroup} menuScriptList {
+            label Scripts open
+            } {}
+        }
+        {fltk::PopupMenu} {} {
+          label Settings open
+          xywh {25 26 80 11}
+        } {
+          {fltk::Item} {} {
+            label {Texture archives}
+            callback {menuSettingsShowArchiveList();}
+            }
+          {fltk::Item} {} {
+            label {Texture groups}
+            callback {menuSettingsTextureGroups();}
+            }
+          {fltk::Item} {} {
+            label {Save view settings}
+            callback {SaveSettings();}
+            }
+          {fltk::Item} {} {
+            label {Revert to default view settings}
+            callback {menuSettingsRestoreViews();}
+            shortcut 0xffbf
+          }
+          {fltk::Item} {} {
+            label {Set view background color}
+            callback {menuSettingsSetBgColor();}
+            }
+          {fltk::Item} {} {
+            label {Set spring texture directory}
+            callback {menuSetSpringDir();}
+            }
+        }
+        {fltk::PopupMenu} menuHelp {
+          label Help open
+          xywh {290 10 70 15}
+        } {
+          {fltk::Item} {} {
+            label {About upspring}
+            callback {menuHelpAbout();}
+            }
+        }
+      }
+    }
+    code {Initialize ();} {}
+    code {\#include "ModelDrawer.h"} {}
+  }
+  decl {\#include "EditorCB.h"} {public
+  }
+} 
+
+class BackupViewerUI {open
+} {
+  Function {CreateUI()} {} {
+    {fltk::Window} window {
+      label {Undo buffer viewer} open
+      xywh {261 209 220 220} hide resizable
+    } {
+      {fltk::Button} cmdSetBufferSize {
+        label {Set buffer size}
+        callback {SetBufferSize();}
+        xywh {5 5 122 25}
+      }
+      {fltk::Browser} bufferView {open
+        xywh {2 34 215 185} resizable
+      } {}
+    }
+  }
+  decl {\#include "BackupViewerCB.h"} {public
+  }
+} 

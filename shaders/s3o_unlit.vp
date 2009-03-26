@@ -1,0 +1,37 @@
+!!ARBvp1.0
+PARAM projection[4] = { state.matrix.projection };
+PARAM modelView[4] = { state.matrix.modelview };
+PARAM mvproj[4] = { state.matrix.mvp };
+PARAM mvInvTrans[4] = { state.matrix.modelview.invtrans };
+PARAM eyeVec = { 0,1,0 };
+OUTPUT oPos = result.position;
+TEMP dots, tmp, vsPos, vsNormal;
+
+# Transform the vertex to view space
+DP4 vsPos.x, modelView[0], vertex.position;
+DP4 vsPos.y, modelView[1], vertex.position;
+DP4 vsPos.z, modelView[2], vertex.position;
+DP4 vsPos.w, modelView[3], vertex.position;
+
+# Transform the view space position to clip space
+DP4 oPos.x, projection[0], vsPos;
+DP4 oPos.y, projection[1], vsPos;
+DP4 oPos.z, projection[2], vsPos;
+DP4 oPos.w, projection[3], vsPos;
+
+# Transform the normal to view space
+DP3 vsNormal.x, mvInvTrans[0], vertex.normal;
+DP3 vsNormal.y, mvInvTrans[1], vertex.normal;
+DP3 vsNormal.z, mvInvTrans[2], vertex.normal;
+
+MOV result.texcoord[0], vertex.texcoord[0];
+
+# Calculate reflection vector (2 * (N dot L) * N - L)
+DP3 tmp, vsNormal, eyeVec;
+MUL tmp, vsNormal, tmp;
+MAD result.texcoord[1], {2,2,2,2}, tmp, -eyeVec;
+#DP3 tmp, vertex.normal, ;
+#MUL tmp, vertex.normal, tmp;
+#MAD result.texcoord[1], {2,2,2,2}, tmp, -state.light[0].position;
+
+END

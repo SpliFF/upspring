@@ -1,0 +1,146 @@
+# data file for the FLTK User Interface Designer (FLUID)
+version 2.0100 
+header_name {.h} 
+code_name {.cpp} 
+gridx 1 
+gridy 1 
+snap 0
+decl {\#include "EditorIncl.h"} {public
+} 
+
+decl {\#include "EditorDef.h"} {public
+} 
+
+decl {\#include "Model.h"} {public
+} 
+
+class IK_UI {open
+} {
+  Function {CreateUI()} {open
+  } {
+    {fltk::Window} window {
+      label IK open
+      xywh {673 419 155 138} hide
+    } {
+      {fltk::Choice} selJointType {
+        label {Joint Constraint Type} open
+        xywh {6 24 143 19} align 5
+      } {
+        {fltk::Item} {} {
+          label Fixed
+          callback {JointType(IKJT_Fixed);}
+          }
+        {fltk::Item} {} {
+          label Hinge
+          callback {JointType(IKJT_Hinge);}
+          }
+        {fltk::Item} {} {
+          label Universal
+          callback {JointType(IKJT_Universal);}
+          }
+      }
+    }
+  }
+  decl {\#include "IK_CB.h"} {public
+  }
+} 
+
+class TimelineUI {open
+} {
+  Function {CreateUI()} {open
+  } {
+    {fltk::Window} window {
+      label Timeline open
+      xywh {435 459 563 67} hide textfont 13
+      extra_code {o->set_non_modal();}
+    } {
+      {fltk::ValueSlider} timeSlider {
+        callback {SliderCallback();}
+        xywh {2 4 554 29} type TICK_BELOW when CHANGED textfont 4 textsize 12 maximum 10
+      }
+      {fltk::Button} {} {
+        label {Set length}
+        callback {cmdSetLength();}
+        xywh {121 38 67 25}
+      }
+      {fltk::Button} playstopButton {
+        label Play
+        callback {cmdPlayStop();}
+        xywh {2 38 52 25}
+      }
+      {fltk::Button} {} {
+        label Pause
+        callback {cmdPause();}
+        xywh {59 38 56 25}
+      }
+      {fltk::CheckButton} autoKeying {
+        label {Auto key insert}
+        xywh {195 38 108 25}
+      }
+      {fltk::Button} {} {
+        label {Insert keys}
+        callback {InsertKeys();}
+        xywh {315 38 79 25}
+      }
+    }
+  }
+  decl {\#include "TimelineCB.h"} {public
+  }
+} 
+
+class AnimTrackEditorUI {open
+} {
+  Function {CreateUI()} {open
+  } {
+    {fltk::Window} window {
+      label {Animation Track Editor} open
+      xywh {622 385 605 310} resizable visible
+    } {
+      {fltk::TiledGroup} {} {open
+        xywh {0 0 605 287} resizable
+      } {
+        {fltk::ScrollGroup} trackView {open
+          xywh {200 0 405 287} resizable box THIN_DOWN_BOX
+          extra_code {\#include "AnimKeyTrackView.h"}
+          class AnimKeyTrackView
+        } {}
+        {fltk::Browser} propBrowser {open
+          xywh {0 0 200 287} type Multi
+        } {}
+      }
+      {fltk::Group} {} {open
+        xywh {-1 288 606 22}
+      } {
+        {fltk::Button} {} {
+          label {Auto fit Y-axis}
+          callback {cmdAutoFitView();}
+          xywh {140 0 85 22}
+        }
+        {fltk::Button} {} {
+          label {Delete keys}
+          callback {cmdDeleteKeys();}
+          xywh {314 0 93 22}
+        }
+        {fltk::InvisibleBox} {} {
+          xywh {514 0 69 22} resizable
+        }
+        {fltk::CheckButton} {} {
+          label {Move view}
+          callback {toggleMoveView();}
+          xywh {411 0 89 21}
+        }
+        {fltk::Button} {} {
+          label {Auto fit time}
+          callback {cmdAutoFitTime();}
+          xywh {227 0 84 22}
+        }
+        {fltk::CheckButton} chkLockObjects {
+          label {Lock objects} selected
+          xywh {1 0 135 21}
+        }
+      }
+    }
+  }
+  decl {\#include "AnimTrackEditorCB.h"} {public
+  }
+} 
