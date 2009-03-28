@@ -4,6 +4,7 @@
 //  This code is released under GPL license, see LICENSE.HTML for info.
 //-----------------------------------------------------------------------
 #include <assert.h>
+#include <stdlib.h>
 #include "Mathlib.h"
 #include "Util.h"
 

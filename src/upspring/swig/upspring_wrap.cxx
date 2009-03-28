@@ -1521,14 +1521,14 @@ namespace std {
 	{
 	public:
 		list_iterator() {}
-		list_iterator(const typename list<T>::iterator& li) : typename list<T>::iterator(li) {}
+		list_iterator(const typename list<T>::iterator& li) : list<T>::iterator(li) {}
 	};
 	template<typename T>
 	class list_reverse_iterator : public list<T>::reverse_iterator
 	{
 	public:
 		list_reverse_iterator () {}
-		list_reverse_iterator (const typename list<T>::reverse_iterator& li) : typename list<T>::reverse_iterator(li) {}
+		list_reverse_iterator (const typename list<T>::reverse_iterator& li) : list<T>::reverse_iterator(li) {}
 	};
 }
 

@@ -5,9 +5,14 @@ March 28, 2009 [Kloot]
 		src/lib3ds         configure && make
 		src/LuaJIT-1.1.2   make linux
 
-		put the compiled libraries (*.a) in /usr/local/lib or
-		modify src/upspring/makefile to look for them elsewhere,
-		then cd src/upspring/ && make
+		put the compiled libraries (*.a) in /usr/local/lib/ (or
+		modify src/upspring/makefile to look for them elsewhere)
+		and then simply cd src/upspring/ && make
+
+		for now, all temporary object files are created in src/obj/
+		and the binary is placed in src/bin/ after linking, but do
+		not run UpSpring from that location or it won't be able to
+		find certain resources (button textures, etc)
 
 March 25, 2009 [Kloot]
 	created a github repository for the 1.54 EA source

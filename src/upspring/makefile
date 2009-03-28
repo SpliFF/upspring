@@ -98,14 +98,13 @@ UPSPRING_OBS = \
 	$(OBJ_BASE_DIR)/View.o            \
 	$(OBJ_BASE_DIR)/ZipFile.o
 
-OBJXCTS =            \
+OBJECTS =            \
 	$(CREG_OBS)      \
 	$(FILEIO_OBS)    \
 	$(FLCHOOSER_OBS) \
 	$(MATH_OBS)      \
 	$(SWIG_OBS)      \
 	$(UPSPRING_OBS)
-OBJECTS = $(UPSPRING_OBS)
 
 objects: $(OBJECTS)
 
@@ -141,7 +140,7 @@ dirs:
 	if [ ! -d $(SWIG_OBJ_DIR) ];      then $(MKDIR) $(SWIG_OBJ_DIR);      fi
 
 target:
-	$(CC) $(LFLAGS)   -o $(BIN_BASE_DIR)/$(TARGET)    $(OBJECTS)
+	$(CC)   -o $(BIN_BASE_DIR)/$(TARGET)   $(OBJECTS) $(LFLAGS)
 
 all:
 	make dirs
