@@ -157,8 +157,8 @@ TextureHandler::~TextureHandler ()
 
 Texture* TextureHandler::GetTexture(const char *name)
 {
-	string tmp=name;
-	transform(tmp.begin(),tmp.end(),tmp.begin(),tolower);
+	string tmp = name;
+	transform(tmp.begin(), tmp.end(), tmp.begin(), ::tolower);
 
 	map<string,TexRef>::iterator ti = textures.find(tmp);
 	if (ti == textures.end()) {

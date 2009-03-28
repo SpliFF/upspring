@@ -6,6 +6,8 @@
 #ifndef EDITOR_DEF_H
 #define EDITOR_DEF_H
 
+#include <algorithm>
+
 #define SAFE_DELETE_ARRAY(c) if(c){delete[] (c);(c)=0;}
 #define SAFE_DELETE(c) if(c){delete (c);(c)=0;}
 
@@ -48,7 +50,11 @@ typedef unsigned short ushort;
 	// This is needed as gnu doesn't offer specialization for other pointer types other than char*
 	// (look in ext/hash_fun.h for the types supported out of the box)
 
+	#if (__GNUC__ == 4 && __GNUC_MINOR__ > 2)
+	#include <backward/hash_fun.h>
+	#else
 	#include <ext/hash_fun.h>
+	#endif
 
 	namespace __gnu_cxx {
 		template<> struct hash<void*> {
@@ -112,8 +118,8 @@ class BackupViewerUI;
 #include "IEditor.h"
 
 struct ArchiveList {
-	bool Load ();
-	bool Save ();
+	bool Load();
+	bool Save();
 
 	set<string> archives;
 };
@@ -128,12 +134,12 @@ class content_error: public std::exception {
 };
 
 inline void stringlwr(string& str) {
-	transform (str.begin(), str.end(), str.begin(), tolower);
+	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 }
 
 
-bool FileSaveDlg (const char *msg, const char *pattern, string& fn);
-bool FileOpenDlg (const char *msg, const char *pattern, string& fn);
+bool FileSaveDlg(const char *msg, const char *pattern, string& fn);
+bool FileOpenDlg(const char *msg, const char *pattern, string& fn);
 bool SelectDirectory(const char *msg, std::string& dir);
 
 extern string applicationPath;
@@ -143,8 +149,6 @@ template<typename InputIterator, typename EqualityComparable>
 int element_index(InputIterator first, InputIterator last, const EqualityComparable& value) {
 	// KLOOTNOTE: g++ craps out on   <type1> i = <val1>, <type2> j = <val2>   style loop-init
 	InputIterator i;
-
-WEIRDNESS
 
 	for (int index = 0, i = first; i != last; ++i, ++index)
 		// KLOOTNOTE: i is not a pointer so invalid type for *
