@@ -19,7 +19,6 @@ FLTK2_SRCDIR  = ../fltk2/
 LUAJIT_SRCDIR = ../LuaJIT-1.1.2/
 LIB3DS_SRCDIR = ../lib3ds-1.2/
 
-## SRC_BASE_DIR = ./upspring
 SRC_BASE_DIR = ./
 OBJ_BASE_DIR = ../obj
 BIN_BASE_DIR = ../bin
@@ -127,10 +126,6 @@ $(MATH_OBJ_DIR)/%.o: $(MATH_SRC_DIR)/%.cpp
 $(SWIG_OBJ_DIR)/%.o: $(SWIG_SRC_DIR)/%.cxx
 	$(CC) $(CFLAGS) $(IFLAGS_FLTK2)   -o $@    -c $<
 
-## works: g++ -Wall -Wextra -g -o ../obj/Animation.o    -c Animation.cpp    -I ./   -I ../LuaJIT-1.1.2/src/
-## works: g++ -Wall -Wextra -g -o ../obj/Animation.o    -c Animation.cpp    -I ./   -I"../LuaJIT-1.1.2/src/"
-## fails: g++ -Wall -Wextra -g -DUSE_IK -O2 "-I././ -I"../LuaJIT-1.1.2/src/"  -I"../lib3ds-1.2/" -I"../fltk2/" -I"../fltk2/"/fltk/compat/"   -I.//Fl_Native_File_Chooser   -o ../obj/Animation.o    -c Animation.cpp
-## fails: g++ -Wall -Wextra -g -DUSE_IK -O2 "-I./  -I"../LuaJIT-1.1.2/" -I"../LuaJIT-1.1.2/"/src  -I"../lib3ds-1.2/" -I"../fltk2/" -I"../fltk2/"/fltk/compat/"   -I.//Fl_Native_File_Chooser   -o ../obj/Animation.o    -c Animation.cpp
 $(OBJ_BASE_DIR)/%.o: $(SRC_BASE_DIR)/%.cpp
 	$(CC) $(CFLAGS) $(IFLAGS_FLTK2)   -I$(FLCHOOSER_SRC_DIR)   -o $@    -c $<
 

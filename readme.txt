@@ -1,3 +1,14 @@
+March 28, 2009 [Kloot]
+	quick compilation guide:
+		src/fltk1.1.7      configure && make
+		src/fltk2          configure && make
+		src/lib3ds         configure && make
+		src/LuaJIT-1.1.2   make linux
+
+		put the compiled libraries (*.a) in /usr/local/lib or
+		modify src/upspring/makefile to look for them elsewhere,
+		then cd src/upspring/ && make
+
 March 25, 2009 [Kloot]
 	created a github repository for the 1.54 EA source
 
