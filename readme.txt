@@ -7,7 +7,7 @@ March 28, 2009 [Kloot]
 
 		put the compiled libraries (*.a) in /usr/local/lib/ (or
 		modify src/upspring/makefile to look for them elsewhere)
-		and then simply cd src/upspring/ && make
+		and then simply cd src/upspring/ && make all
 
 		for now, all temporary object files are created in src/obj/
 		and the binary is placed in src/bin/ after linking, but do
