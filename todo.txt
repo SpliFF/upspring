@@ -1,5 +1,6 @@
 items as of March 29, 2009  [Kloot]
-	build the NativeFileChooser widget automatically
+	build the NativeFileChooser widget automatically [done]
+	use the fltk2-config shellscript for linker flags?
 
 items as of March 25, 2009 [Kloot]
 	set up a build-system (scons, cmake, autotools?)
