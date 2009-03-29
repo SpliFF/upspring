@@ -109,7 +109,6 @@ $(CREG_OBJ_DIR)/%.o: $(CREG_SRC_DIR)/%.cpp
 $(FILEIO_OBJ_DIR)/%.o: $(FILEIO_SRC_DIR)/%.cpp
 	$(CC) $(CFLAGS) $(IFLAGS_FLTK2)   -o $@    -c $<
 
-## don't compile this ourselves yet
 $(FLCHOOSER_OBJ_DIR)/%.o: $(FLCHOOSER_SRC_DIR)/%.cxx
 	$(CC) $(CFLAGS) $(IFLAGS_FLTK2)   -I$(FLCHOOSER_SRC_DIR)   -o $@    -c $<
 
