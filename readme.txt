@@ -1,6 +1,5 @@
 March 28, 2009 [Kloot]
 	quick compilation guide:
-		src/fltk1.1.7      configure && make && make install
 		src/fltk2          configure && make && make install
 		src/lib3ds         configure && make && make install
 		src/LuaJIT-1.1.2   make linux && make install
