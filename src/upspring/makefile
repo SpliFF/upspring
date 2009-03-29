@@ -1,7 +1,6 @@
 CC     = g++
 CFLAGS = -Wall -Wextra -g -DUSE_IK -O2
 LFLAGS = \
-	-s                                         \
 	-lz -lIL -lILU -lILUT -lGLEW -lGL          \
 	-lfltk2_gl -lfltk2                         \
 	-lfltk_images -lfltk                       \
