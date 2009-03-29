@@ -1,13 +1,11 @@
 March 28, 2009 [Kloot]
 	quick compilation guide:
-		src/fltk1.1.7      configure && make
-		src/fltk2          configure && make
-		src/lib3ds         configure && make
-		src/LuaJIT-1.1.2   make linux
+		src/fltk1.1.7      configure && make && make install
+		src/fltk2          configure && make && make install
+		src/lib3ds         configure && make && make install
+		src/LuaJIT-1.1.2   make linux && make install
 
-		put the compiled libraries (*.a) in /usr/local/lib/ (or
-		modify src/upspring/makefile to look for them elsewhere)
-		and then simply cd src/upspring/ && make all
+		cd src/upspring/ && make all
 
 		for now, all temporary object files are created in src/obj/
 		and the binary is placed in src/bin/ after linking, but do

@@ -43,7 +43,7 @@ class Timer {
 };
 
 #else
-// #error implement tick counting stuff for other OSes than windows here
+// #error implement tick counting stuff for other OSes here
 // KLOOTNOTE: stub Timer replacement
 class Timer {
 	unsigned int startCounter;

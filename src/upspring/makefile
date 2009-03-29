@@ -2,18 +2,18 @@ CC     = g++
 CFLAGS = -Wall -Wextra -g -DUSE_IK -O2
 LFLAGS = \
 	-lz -lIL -lILU -lILUT -lGLEW -lGL          \
-	-lfltk2_gl -lfltk2                         \
-	-lfltk_images -lfltk                       \
+	-lfltk2_gl -lfltk2 -lfltk2_images          \
 	-llua                                      \
-	-lX11 -lXft -lXinerama -l3ds -lboost_regex \
-	-z muldefs
+	-lX11 -lXft -lXinerama -l3ds -lboost_regex
+## -lfltk_images -lfltk                       \
+## -z muldefs
 
 MKDIR  = mkdir
 TARGET = UpSpring
 
 ## <fltk1.1.7/FL/>
 ## <fltk2/fltk/>
-FLTK1_SRCDIR  = ../fltk1.1.7/
+## FLTK1_SRCDIR  = ../fltk1.1.7/
 FLTK2_SRCDIR  = ../fltk2/
 LUAJIT_SRCDIR = ../LuaJIT-1.1.2/
 LIB3DS_SRCDIR = ../lib3ds-1.2/
@@ -26,15 +26,18 @@ CREG_SRC_DIR      = $(SRC_BASE_DIR)/creg
 CREG_OBJ_DIR      = $(OBJ_BASE_DIR)/creg
 FILEIO_SRC_DIR    = $(SRC_BASE_DIR)/FileIO
 FILEIO_OBJ_DIR    = $(OBJ_BASE_DIR)/FileIO
-FLCHOOSER_SRC_DIR = $(SRC_BASE_DIR)/Fl_Native_File_Chooser
-FLCHOOSER_OBJ_DIR = $(OBJ_BASE_DIR)/Fl_Native_File_Chooser
+## FLCHOOSER_SRC_DIR = $(SRC_BASE_DIR)/Fl_Native_File_Chooser
+## FLCHOOSER_OBJ_DIR = $(OBJ_BASE_DIR)/Fl_Native_File_Chooser
+FLCHOOSER_SRC_DIR = $(SRC_BASE_DIR)/FLNativeFileChooser
+FLCHOOSER_OBJ_DIR = $(OBJ_BASE_DIR)/FLNativeFileChooser
 MATH_SRC_DIR      = $(SRC_BASE_DIR)/math
 MATH_OBJ_DIR      = $(OBJ_BASE_DIR)/math
 SWIG_SRC_DIR      = $(SRC_BASE_DIR)/swig
 SWIG_OBJ_DIR      = $(OBJ_BASE_DIR)/swig
 
-IFLAGS_FLTK1 = -I$(SRC_BASE_DIR) -I$(LUAJIT_SRCDIR) -I$(LUAJIT_SRCDIR)/src  -I$(LIB3DS_SRCDIR) -I$(FLTK1_SRCDIR)
-IFLAGS_FLTK2 = -I$(SRC_BASE_DIR) -I$(LUAJIT_SRCDIR) -I$(LUAJIT_SRCDIR)/src  -I$(LIB3DS_SRCDIR) -I$(FLTK2_SRCDIR) -I$(FLTK2_SRCDIR)/fltk/compat/
+## IFLAGS_FLTK1 = -I$(SRC_BASE_DIR) -I$(LUAJIT_SRCDIR) -I$(LUAJIT_SRCDIR)/src  -I$(LIB3DS_SRCDIR) -I$(FLTK1_SRCDIR)
+## IFLAGS_FLTK2 = -I$(SRC_BASE_DIR) -I$(LUAJIT_SRCDIR) -I$(LUAJIT_SRCDIR)/src  -I$(LIB3DS_SRCDIR) -I$(FLTK2_SRCDIR) -I$(FLTK2_SRCDIR)/fltk/compat/
+IFLAGS_FLTK2 = -I$(SRC_BASE_DIR) -I$(LUAJIT_SRCDIR) -I$(LUAJIT_SRCDIR)/src  -I$(LIB3DS_SRCDIR) -I$(FLTK2_SRCDIR)
 
 
 
@@ -53,7 +56,7 @@ FILEIO_OBS = \
 	$(FILEIO_OBJ_DIR)/WavefrontOBJ.o
 
 FLCHOOSER_OBS = \
-	$(FLCHOOSER_OBJ_DIR)/Fl_Native_File_Chooser.o
+	$(FLCHOOSER_OBJ_DIR)/FLNativeFileChooser.o
 
 MATH_OBS = \
 	$(MATH_OBJ_DIR)/Mathlib.o
@@ -115,8 +118,9 @@ $(CREG_OBJ_DIR)/%.o: $(CREG_SRC_DIR)/%.cpp
 $(FILEIO_OBJ_DIR)/%.o: $(FILEIO_SRC_DIR)/%.cpp
 	$(CC) $(CFLAGS) $(IFLAGS_FLTK2)   -o $@    -c $<
 
-$(FLCHOOSER_OBJ_DIR)/%.o: $(FLCHOOSER_SRC_DIR)/%.cxx
-	$(CC) $(CFLAGS) $(IFLAGS_FLTK1)   -I$(FLCHOOSER_SRC_DIR)   -o $@    -c $<
+## don't compile this ourselves yet
+##$(FLCHOOSER_OBJ_DIR)/%.o: $(FLCHOOSER_SRC_DIR)/%.cxx
+##	$(CC) $(CFLAGS) $(IFLAGS_FLTK1)   -I$(FLCHOOSER_SRC_DIR)   -o $@    -c $<
 
 $(MATH_OBJ_DIR)/%.o: $(MATH_SRC_DIR)/%.cpp
 	$(CC) $(CFLAGS) $(IFLAGS_FLTK2)   -o $@    -c $<
@@ -126,6 +130,7 @@ $(SWIG_OBJ_DIR)/%.o: $(SWIG_SRC_DIR)/%.cxx
 
 $(OBJ_BASE_DIR)/%.o: $(SRC_BASE_DIR)/%.cpp
 	$(CC) $(CFLAGS) $(IFLAGS_FLTK2)   -I$(FLCHOOSER_SRC_DIR)   -o $@    -c $<
+	## $(CC) $(CFLAGS) $(IFLAGS_FLTK2)   -o $@    -c $<
 
 
 
@@ -134,12 +139,13 @@ dirs:
 	if [ ! -d $(BIN_BASE_DIR) ];      then $(MKDIR) $(BIN_BASE_DIR);      fi
 	if [ ! -d $(CREG_OBJ_DIR) ];      then $(MKDIR) $(CREG_OBJ_DIR);      fi
 	if [ ! -d $(FILEIO_OBJ_DIR) ];    then $(MKDIR) $(FILEIO_OBJ_DIR);    fi
-	if [ ! -d $(FLCHOOSER_OBJ_DIR) ]; then $(MKDIR) $(FLCHOOSER_OBJ_DIR); fi
+##	if [ ! -d $(FLCHOOSER_OBJ_DIR) ]; then $(MKDIR) $(FLCHOOSER_OBJ_DIR); fi
 	if [ ! -d $(MATH_OBJ_DIR) ];      then $(MKDIR) $(MATH_OBJ_DIR);      fi
 	if [ ! -d $(SWIG_OBJ_DIR) ];      then $(MKDIR) $(SWIG_OBJ_DIR);      fi
 
 target:
-	$(CC)   -o $(BIN_BASE_DIR)/$(TARGET)   $(OBJECTS) $(LFLAGS)
+	## FIXME: the extra linker argument should not be needed
+	$(CC)   -o $(BIN_BASE_DIR)/$(TARGET)   $(OBJECTS) -lfltk2_images $(LFLAGS)
 
 all:
 	make dirs

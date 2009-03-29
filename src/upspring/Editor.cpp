@@ -1041,9 +1041,10 @@ void EditorUI::menuFileExit()
 void EditorUI::menuFileLoad()
 {
 	static std::string fn;
-	if (FileOpenDlg("Load model file:", FileChooserPattern, fn))
-	{
-		Load (fn);
+	const bool r = FileOpenDlg("Load model file:", FileChooserPattern, fn);
+
+	if (r) {
+		Load(fn);
 		UpdateTitle();
 	}
 }
