@@ -41,8 +41,6 @@ static std::string ConvertPattern(const char* p)
 
 bool SelectDirectory(const char* msg, std::string& dir)
 {
-	printf("[SelectDirectory] msg: \"%s\", dir: \"%s\\n", msg, dir.c_str());
-
 	#ifdef USE_FLTK2_DEFAULT_FILECHOOSER
 		// use FLTK 2.x's own FileChooser (doesn't work)
 		fltk::FileChooser fc(dir.c_str(), NULL, fltk::FileChooser::DIRECTORY, msg);
@@ -67,7 +65,7 @@ bool SelectDirectory(const char* msg, std::string& dir)
 		fc.directory(dir.c_str());
 
 		if (fc.show() == 0) {
-			dir = fc.filename();
+			dir = fc.filename(); // no equivalent in FLTK2?
 			return true;
 		}
 	#endif
@@ -77,11 +75,7 @@ bool SelectDirectory(const char* msg, std::string& dir)
 
 bool FileOpenDlg(const char* msg, const char* pattern, std::string& fn)
 {
-	printf("[FileOpenDlg, 1] msg: \"%s\", pattern: \"%s\", fn: \"%s\"\n", msg, pattern, fn.c_str());
-
 	std::string convp = ConvertPattern(pattern);
-
-	printf("[FileOpenDlg, 1] converted pattern: \"%s\"\n", convp.c_str());
 
 	#ifdef USE_FLTK2_DEFAULT_FILECHOOSER
 		fltk::FileChooser fc(".", convp.c_str(), fltk::FileChooser::SINGLE, msg);
@@ -102,11 +96,10 @@ bool FileOpenDlg(const char* msg, const char* pattern, std::string& fn)
 
 		fc.title(msg);
 		fc.filter(convp.c_str());
-		// causes SEGV if fn.empty() ?
 		fc.preset_file(fn.c_str());
 
 		if (fc.show() == 0) {
-			fn = fc.filename(); // no equivalent in FLTK2?
+			fn = fc.filename();
 			return true;
 		}
 	#endif
@@ -140,7 +133,7 @@ bool FileSaveDlg(const char* msg, const char* ext, std::string& fn)
 		fc.preset_file(fn.c_str());
 
 		if (fc.show() == 0) {
-			fn = fc.filename(); // no equivalent in FLTK2?
+			fn = fc.filename();
 			return true;
 		}
 	#endif
