@@ -10,6 +10,7 @@
 #include "VertexBuffer.h"
 
 #include <GL/glew.h>
+#include <GL/gl.h>
 
 int VertexBuffer::totalBufferSize = 0;
 

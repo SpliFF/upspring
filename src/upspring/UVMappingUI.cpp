@@ -13,7 +13,7 @@
 
 
 #include <GL/glew.h>
-
+#include <GL/gl.h>
 
 #define CH_R 1
 #define CH_G 2

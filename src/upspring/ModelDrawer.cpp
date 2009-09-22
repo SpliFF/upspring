@@ -15,6 +15,7 @@
 #include "nv_dds.h"
 
 #include <GL/glew.h>
+#include <GL/gl.h>
 
 #include "Spline.h"
 #include "MeshIterators.h"
