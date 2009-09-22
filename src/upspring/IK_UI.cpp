@@ -8,9 +8,10 @@
 #include "EditorDef.h"
 
 #include "CfgParser.h"
-#include <GL/glew.h>
-
 #include "AnimationUI.h"
+
+#include <GL/glew.h>
+#include <GL/gl.h>
 
 
 // ------------------------------------------------------------------------------------------------
