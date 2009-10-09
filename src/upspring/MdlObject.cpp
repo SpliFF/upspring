@@ -526,23 +526,54 @@ void MdlObject::MoveOrigin(Vector3 move)
 
 void MdlObject::UpdateAnimation(float time)
 {
-	animInfo.Evaluate (this, time);
+	animInfo.Evaluate(this, time);
 
-	for (int a=0;a<childs.size();a++)
-		childs[a]->UpdateAnimation (time);
+	for (int a = 0; a < childs.size(); a++)
+		childs[a]->UpdateAnimation(time);
 }
 
-void MdlObject::InitAnimationInfo ()
+void MdlObject::InitAnimationInfo()
 {
-	animInfo.AddProperty (AnimController::GetStructController (AnimController::GetFloatController(), 
-		Vector3::StaticClass()), "position", (int)&((MdlObject*)0)->position);
-/*	animInfo.AddProperty (AnimController::GetQuaternionController(),
-		"rotation", (int)&((MdlObject*)0)->rotation.q);*/
-	animInfo.AddProperty (AnimController::GetStructController (AnimController::GetFloatController(), 
-		Vector3::StaticClass()), "rotation", (int)&((MdlObject*)0)->rotation.euler);
-//	animInfo.AddProperty (AnimController::GetStructController (AnimController::GetEulerAngleController(), 
-//		Vector3::StaticClass()), "rotation", (int)&((MdlObject*)0)->rotation);
-	animInfo.AddProperty (AnimController::GetStructController (AnimController::GetFloatController(), 
-		Vector3::StaticClass()), "scale", (int)&((MdlObject*)0)->scale);
-}
+	animInfo.AddProperty(
+		AnimController::GetStructController(
+			AnimController::GetFloatController(), 
+			Vector3::StaticClass()
+		),
+		"position",
+		(long int) &((MdlObject*) 0)->position
+	);
 
+	/*
+	animInfo.AddProperty(
+		AnimController::GetQuaternionController(),
+		"rotation",
+		(long int) &((MdlObject*) 0)->rotation.q);
+	*/
+	/*
+	animInfo.AddProperty(
+		AnimController::GetStructController(
+			AnimController::GetEulerAngleController(), 
+			Vector3::StaticClass()
+		),
+		"rotation",
+		(long int) &((MdlObject*) 0)->rotation
+	);
+	*/
+	animInfo.AddProperty(
+		AnimController::GetStructController(
+			AnimController::GetFloatController(), 
+			Vector3::StaticClass()
+		),
+		"rotation",
+		(long int) &((MdlObject*) 0)->rotation.euler
+	);
+
+	animInfo.AddProperty(
+		AnimController::GetStructController(
+			AnimController::GetFloatController(), 
+			Vector3::StaticClass()
+		),
+		"scale",
+		(long int) &((MdlObject*) 0)->scale
+	);
+}
