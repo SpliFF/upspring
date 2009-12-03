@@ -113,13 +113,14 @@ def ReadString(bytes, readIdx, depth, node):
 
 	return (2 + size)
 
-def ReadFloat(bytes, readIdx, depth, node):
+def ReadFloatStr(bytes, readIdx, depth, node):
 	s = bytes[readIdx: readIdx + 31]
-	s = s[0: s.find('\x00')]
+	i = s.find('\x00')
+	s = ((i >= 0 and s[0: i]) or s)
 	n = float(s)
 
 	if (DEBUG):
-		print "%s[ReadFloat] %f" % (TABS[0: depth], n)
+		print "%s[ReadFloatStr] %f" % (TABS[0: depth], n)
 
 	return 31
 
@@ -203,7 +204,7 @@ def ReadTerm(bytes, readIdx, depth, node):
 		return (1 + ReadLargeInt(bytes, readIdx + 1, depth + 1, node))
 
 	elif (termType == ERL_FLOAT_EXT):
-		return (1 + ReadFloat(bytes, readIdx + 1, depth + 1, node))
+		return (1 + ReadFloatStr(bytes, readIdx + 1, depth + 1, node))
 
 	elif (termType == ERL_STRING_EXT):
 		return (1 + ReadString(bytes, readIdx + 1, depth + 1, node))
