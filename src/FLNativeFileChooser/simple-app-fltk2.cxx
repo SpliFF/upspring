@@ -2,6 +2,7 @@
 // simple-app.cxx -- simple example application
 //
 // Copyright 2004 by Greg Ercolano.
+// FLTK2 port by Frederic Hoerni 2007.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Library General Public
@@ -25,27 +26,29 @@
 // 4567890123456789012345678901234567890123456789012345678901234567890123456789
 //
 #include <stdio.h>
-#include <FL/Fl.H>
-#include <FL/fl_ask.H>
-#include <FL/Fl_Window.H>
-#include <FL/Fl_Button.H>
-#include <FL/Fl_Input.H>
-#include <FL/Fl_Native_File_Chooser.H>
+#include <fltk/run.h>
+#include <fltk/ask.h>
+#include <fltk/Window.h>
+#include <fltk/Widget.h>
+#include <fltk/Button.h>
+#include <fltk/Input.h>
+#include <fltk/NativeFileChooser.h>
 
 // GLOBALS
-Fl_Input *G_filename = NULL;
+fltk::Input *G_filename = NULL;
 
-void Butt_CB(Fl_Widget*, void*) {
+void Butt_CB(fltk::Widget*, void*) {
     // Create native chooser
-    Fl_Native_File_Chooser native;
+    fltk::NativeFileChooser native;
     native.title("Pick a file");
-    native.type(Fl_Native_File_Chooser::BROWSE_FILE);
-    native.filter("Text\t*.txt\nC Files\t*.{cxx,h,c}");
+    native.type(fltk::NativeFileChooser::BROWSE_FILE);
+    native.filter("C Files\t*.{cxx,h,c}\n"
+                  "C Files\t*.{cxx,h,c}");
     native.preset_file(G_filename->value());
     // Show native chooser
     switch ( native.show() ) {
 	case -1: fprintf(stderr, "ERROR: %s\n", native.errmsg()); break;	// ERROR
-	case  1: fprintf(stderr, "*** CANCEL\n"); fl_beep(); break;		// CANCEL
+	case  1: fprintf(stderr, "*** CANCEL\n"); fltk::beep(); break;		// CANCEL
 	default: 								// PICKED FILE
 	    if ( native.filename() )
 		G_filename->value(native.filename());
@@ -56,16 +59,20 @@ void Butt_CB(Fl_Widget*, void*) {
 }
 
 int main() {
-    Fl_Window *win = new Fl_Window(600, 100, "FLTK Window");
-    int y = 10;
-    G_filename = new Fl_Input(80, y, win->w()-80-10, 25, "Filename");
-    G_filename->value(".");
-    G_filename->tooltip("Default filename");
-    y += G_filename->h() + 5;
-    Fl_Button *but = 
-        new Fl_Button(win->w()-80-10, win->h()-25-10, 80, 25, "Pick File");
-    but->callback(Butt_CB);
+    fltk::Window *win = new fltk::Window(600, 100, "FLTK Window");
+    win->begin();
+    {
+	int y = 10;
+	G_filename = new fltk::Input(80, y, win->w()-80-10, 25, "Filename");
+	G_filename->value(".");
+	G_filename->tooltip("Default filename");
+	y += G_filename->h() + 5;
+	fltk::Button *but = 
+	    new fltk::Button(win->w()-80-10, win->h()-25-10, 80, 25, "Pick File");
+	but->callback(Butt_CB);
+    }
+    win->end();
     win->resizable(win);
     win->show();
-    return(Fl::run());
+    return(fltk::run());
 }

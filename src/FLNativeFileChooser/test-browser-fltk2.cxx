@@ -1,7 +1,8 @@
 //
-// test-browser.cxx -- test the Fl_Native_File_Chooser widget
+// test-browser.cxx -- test the NativeFileChooser widget
 //
 // Copyright 2004 by Greg Ercolano.
+// FLTK2 port by Frederic Hoerni 2007.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Library General Public
@@ -24,17 +25,17 @@
 //       |         |         |         |         |         |         |
 // 4567890123456789012345678901234567890123456789012345678901234567890123456789
 //
-#include <FL/Fl.H>
-#include <FL/Fl_Window.H>
-#include <FL/Fl_Button.H>
-#include <FL/Fl_Choice.H>
-#include <FL/Fl_Input.H>
-#include <FL/Fl_Multiline_Input.H>
-#include <FL/Fl_Multiline_Output.H>
-#include <FL/Fl_Value_Input.H>
-#include <FL/Fl_Hold_Browser.H>
-#include <FL/Fl_Multi_Browser.H>
-#include <FL/Fl_Native_File_Chooser.H>
+#include <fltk/run.h>
+#include <fltk/Window.h>
+#include <fltk/Widget.h>
+#include <fltk/Button.h>
+#include <fltk/Choice.h>
+#include <fltk/Input.h>
+#include <fltk/MultiLineInput.h>
+#include <fltk/MultiLineOutput.h>
+#include <fltk/ValueInput.h>
+#include <fltk/MultiBrowser.h>
+#include <fltk/NativeFileChooser.h>
 
 #ifdef _WIN32
 // WINDOWS //
@@ -49,36 +50,33 @@
 #endif
 
 // GLOBALS
-Fl_Native_File_Chooser *G_choo = NULL;
-Fl_Hold_Browser        *G_type = NULL;
-Fl_Multi_Browser       *G_options = NULL;
-Fl_Input               *G_directory = NULL;
-Fl_Input               *G_title = NULL;
-Fl_Input               *G_preset_file = NULL;
-Fl_Multiline_Output    *G_result = NULL;
-Fl_Multiline_Input     *G_filter = NULL;
-Fl_Value_Input         *G_filter_value = NULL;
+fltk::NativeFileChooser *G_choo = NULL;
+fltk::Browser             *G_type = NULL;
+fltk::MultiBrowser        *G_options = NULL;
+fltk::Input               *G_directory = NULL;
+fltk::Input               *G_title = NULL;
+fltk::Input               *G_preset_file = NULL;
+fltk::MultiLineOutput     *G_result = NULL;
+fltk::MultiLineInput      *G_filter = NULL;
+fltk::ValueInput          *G_filter_value = NULL;
 
-void Butt_CB(Fl_Widget*w, void*) {
+void Butt_CB(fltk::Widget*w, void*) {
 
     // TYPE OF CHOOSER
     switch ( G_type->value() ) {
-	case 1: G_choo->type(Fl_Native_File_Chooser::BROWSE_FILE);            break;
-	case 2: G_choo->type(Fl_Native_File_Chooser::BROWSE_DIRECTORY);       break;
-	case 3: G_choo->type(Fl_Native_File_Chooser::BROWSE_MULTI_FILE);      break;
-	case 4: G_choo->type(Fl_Native_File_Chooser::BROWSE_MULTI_DIRECTORY); break;
-	case 5: G_choo->type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);       break;
+	case 0: G_choo->type(fltk::NativeFileChooser::BROWSE_FILE);            break;
+	case 1: G_choo->type(fltk::NativeFileChooser::BROWSE_DIRECTORY);       break;
+	case 2: G_choo->type(fltk::NativeFileChooser::BROWSE_MULTI_FILE);      break;
+	case 3: G_choo->type(fltk::NativeFileChooser::BROWSE_MULTI_DIRECTORY); break;
+	case 4: G_choo->type(fltk::NativeFileChooser::BROWSE_SAVE_FILE);       break;
     }
 
     // OPTIONS
     {
 	int flags = 0;
-	if ( G_options->selected(1) ) 
-	    flags |= Fl_Native_File_Chooser::SAVEAS_CONFIRM;
-	if ( G_options->selected(2) )
-	    flags |= Fl_Native_File_Chooser::NEW_FOLDER;
-	if ( G_options->selected(3) )
-	    flags |= Fl_Native_File_Chooser::PREVIEW;
+	if ( G_options->selected(0) ) flags |= fltk::NativeFileChooser::SAVEAS_CONFIRM;
+	if ( G_options->selected(1) ) flags |= fltk::NativeFileChooser::NEW_FOLDER;
+	if ( G_options->selected(2) ) flags |= fltk::NativeFileChooser::PREVIEW;
 	G_choo->options(flags);
     }
 
@@ -191,18 +189,16 @@ void Butt_CB(Fl_Widget*w, void*) {
 }
 
 int main() {
-    
-//  char *start_filter = "Text\t*.txt\nC Files\t*.{cxx,h,c}";
     char *start_filter =
       "Source Code\t*.{cxx,h,H,cpp}\n"\
       "Cxx Only\t*.cxx\n"\
       "Text\t*.{txt}\n"\
       "Makefiles\tMakefile*\n"\
-      "All image files\t*.{BMP,CUT,DDS,GIF,ICO,IFF,LBM,JNG,JPG,JPEG,JPE,JIF,KOA,"
+      "All image files \t*.{BMP,CUT,DDS,GIF,ICO,IFF,LBM,JNG,JPG,JPEG,JPE,JIF,KOA,"
                           "MNG,PBM,PCD,PCX,PGM,PNG,PPM,PSD,RAS,TGA,TIF,TIFF,WBMP,"
                           "XBM,XPM}\n"\
-      "Windows, OS/2 Bitmap (*.BMP)\t*.bmp\n"\
-      "Dr. Halo (*.CUT)\t*.CUT\n"\
+      "Windows, OS/2 Bitmap (*.BMP)\n"\
+      "Dr. Halo (*.CUT)\n"\
       "DirectDraw Surface (*.DDS)\t*.DDS\n"\
       "Graphic Interchange Format (*.GIF)\t*.GIF\n"\
       "Windows Icon (*.ICO)\t*.ICO\n"\
@@ -232,73 +228,72 @@ int main() {
     char start_file[MAXPATHLEN + 1];
     strcpy(start_file, "testfile");
 
-    Fl_Window *win = new Fl_Window(600, 500);
+    fltk::Window *win = new fltk::Window(600, 520, "Test Browser (FLTK2)");
 
-    int y = 10;
+    win->begin();
+    {
+	int y = 20;
 
-    G_type = new Fl_Hold_Browser(10,y,180,120,"Type");
-    G_type->add("Single File");
-    G_type->add("Single Directory");
-    G_type->add("Multi File");
-    G_type->add("Multi Directory");
-    G_type->add("Save File");
-    G_type->textsize(12);
-    G_type->value(1);
-    G_type->tooltip("Type of browser to use");
+	G_type = new fltk::Browser(10,y,180,120,"Type");
+	G_type->add("Single File");
+	G_type->add("Single Directory");
+	G_type->add("Multi File");
+	G_type->add("Multi Directory");
+	G_type->add("Save File");
+	G_type->textsize(12);
+	G_type->value(0);
+	G_type->tooltip("Type of browser to use");
 
-    G_options = new Fl_Multi_Browser(win->w()-180-10,y,180,120,"Options");
-    G_options->add("Show SaveAs Confirm");
-    G_options->add("Show New Folder");
-    G_options->add("Show Previews");
-    G_options->tooltip("Platform specific options.\nSeveral can be selected.");
-    G_options->textsize(12);
+	G_options = new fltk::MultiBrowser(win->w()-180-10,y,180,120,"Options");
+	G_options->add("Show SaveAs Confirm");
+	G_options->add("Show New Folder");
+	G_options->add("Show Previews");
+	G_options->tooltip("Platform specific options.\nSeveral can be selected.");
+	G_options->textsize(12);
+	
+	y += G_type->h() + 10 + 20;
 
-    y += G_type->h() + 10 + 20;
+	G_title = new fltk::Input(80, y, win->w()-80-10, 25, "Title");
+	G_title->value("Title Of Window");
+	G_title->tooltip("Sets title of browser window\nSet this to 'NULL' for a NULL setting");
+	y += G_title->h() + 5;
 
-    G_title = new Fl_Input(80, y, win->w()-80-10, 25, "Title");
-    G_title->value("Title Of Window");
-    G_title->tooltip("Sets title of browser window\n"
-                     "Set this to 'NULL' for a NULL setting");
-    y += G_title->h() + 5;
+	G_directory = new fltk::Input(80, y, win->w()-80-10, 25, "Directory");
+	G_directory->value(start_dir);
+	G_directory->tooltip("Starting directory shown in browser\nSet this to 'NULL' for a NULL setting");
+	y += G_directory->h() + 5;
 
-    G_directory = new Fl_Input(80, y, win->w()-80-10, 25, "Directory");
-    G_directory->value(start_dir);
-    G_directory->tooltip("Starting directory shown in browser\n"
-                         "Set this to 'NULL' for a NULL setting");
-    y += G_directory->h() + 5;
+	G_preset_file = new fltk::Input(80, y, win->w()-80-10, 25, "Preset File");
+	G_preset_file->value(start_file);
+	G_preset_file->tooltip("Default filename used for 'Save File' chooser\nSet this to 'NULL' for a NULL setting");
+	y += G_preset_file->h() + 5;
 
-    G_preset_file = new Fl_Input(80, y, win->w()-80-10, 25, "Preset File");
-    G_preset_file->value(start_file);
-    G_preset_file->tooltip("Default filename used for 'Save File' chooser\n"
-                           "Set this to 'NULL' for a NULL setting");
-    y += G_preset_file->h() + 5;
+	G_filter = new fltk::MultiLineInput(80, y, win->w()-80-10, 75, "Filter");
+	G_filter->value(start_filter);
+	G_filter->tooltip("Filter(s) to be available to user\n"
+			      "Multiple filters should be specified on separate lines\n"
+			      "Set this to 'NULL' for a NULL setting");
+	y += G_filter->h() + 5;
 
-    G_filter = new Fl_Multiline_Input(80, y, win->w()-80-10, 75, "Filter");
-    G_filter->value(start_filter);
-    G_filter->tooltip("Filter(s) to be available to user\n"
-		      "Multiple filters should be specified on separate lines\n"
-		      "Set this to 'NULL' for a NULL setting");
-    y += G_filter->h() + 5;
+	G_filter_value = new fltk::ValueInput(80, y, win->w()-80-10, 25, "Filter Value");
+	G_filter_value->value(0);
+	G_filter_value->step(1.0);
+	G_filter_value->range(0.0,50.0);
+	G_filter_value->tooltip("Index number of the filter to be applied when browser opens.");
+	y += G_filter_value->h() + 5;
 
-    G_filter_value = 
-        new Fl_Value_Input(80, y, win->w()-80-10, 25, "Filter Value");
-    G_filter_value->value(0);
-    G_filter_value->tooltip("Index number of the filter to be applied "
-                            "when browser opens.");
-    y += G_filter_value->h() + 5;
+	G_result = new fltk::MultiLineOutput(80, y, win->w()-80-10, 100, "Result");
+	G_result->color(51);
 
-    G_result = new Fl_Multiline_Output(80, y, win->w()-80-10, 100, "Result");
-    G_result->color(51);
+	fltk::Button *but = new fltk::Button(win->w()-80-10, win->h()-25-10, 80, 25, "Browser");
+	but->callback(Butt_CB);
+	y += but->h() + 10;
 
-    Fl_Button *but = 
-        new Fl_Button(win->w()-80-10, win->h()-25-10, 80, 25, "Browser");
-    but->callback(Butt_CB);
-    y += but->h() + 10;
-
-    G_choo = new Fl_Native_File_Chooser();
-    G_choo->type(Fl_Native_File_Chooser::BROWSE_FILE);
-
+	G_choo = new fltk::NativeFileChooser();
+	G_choo->type(fltk::NativeFileChooser::BROWSE_FILE);
+    }
+    win->end();
     win->resizable(win);
     win->show();
-    return(Fl::run());
+    return(fltk::run());
 }
