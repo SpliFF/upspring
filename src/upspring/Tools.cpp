@@ -634,7 +634,7 @@ FltkImage* FltkImage::Load(const char *filebuf, int filelen)
 	unsigned int id;
 	ilGenImages (1, &id);
 	ilBindImage (id);
-	if (!ilLoadL (IL_TYPE_UNKNOWN, (ILvoid*)filebuf, filelen)) {
+	if (!ilLoadL (IL_TYPE_UNKNOWN, (void*)filebuf, filelen)) {
 		ilDeleteImages (1, &id);
 		return 0;
 	}

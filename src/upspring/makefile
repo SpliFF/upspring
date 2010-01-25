@@ -1,10 +1,10 @@
 CC     = g++
 CFLAGS = -Wall -Wextra -g -DUSE_IK -O2
 LFLAGS = \
-	-lz -lIL -lILU -lILUT -lGLEW -lGL          \
-	-lfltk2_gl -lfltk2 -lfltk2_images          \
-	-llua                                      \
-	-lX11 -lXft -lXinerama -l3ds -lboost_regex
+	-lX11 -lXft -lXinerama -lXcursor \
+	-l3ds -lboost_regex -llua \
+	-lz -lIL -lILU -lILUT -lGLEW -lGL \
+	-lfltk2_gl -lfltk2_images -lfltk2
 
 MKDIR  = mkdir
 TARGET = UpSpring
@@ -30,7 +30,7 @@ SWIG_OBJ_DIR      = $(OBJ_BASE_DIR)/swig
 
 IFLAGS_FLTK2 = -I$(SRC_BASE_DIR) -I$(LUA_SRCDIR) -I$(LUA_SRCDIR)/src  -I$(LIB3DS_SRCDIR) -I$(FLTK2_SRCDIR)
 
-LIB_DIR_FLAGS = -L$(FLTK2_SRCDIR)/lib -L$(LUA_SRCDIR) -L$(LIB3DS_SRCDIR)/.libs
+LIB_DIR_FLAGS = -L$(FLTK2_SRCDIR)/lib -L$(LUA_SRCDIR) -L$(LIB3DS_SRCDIR)/.libs -L/usr/lib64
 
 CREG_OBS = \
 	$(CREG_OBJ_DIR)/creg.o       \
@@ -133,7 +133,6 @@ dirs:
 	if [ ! -d $(SWIG_OBJ_DIR) ];      then $(MKDIR) $(SWIG_OBJ_DIR);      fi
 
 target:
-	## FIXME: the extra linker argument should not be needed
 	$(CC)   -o $(BIN_BASE_DIR)/$(TARGET)   $(OBJECTS) $(LIB_DIR_FLAGS) $(LFLAGS)
 
 all:
@@ -142,5 +141,5 @@ all:
 	make target
 
 clean:
-	rm -f -r $(OBJ_BASE_DIR)
-	rm -f -r $(BIN_BASE_DIR)
+	rm -rf $(OBJ_BASE_DIR)
+	rm -rf $(BIN_BASE_DIR)
