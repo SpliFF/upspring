@@ -6,31 +6,32 @@ LFLAGS = \
 	-lz -lIL -lILU -lILUT -lGLEW -lGL \
 	-lfltk2_gl -lfltk2_images -lfltk2
 
-MKDIR  = mkdir
+MKDIR  = mkdir -p
 TARGET = UpSpring
 
-FLTK2_SRCDIR  = ../fltk2/
-LUA_SRCDIR = ../lua/
-LIB3DS_SRCDIR = ../lib3ds/
+SRC_BASE_DIR = .
+LIB_BASE_DIR = ..
+OBJ_BASE_DIR = ../../obj
+BIN_BASE_DIR = ../..
 
-SRC_BASE_DIR = ./
-OBJ_BASE_DIR = ../obj
-BIN_BASE_DIR = ../bin
+FLTK2_SRC_DIR  = ../fltk2/
+LUA_SRC_DIR = ../lua/
+LIB3DS_SRC_DIR = ../lib3ds/
+FLCHOOSER_SRC_DIR = $(LIB_BASE_DIR)/FLNativeFileChooser
+FLCHOOSER_OBJ_DIR = $(LIB_BASE_DIR)/FLNativeFileChooser
 
 CREG_SRC_DIR      = $(SRC_BASE_DIR)/creg
 CREG_OBJ_DIR      = $(OBJ_BASE_DIR)/creg
 FILEIO_SRC_DIR    = $(SRC_BASE_DIR)/FileIO
 FILEIO_OBJ_DIR    = $(OBJ_BASE_DIR)/FileIO
-FLCHOOSER_SRC_DIR = $(SRC_BASE_DIR)/FLNativeFileChooser
-FLCHOOSER_OBJ_DIR = $(OBJ_BASE_DIR)/FLNativeFileChooser
 MATH_SRC_DIR      = $(SRC_BASE_DIR)/math
 MATH_OBJ_DIR      = $(OBJ_BASE_DIR)/math
 SWIG_SRC_DIR      = $(SRC_BASE_DIR)/swig
 SWIG_OBJ_DIR      = $(OBJ_BASE_DIR)/swig
 
-IFLAGS_FLTK2 = -I$(SRC_BASE_DIR) -I$(LUA_SRCDIR) -I$(LUA_SRCDIR)/src  -I$(LIB3DS_SRCDIR) -I$(FLTK2_SRCDIR)
+IFLAGS_FLTK2 = -I$(SRC_BASE_DIR) -I$(LUA_SRC_DIR) -I$(LUA_SRC_DIR)/src  -I$(LIB3DS_SRC_DIR) -I$(FLTK2_SRC_DIR)
 
-LIB_DIR_FLAGS = -L$(FLTK2_SRCDIR)/lib -L$(LUA_SRCDIR) -L$(LIB3DS_SRCDIR)/.libs -L/usr/lib64
+LIB_DIR_FLAGS = -L$(FLTK2_SRC_DIR)/lib -L$(LUA_SRC_DIR) -L$(LIB3DS_SRC_DIR)/.libs -L/usr/lib64
 
 CREG_OBS = \
 	$(CREG_OBJ_DIR)/creg.o       \
@@ -121,7 +122,10 @@ $(SWIG_OBJ_DIR)/%.o: $(SWIG_SRC_DIR)/%.cxx
 $(OBJ_BASE_DIR)/%.o: $(SRC_BASE_DIR)/%.cpp
 	$(CC) $(CFLAGS) $(IFLAGS_FLTK2)   -I$(FLCHOOSER_SRC_DIR)   -o $@    -c $<
 
-
+all:
+	make dirs
+	make objects
+	make target
 
 dirs:
 	if [ ! -d $(OBJ_BASE_DIR) ];      then $(MKDIR) $(OBJ_BASE_DIR);      fi
@@ -135,11 +139,6 @@ dirs:
 target:
 	$(CC)   -o $(BIN_BASE_DIR)/$(TARGET)   $(OBJECTS) $(LIB_DIR_FLAGS) $(LFLAGS)
 
-all:
-	make dirs
-	make objects
-	make target
-
 clean:
 	rm -rf $(OBJ_BASE_DIR)
-	rm -rf $(BIN_BASE_DIR)
+	rm $(BIN_BASE_DIR)/$(TARGET)
