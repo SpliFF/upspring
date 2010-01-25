@@ -1,5 +1,5 @@
 //
-// "$Id: ScrollGroup.h 5575 2007-01-02 17:31:40Z spitzak $"
+// "$Id: ScrollGroup.h 6132 2008-05-29 23:09:01Z TobiasFar $"
 //
 // Group that adds scrollbars so you can scroll around the area
 // covered by all the child widgets. For most uses you will make
@@ -73,7 +73,7 @@ public:
     ALWAYS_ON = 4,
     HORIZONTAL_ALWAYS = 5,
     VERTICAL_ALWAYS = 6,
-    BOTH_ALWAYS = 7,
+    BOTH_ALWAYS = 7
   };
 
   int xposition() const {return xposition_;}
@@ -86,5 +86,5 @@ public:
 #endif
 
 //
-// End of "$Id: ScrollGroup.h 5575 2007-01-02 17:31:40Z spitzak $".
+// End of "$Id: ScrollGroup.h 6132 2008-05-29 23:09:01Z TobiasFar $".
 //

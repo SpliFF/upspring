@@ -1,4 +1,4 @@
-// "$Id: visual.h 5230 2006-06-23 22:31:13Z spitzak $"
+// "$Id: visual.h 6233 2008-09-14 07:54:06Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -19,14 +19,15 @@
 //
 // Please report all bugs and problems to "fltk-bugs@fltk.org".
 
-/*! \file */
-
 #ifndef fltk_visual_h
 #define fltk_visual_h
 
 #include "FL_API.h"
 
 namespace fltk {
+
+/// \name fltk/visual.h
+//@{
 
 enum {
   RGB_COLOR	= 0,
@@ -47,6 +48,8 @@ extern FL_API bool visual(int);
 extern FL_GL_API bool glVisual(int);
 
 extern FL_API void own_colormap();
+
+//@}
 
 }
 

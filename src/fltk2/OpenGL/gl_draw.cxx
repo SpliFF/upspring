@@ -1,4 +1,4 @@
-// "$Id: gl_draw.cxx 5589 2007-01-08 22:55:25Z spitzak $"
+// "$Id: gl_draw.cxx 5964 2007-11-08 18:10:38Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -34,12 +34,10 @@
 #include <fltk/string.h>
 #include "GlChoice.h"
 
-#if USE_XFT
+#if USE_XFT && !MAKEDEPEND
 # define Window XWindow
 # include <X11/Xft/Xft.h>
-# ifndef MAKEDEPEND
-#  include FT_GLYPH_H
-# endif
+# include FT_GLYPH_H
 # undef Window
 static void glXUseXftFont(XftFont*, unsigned listbase);
 # define TEXTURES 1
@@ -85,9 +83,9 @@ void fltk::glsetfont(fltk::Font* font, float size) {
     listbase = glGenLists(256);
     fl_set_font_opengl_id(listbase);
 #if USE_XFT
-    glXUseXftFont((XftFont*)xfont(), listbase);
+    glXUseXftFont(xftfont(), listbase);
 #elif USE_X11
-    HFONT current_xfont = xfont();
+    XFontStruct* current_xfont = xfont();
     int base = current_xfont->min_char_or_byte2;
     int last = current_xfont->max_char_or_byte2;
     if (last > 255) last = 255;
@@ -106,9 +104,15 @@ void fltk::glsetfont(fltk::Font* font, float size) {
     int attrib; const char* name = font->name(&attrib);
     CFStringRef cfname = CFStringCreateWithCString(0L, name, kCFStringEncodingASCII);
     short cfont;
-    GetFNum(CFStringGetPascalStringPtr(cfname, kCFStringEncodingMacRoman),&cfont);
+    unsigned char buf[BUFSIZ];
+    ConstStringPtr ptr = CFStringGetPascalStringPtr(cfname, kCFStringEncodingMacRoman);
+    if (!ptr) {
+        CFStringGetPascalString(cfname, buf, BUFSIZ, kCFStringEncodingMacRoman);
+        ptr = buf;
+    }
+    GetFNum(ptr, &cfont);
     CFRelease(cfname);
-    aglUseFont(aglGetCurrentContext(), cfont, attrib,current_size_,0,256,listbase);
+    aglUseFont(aglGetCurrentContext(), cfont, attrib,(int)current_size_,0,256,listbase);
 #else
 #error
 #endif
@@ -302,23 +306,7 @@ void fltk::gldrawimage(const uchar* b, int x, int y, int w, int h, int d, int ld
   glDrawPixels(w, h, d<4?GL_RGB:GL_RGBA, GL_UNSIGNED_BYTE, (const unsigned long*)b);
 }
 
-#ifndef GL_VERSION_1_4
-/*!
-  Emulate glWindowPos2i on Windows. This emulation is extremely simple
-  and only produces the correct result if ortho() has been called (i.e.
-  the current transform is such that 0,0 is the lower-left of the
-  window and each unit is the size of a pixel). This function is \e not
-  in the fltk:: namespace.
-*/
-void glWindowPos2i(int x, int y) {
-  if (x < 0 || y < 0) {
-    glRasterPos2i(0,0);
-    glBitmap(0,0,0,0,(GLfloat)x,(GLfloat)y,0);
-  } else {
-    glRasterPos2i(x,y);
-  }
-}
-#endif
+const char* fl_default_font_pathname;
 
 #if USE_XFT
 
@@ -347,6 +335,11 @@ static void glXUseXftFont(XftFont* xftfont, unsigned listbase) {
   int maxy = 1;
 
   FT_Face face = XftLockFace(xftfont);
+
+  // hack so Nuke knows where to look for fonts...
+  if (!fl_default_font_pathname)
+    fl_default_font_pathname = (char*)(face->stream->pathname.pointer);
+
 //   if (!face->charmap && face->num_charmaps)
 //     FT_Set_Charmap(face, face->charmaps[0]);
   int prev_pixel_mode = FT_PIXEL_MODE_GRAY;
@@ -509,5 +502,5 @@ static void glXUseXftFont(XftFont* xftfont, unsigned listbase) {
 #endif
 
 //
-// End of "$Id: gl_draw.cxx 5589 2007-01-08 22:55:25Z spitzak $".
+// End of "$Id: gl_draw.cxx 5964 2007-11-08 18:10:38Z spitzak $".
 //

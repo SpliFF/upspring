@@ -3,6 +3,7 @@
 
 #include "Enumerations.H"
 #include <fltk/draw.h>
+#include <fltk/Font.h>
 
 inline void fl_color(fltk::Color c) {fltk::setcolor(c);}
 inline void fl_color(uchar r, uchar g, uchar b) {fltk::setcolor(fltk::color(r,g,b));}
@@ -10,6 +11,7 @@ inline fltk::Color fl_color() {return fltk::getcolor();}
 
 // clip:
 inline void fl_push_clip(int x, int y, int w, int h) {fltk::push_clip(x,y,w,h);}
+inline void fl_push_no_clip() {fltk::push_no_clip();}
 #define fl_clip		fl_push_clip
 #define fl_pop_clip	fltk::pop_clip
 inline int fl_not_clipped(int x, int y, int w, int h) {return fltk::not_clipped(fltk::Rectangle(x,y,w,h));}
@@ -202,9 +204,11 @@ inline void fl_rectf(int x, int y, int w, int h, uchar r, uchar g, uchar b) {flt
 #define fl_overlay_clear	fltk::overlay_clear
 #define fl_draw_symbol		fltk::draw_symbol
 #define fl_add_symbol		fltk::add_symbol
+#define fl_frame		fltk::drawframe2
+#define fl_frame2		fltk::drawframe
 
 #endif
 
 //
-// End of "$Id: fl_draw.H 5711 2007-02-23 18:14:29Z spitzak $".
+// End of "$Id: fl_draw.H 5939 2007-08-02 14:19:28Z spitzak $".
 //

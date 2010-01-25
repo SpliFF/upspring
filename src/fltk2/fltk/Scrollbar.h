@@ -1,5 +1,5 @@
 //
-// "$Id: Scrollbar.h 4886 2006-03-30 09:55:32Z fabien $"
+// "$Id: Scrollbar.h 5956 2007-10-17 19:57:31Z spitzak $"
 //
 // Scrollbar, controls an integer position of a window of a given
 // size inside a data set of a given total size.
@@ -37,8 +37,9 @@ public:
   Scrollbar(int x,int y,int w,int h, const char *l = 0);
   static NamedStyle* default_style;
 
-  int value() {return int(Slider::value());}
-  int value(int position, int size, int top, int total);
+  int value() const {return int(Slider::value());}
+  bool value(int position) {return Slider::value(position);}
+  bool value(int position, int size, int top, int total);
   int handle(int);
 
   int pagesize() const {return pagesize_;}
@@ -59,5 +60,5 @@ private:
 #endif
 
 //
-// End of "$Id: Scrollbar.h 4886 2006-03-30 09:55:32Z fabien $".
+// End of "$Id: Scrollbar.h 5956 2007-10-17 19:57:31Z spitzak $".
 //

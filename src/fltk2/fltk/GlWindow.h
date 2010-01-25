@@ -1,5 +1,5 @@
 //
-// "$Id: GlWindow.h 5230 2006-06-23 22:31:13Z spitzak $"
+// "$Id: GlWindow.h 5892 2007-06-08 18:15:37Z spitzak $"
 //
 // OpenGL window. You must subclass this and implement draw() if
 // you want this to work.
@@ -80,6 +80,8 @@ public:
   virtual void draw() = 0;
   virtual void draw_overlay();
 
+  virtual int handle( int event );
+
 private:
 
   int mode_;
@@ -102,5 +104,5 @@ private:
 #endif
 
 //
-// End of "$Id: GlWindow.h 5230 2006-06-23 22:31:13Z spitzak $".
+// End of "$Id: GlWindow.h 5892 2007-06-08 18:15:37Z spitzak $".
 //

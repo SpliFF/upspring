@@ -1,5 +1,5 @@
 //
-// "$Id: Font_xft.cxx 5744 2007-03-15 10:37:20Z spitzak $"
+// "$Id: Font_xft.cxx 6249 2008-09-15 06:21:01Z spitzak $"
 //
 // Copyright 2006 Bill Spitzak and others.
 //
@@ -36,9 +36,6 @@
 #include <fltk/string.h>
 #include <fltk/utf.h>
 #include <fltk/x.h>
-#define Window XWindow
-#include <X11/Xft/Xft.h>
-#undef Window
 
 // define some symbols missing from some Xft header files:
 #ifndef XFT_MINSPACE
@@ -180,10 +177,22 @@ FontSize::~FontSize() {
 }
 #endif
 
-// This returns the XftFont, not an XFontStruct!
+XftFont* fltk::xftfont() {
+  return current->font;
+}
+
+// This is for back compatability with fltk1 programs, implements the
+// former variable fl_xfont:
 XFontStruct* fltk::xfont() {
-  return (XFontStruct*)(current->font);
-#if 0
+#if XFT_MAJOR > 1
+  // kludge!
+  static XFontStruct* ret = 0;
+  if (!ret) {
+    ret = XLoadQueryFont(xdisplay, "variable");
+    if (!ret) ret = XLoadQueryFont(xdisplay, "fixed");
+  }
+  return ret;
+#else
   // This code only works for XFT 1, which was able to find matching
   // X fonts:
   if (!current->xfont) {
@@ -193,7 +202,10 @@ XFontStruct* fltk::xfont() {
       static XftFont* xftfont;
       if (xftfont) XftFontClose (xdisplay, xftfont);
       // select the "core" version of the font:
-      xftfont = fontopen(current_font_->name_,current_font_->attributes_,current_size_,true);
+      xftfont = fontopen(current_font_->name_,
+			 current_font_->attributes_,
+			 current_size_,
+			 true);
       current->xfont = xftfont->u.core.font;
     }
   }
@@ -246,7 +258,11 @@ void fltk::drawtext_transformed(const char *str, int n, float x, float y) {
   // Use fltk's color allocator, copy the results to match what
   // XftCollorAllocValue returns:
   XftColor color;
+#if USE_CAIRO
+  color.pixel = 0;
+#else
   color.pixel = current_xpixel;
+#endif
   uchar r,g,b; split_color(getcolor(), r,g,b);
   color.color.red   = r*0x101;
   color.color.green = g*0x101;
@@ -349,7 +365,7 @@ int fltk::list_fonts(fltk::Font**& arrayp) {
   // this does the Right Thing... but am not certain...
   FcPattern* fnt_pattern = FcPatternCreate ();
   // Now list all the families:
-  FcObjectSet* fnt_obj_set = FcObjectSetBuild (FC_FAMILY, 0);
+  FcObjectSet* fnt_obj_set = FcObjectSetBuild (FC_FAMILY, (void*)0);
   // This gives more info, but it is a pain to deal with:
   //FcObjectSet* fnt_obj_set = FcObjectSetBuild (FC_FAMILY, FC_WEIGHT, FC_SLANT, 0);
 
@@ -371,7 +387,7 @@ int fltk::list_fonts(fltk::Font**& arrayp) {
   for (int i = 0; i < num_fonts; i++) {
     FcPattern* p = fnt_set->fonts[i];
     const char* n = 0;
-    FcPatternGetString(p, FC_FAMILY, 0, (FcChar8**)(&n));
+    FcPatternGetString(p, FC_FAMILY, 0, (FcChar8**)(void*)(&n));
     if (!n /*|| !isalpha(n[0])*/) continue;
 //     for (int kk=1;;kk++) {
 //       const char* x = 0;
@@ -415,8 +431,8 @@ static int int_sort(const void *aa, const void *bb) {
 int fltk::Font::sizes(int*& sizep) {
   open_display();
   XftFontSet* fs = XftListFonts(xdisplay, xscreen,
-				XFT_FAMILY, XftTypeString, name_, 0,
-				XFT_PIXEL_SIZE, 0);
+				XFT_FAMILY, XftTypeString, name_, (void*)0,
+				XFT_PIXEL_SIZE, (void*)0);
   static int* array = 0;
   static int array_size = 0;
   if (fs->nfont >= array_size) {
@@ -450,8 +466,8 @@ int fltk::Font::encodings(const char**& arrayp) {
   static XftFontSet* fs;
   if (fs) XftFontSetDestroy(fs);
   fs = XftListFonts(xdisplay, xscreen,
-		    XFT_FAMILY, XftTypeString, name_, 0,
-		    XFT_ENCODING, 0);
+		    XFT_FAMILY, XftTypeString, name_, (void*)0,
+		    XFT_ENCODING, (void*)0);
   static const char** array = 0;
   static int array_size = 0;
   if (fs->nfont > array_size) {
@@ -461,7 +477,7 @@ int fltk::Font::encodings(const char**& arrayp) {
   int j = 0;
   for (int i = 0; i < fs->nfont; i++) {
     char* v;
-    if (XftPatternGetString(fs->fonts[i], XFT_ENCODING, 0, &v) == XftResultMatch) {
+    if (XftPatternGetString(fs->fonts[i], XFT_ENCODING, 0, (void*)&v) == XftResultMatch) {
       array[j++] = v;
     }
   }
@@ -470,5 +486,5 @@ int fltk::Font::encodings(const char**& arrayp) {
 }
 
 //
-// End of "$Id: Font_xft.cxx 5744 2007-03-15 10:37:20Z spitzak $"
+// End of "$Id: Font_xft.cxx 6249 2008-09-15 06:21:01Z spitzak $"
 //

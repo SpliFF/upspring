@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Menu_Item.cxx 5433 2006-09-16 03:00:02Z spitzak $"
+// "$Id: Fl_Menu_Item.cxx 5826 2007-05-14 13:31:59Z spitzak $"
 //
 // The obsolete MenuItem structure.  This code should not be used
 // in new fltk programs.

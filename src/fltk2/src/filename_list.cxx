@@ -1,5 +1,5 @@
 //
-// "$Id: filename_list.cxx 5746 2007-03-15 19:31:52Z spitzak $"
+// "$Id: filename_list.cxx 6834 2009-07-23 23:08:12Z AlbrechtS $"
 //
 // Filename list routines for the Fast Light Tool Kit (FLTK).
 //
@@ -62,11 +62,11 @@ int fltk::filename_list(const char *d, dirent ***list,
   // This version is when we define our own scandir (WIN32 and perhaps
   // some Unix systems):
   int n = scandir(d, list, 0, sort);
-#elif defined(__linux)
-  int n = scandir(d, list, 0, (int(*)(const void*,const void*))sort);
-#elif defined(__hpux) || defined(__CYGWIN__)
-  // HP-UX, Cygwin define the comparison function like this:
+#elif defined(HAVE_SCANDIR_POSIX)
+  // POSIX (2008) defines the comparison function like this:
   int n = scandir(d, list, 0, (int(*)(const dirent **, const dirent **))sort);
+#elif defined(__linux) || defined (__FreeBSD__) || defined (__NetBSD__)
+  int n = scandir(d, list, 0, (int(*)(const void*,const void*))sort);
 #elif defined(__osf__) || defined(__sgi)
   // OSF, DU 4.0x
   int n = scandir(d, list, 0, (int(*)(dirent **, dirent **))sort);
@@ -80,38 +80,9 @@ int fltk::filename_list(const char *d, dirent ***list,
   int n = scandir(d, list, 0, (int(*)(const void*,const void*))sort);
 #endif
 
-#if 0 // Add a slash to all directories...
-#if defined(WIN32) && !defined(__CYGWIN__)
-  // we did this already during fl_scandir/win32
-  // WAS: no it isn't!
-#else
-  // append a '/' to all filenames that are directories
-  int i, dirlen = strlen(d);
-  char *fullname = (char*)malloc(dirlen+PATH_MAX+3); // Add enough extra for two /'s and a nul
-  // Use memcpy for speed since we already know the length of the string...
-  memcpy(fullname, d, dirlen+1);
-  char *name = fullname + dirlen;
-  if (name!=fullname && name[-1]!='/') *name++ = '/';
-  for (i=0; i<n; i++) {
-    dirent *de = (*list)[i];
-    int len = strlen(de->d_name);
-    if (de->d_name[len-1]=='/' || len>PATH_MAX) continue;
-    // Use memcpy for speed since we already know the length of the string...
-    memcpy(name, de->d_name, len+1);
-    if (fltk::filename_isdir(fullname)) {
-      (*list)[i] = de = (dirent*)realloc(de, de->d_name - (char*)de + len + 2);
-      char *dst = de->d_name + len;
-      *dst++ = '/';
-      *dst = 0;
-    }
-  }
-  free(fullname);
-#endif
-#endif
-
   return n;
 }
 
 //
-// End of "$Id: filename_list.cxx 5746 2007-03-15 19:31:52Z spitzak $".
+// End of "$Id: filename_list.cxx 6834 2009-07-23 23:08:12Z AlbrechtS $".
 //

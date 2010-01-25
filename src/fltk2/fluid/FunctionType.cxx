@@ -1,4 +1,4 @@
-// "$Id: FunctionType.cxx 5493 2006-09-28 03:31:05Z spitzak $"
+// "$Id: FunctionType.cxx 6075 2008-03-20 17:11:58Z fabien $"
 //
 // C function type code for the Fast Light Tool Kit (FLTK).
 //
@@ -741,13 +741,9 @@ void CommentType::open() {
     comment_in_source->value(in_c_ ? true : false);
     comment_in_header->value(in_h_ ? true : false);
     comment_panel_ok->callback(comment_ok_cb);
-    comment_panel->show();
     char itempath[256]; itempath[0] = 0;
-
-    do { // read events
-	fltk::check();
-    } while (comment_panel->shown());
-
+    comment_panel->exec(0,false);
+ 
     title_buf[0] = 0;
     comment_panel->hide();
 #endif
@@ -1057,5 +1053,5 @@ void NamespaceType::write_code() {
 }
 
 //
-// End of "$Id: FunctionType.cxx 5493 2006-09-28 03:31:05Z spitzak $".
+// End of "$Id: FunctionType.cxx 6075 2008-03-20 17:11:58Z fabien $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: mandelbrot.h 4886 2006-03-30 09:55:32Z fabien $"
+// "$Id: mandelbrot.h 5971 2007-11-14 01:49:47Z dejan $"
 //
 // Mandelbrot set header file for the Fast Light Tool Kit (FLTK).
 //
@@ -23,24 +23,20 @@
 // Please report all bugs and problems to "fltk-bugs@fltk.org".
 //
 
-#include <FL/Fl.H>
-#include <FL/Fl_Box.H>
-#include <FL/Fl_Slider.H>
-#include <FL/Fl_Window.H>
-#include <FL/Fl_Input.H>
+#include <fltk/Widget.h>
 
-class Drawing_Area : public Fl_Box {
+class DrawingArea : public fltk::Widget {
   void draw();
 public:
   uchar *buffer;
-  int W,H;
+  int W, H;
   int nextline;
   int drawn;
   int julia;
   int iterations;
   int brightness;
   double jX, jY;
-  double X,Y,scale;
+  double X, Y, scale;
   int sx, sy, sw, sh; // selection box
   void erase_box();
   int handle(int);
@@ -52,21 +48,21 @@ public:
     MAX_ITERATIONS = 14,
     DEFAULT_ITERATIONS = 7
   };
-  Drawing_Area(int x,int y,int w,int h) : Fl_Box(x,y,w,h) {
+  DrawingArea(int x, int y, int w, int h) : fltk::Widget(x, y, w, h) {
     buffer = 0;
-    W = w-6;
-    H = h-8;
+    W = w - 6;
+    H = h - 8;
     nextline = 0;
     drawn = 0;
     julia = 0;
     X = Y = 0;
     scale = 4.0;
-    iterations = 1<<DEFAULT_ITERATIONS;
+    iterations = 1 << DEFAULT_ITERATIONS;
     brightness = DEFAULT_BRIGHTNESS;
   }
   int idle();
 };
 
 //
-// End of "$Id: mandelbrot.h 4886 2006-03-30 09:55:32Z fabien $".
+// End of "$Id: mandelbrot.h 5971 2007-11-14 01:49:47Z dejan $".
 //

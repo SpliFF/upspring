@@ -1,5 +1,5 @@
 //
-// "$Id: CycleButton.cxx 5433 2006-09-16 03:00:02Z spitzak $"
+// "$Id: CycleButton.cxx 5929 2007-07-13 14:17:38Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -64,16 +64,14 @@ void CycleButton::draw() {
   // this code is copied from Button, but simplified as a lot of
   // back-compatability and the glyphs are eliminated:
 
-  Flags flags = this->flags()|OUTPUT;
+  Flags flags = this->flags();
   if (this == held_down) flags |= PUSHED;
 
   Style style = *(this->style());
-  if (style.color_) style.buttoncolor_ = style.color_;
-  else style.color_ = style.buttoncolor();
-  if (style.box_) style.buttonbox_ = style.box_;
-  if (style.textcolor_) style.labelcolor_ = style.textcolor_;
+  if (!style.color_) style.color_ = style.buttoncolor();
+  if (!style.textcolor_) style.textcolor_ = style.labelcolor();
 
-  Box* box = style.buttonbox();
+  Box* box = style.box_ ? style.box_ : style.buttonbox();
   Rectangle r(w(),h());
 
   if (!box->fills_rectangle()) {
@@ -89,7 +87,7 @@ void CycleButton::draw() {
   }
   drawstyle(&style,flags);
   box->draw(r);
-  box->inset(r);
+  Rectangle r1(r); box->inset(r1);
 
   // This portion of the code is copied from Choice:
   Widget* o = get_item();
@@ -100,9 +98,9 @@ void CycleButton::draw() {
     if (flags&(INACTIVE|INACTIVE_R)) o->set_flag(INACTIVE_R);
     push_clip(r);
     push_matrix();
-    translate(r.x(),r.y());
-    int save_w = o->w(); o->w(r.w());
-    int save_h = o->h(); o->h(r.h());
+    translate(r1.x(),r1.y());
+    int save_w = o->w(); o->w(r1.w());
+    int save_h = o->h(); o->h(r1.h());
     fl_hide_underscore = true;
     o->draw();
     fl_hide_underscore = false;
@@ -115,7 +113,7 @@ void CycleButton::draw() {
   }
 
   drawstyle(&style,flags);
-  focusbox()->draw(r);
+  box->draw_symbol_overlay(r);
 }
 
 static bool try_item(CycleButton* choice, int i) {
@@ -215,5 +213,5 @@ CycleButton::CycleButton(int x,int y,int w,int h, const char *l)
 }
 
 //
-// End of "$Id: CycleButton.cxx 5433 2006-09-16 03:00:02Z spitzak $".
+// End of "$Id: CycleButton.cxx 5929 2007-07-13 14:17:38Z spitzak $".
 //

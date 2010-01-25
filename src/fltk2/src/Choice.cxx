@@ -1,4 +1,4 @@
-// "$Id: Choice.cxx 5743 2007-03-12 18:24:21Z spitzak $"
+// "$Id: Choice.cxx 6145 2008-07-16 04:59:32Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -88,10 +88,6 @@ void Choice::draw() {
   if (damage() & (DAMAGE_ALL|DAMAGE_VALUE)) {
     setcolor(color());
     fillrect(r);
-    if (flag(FOCUSED)) {
-      setcolor(selection_color());
-      Rectangle fr(r); fr.inset(2); fillrect(fr);
-    }
     Widget* o = get_item();
     //if (!o && children()) o = child(0);
     if (o) {
@@ -100,7 +96,6 @@ void Choice::draw() {
       if (focused()) o->set_flag(SELECTED);
       else o->clear_flag(SELECTED);
       if (any_of(INACTIVE|INACTIVE_R)) o->set_flag(INACTIVE_R);
-      r.move_x(2);
       push_clip(r);
       push_matrix();
       if (!o->h()) o->layout();
@@ -109,8 +104,8 @@ void Choice::draw() {
       int n = h/int(o->labelsize()+o->leading());
       if (n > 1) h -= int((n-1)*o->labelsize()+(n-1.5)*o->leading());
       // center the item vertically:
-      translate(r.x(), r.y()+((r.h()-h)>>1));
-      int save_w = o->w(); o->w(r.w());
+      translate(r.x()+2, r.y()+((r.h()-h)>>1));
+      int save_w = o->w(); o->w(r.w()-4);
       fl_hide_underscore = true;
       o->draw();
       fl_hide_underscore = false;
@@ -255,5 +250,5 @@ Choice::Choice(int x,int y,int w,int h, const char *l) : Menu(x,y,w,h,l) {
 }
 
 //
-// End of "$Id: Choice.cxx 5743 2007-03-12 18:24:21Z spitzak $".
+// End of "$Id: Choice.cxx 6145 2008-07-16 04:59:32Z spitzak $".
 //

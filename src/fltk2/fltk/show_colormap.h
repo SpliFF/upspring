@@ -1,8 +1,4 @@
-// "$Id: show_colormap.h 5197 2006-06-14 07:43:46Z spitzak $"
-/*! \file
-Pretty much obsolete popup color chooser that lets you pick one
-of the 256 indexed colors in fltk.
-*/
+// "$Id: show_colormap.h 6233 2008-09-14 07:54:06Z spitzak $"
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
 // This library is free software; you can redistribute it and/or
@@ -36,5 +32,5 @@ FL_API Color show_colormap(Color oldcol);
 #endif
 
 //
-// End of "$Id: show_colormap.h 5197 2006-06-14 07:43:46Z spitzak $".
+// End of "$Id: show_colormap.h 6233 2008-09-14 07:54:06Z spitzak $".
 //

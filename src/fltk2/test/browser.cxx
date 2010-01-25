@@ -1,5 +1,5 @@
 //
-// "$Id: browser.cxx 5600 2007-01-13 00:04:55Z spitzak $"
+// "$Id: browser.cxx 6148 2008-07-17 19:37:04Z TobiasFar $"
 //
 // browser.cxx
 // Maarten de Boer's toggle tree demo program rewritten to use the
@@ -158,12 +158,13 @@ void button_cb(Widget* b, void *) {
   printf("Button %s pushed\n", b->label());
 }
 
-const char *labels[] = {"Column 1", "Column 2", "Column 3", 0};
+const char *labels[] = {"Column 1", "Column 2\nwith new\nlines", "Column 3", 0};
 int widths[]   = {100, 70, 70, 0};
 
 Browser *browser=0;
 bool flip = false;
 bool bm = true;
+bool dlines = true;
 
 MultiImage g1(fileSmall, HIGHLIGHT, fileSmall2);
 MultiImage g2(folderSmall, HIGHLIGHT, folderSmall3);
@@ -204,6 +205,13 @@ void below_mouse_cb(Button *w, long arg) {
   update_look();
 }
 
+void display_lines_cb(Widget* w, void* ptr_arg) {
+  Browser* tree = reinterpret_cast<Browser*>(ptr_arg);
+  dlines = !dlines;
+  tree->display_lines(dlines);
+  tree->relayout();
+}
+
 void change_resize(Button *w, long arg) {
   if (w->value()) 
     widths[1] = -1;
@@ -214,7 +222,7 @@ void change_resize(Button *w, long arg) {
 
 int main(int argc,char** argv) {
 
-  Window win(280, 330, "Browser Example");
+  Window win(280, 340, "Browser Example");
   win.begin();
 
   Browser tree(10, 10, 260, 180);
@@ -253,10 +261,15 @@ int main(int argc,char** argv) {
   CheckButton when_enter_key_button(88, 280, 160, 20, "WHEN_ENTER_KEY");
   when_enter_key_button.callback((Callback*)cb_when_enter_key, (void *)&tree);
 
-  CheckButton resize(88, 310, 160, 20, "Make 2. column flexible");
+  // Let's show how to show/hide lines in the Browser (tree) widget
+  CheckButton display_lines(88, 300, 160, 20, "Display lines");
+  display_lines.value(true);
+  display_lines.callback((Callback*)display_lines_cb, (void *)&tree);
+
+  CheckButton resize(108, 320, 160, 20, "Make 2. column flexible");
   resize.callback((Callback*)change_resize);
 
-  CheckButton bm(5, 310, 82, 20, "below mouse");
+  CheckButton bm(5, 320, 82, 20, "below mouse");
   bm.set();
   bm.callback((Callback*)below_mouse_cb);
 
@@ -293,6 +306,7 @@ int main(int argc,char** argv) {
   tree.add_leaf("kkk",g);
 
   tree.add_leaf("lll");
+ tree.add_leaf("zut");
 
   g = tree.add_group("mmm", &tree, 0); // let this node closed
   tree.add_leaf("nnn",g);
@@ -311,6 +325,7 @@ int main(int argc,char** argv) {
 
   tree.add_leaf("yyy", g);
   tree.add_leaf("zzz", g);
+
 
   // add some widgets:
   Button * b = new Button(0,0,100,23,"button");
@@ -346,10 +361,12 @@ int main(int argc,char** argv) {
 #endif
 #endif
 
-  win.show(argc,argv);
+  tree.select(tree.find( "fff" ),1);
 
+  win.show(argc,argv);
+ 
   run();
   return 0;
 }
 
-// End of "$Id: browser.cxx 5600 2007-01-13 00:04:55Z spitzak $"
+// End of "$Id: browser.cxx 6148 2008-07-17 19:37:04Z TobiasFar $"

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# "$Id$"
+# "$Id: devcxx 5967 2007-11-13 14:58:42Z dejan $"
 #
 # Top-level makefile for the Fast Light Tool Kit (FLTK).
 #
@@ -124,5 +124,5 @@ $RM -Rf $tmpRoot
 $RM -f $myDir/log.txt
 
 ###
-# $Id$
+# $Id: devcxx 5967 2007-11-13 14:58:42Z dejan $
 #

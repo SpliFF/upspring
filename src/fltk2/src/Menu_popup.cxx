@@ -1,5 +1,5 @@
 //
-// "$Id: Menu_popup.cxx 5743 2007-03-12 18:24:21Z spitzak $"
+// "$Id: Menu_popup.cxx 6506 2008-11-09 21:23:30Z spitzak $"
 //
 // Implementation of popup menus.  These are called by using the
 // Menu::popup and Menu::pulldown methods.  See also the
@@ -687,13 +687,13 @@ static bool backward(MenuState& p, int menu) {
 }
 
 static bool track_mouse;
+static bool valuator;
 
 int MWindow::handle(int event) {
   MenuState &p = *menustate;
   Widget* widget = 0;
-  //printf("event %08x  key %08x\n", event, event_key());
-  switch (event) {
 
+  switch (event) {
   case KEY:
     track_mouse = event_state(ANY_BUTTON);
     switch (event_key()) {
@@ -739,34 +739,43 @@ int MWindow::handle(int event) {
     }
     {for (int menu = p.nummenus; menu--;) {
       MWindow &mw = *(p.menus[menu]);
-      int nextitem = -1;
-      static char lastkey; // test for same key multiple times
-      if (p.indexes[menu] < 0) lastkey = 0;
+      // Apparent rules, at least for Firefox:
+      // Check for &x, if there is none check for leading 'x'
+      // If there is exactly one, execute it (STR#980, STR#2078)
+      // Otherwise cycle through the matches
+      // Whether Alt is held down is apparently irrelevant.
+      int current_item = p.indexes[menu];
+      int new_item = -1;
+      bool found_underscore = false;
+      bool execute_it = true;
       for (int item = 0; item < mw.children; item++) {
 	widget = mw.get_widget(item);
-//	if (widget->active() && widget->test_shortcut(false)) {
-//	  setitem(p, menu, item);
-//	  lastkey = 0;
-//	  goto EXECUTE;
-//	}
-	// continue unless this item can be picked by the keystroke:
 	if (!widget->takesevents()) continue;
 	if (widget->test_label_shortcut()) {
-	  // underscored items are jumped to immediately on first keystroke:
-	  if (event_text()[0]!=lastkey) {nextitem = item; continue;}
-	} else {
+          if (!found_underscore) {
+            found_underscore = true;
+            new_item = -1;
+            execute_it = true;
+          }
+	} else if (found_underscore) {
+          continue;
+        } else {
 	  const char* l = widget->label();
 	  if (!l || tolower(*l) != event_text()[0]) continue;
 	}
-	// cycle around the selectable items:
-	if (nextitem < 0 ||
-	    nextitem <= p.indexes[menu] && item > p.indexes[menu])
-	  nextitem = item;
+        if (new_item >= 0) { // found more than one item
+          execute_it = false;
+          if (item > current_item && new_item <= current_item)
+            new_item = item;
+        } else {
+          if (widget->is_group()) // don't execute submenu titles
+            execute_it = false;
+          new_item = item;
+        }
       }
-      lastkey = event_text()[0];
-      if (nextitem >= 0) {
-	setitem(p, menu, nextitem);
-	goto EXECUTE; // now menu items autoexecute see STR#980  return 1;
+      if (new_item >= 0) {
+	setitem(p, menu, new_item);
+        if (execute_it) goto EXECUTE;
       }
     }}
     return 1; // always eat all the keystrokes
@@ -812,10 +821,21 @@ int MWindow::handle(int event) {
     }
     if (setitem(p, menu,item)) return 1;
     if (item < 0) return 1;
+
     if (event == PUSH) {
       // redraw checkboxes so they preview the state they will be in:
       Widget* widget = p.menus[menu]->get_widget(item);
-      if (checkmark(widget)) p.menus[menu]->redraw(DAMAGE_CHILD);
+      if (checkmark(widget)) 
+        p.menus[menu]->redraw(DAMAGE_CHILD);
+      else if (widget->handle(event))
+        valuator = true;
+    } else if (event == DRAG) {
+      // allow scrolling for valuators, but ignore their handle() returns
+      Widget* widget = p.menus[menu]->get_widget(item);
+      if (valuator) {
+        widget->handle(event);
+        p.menus[menu]->redraw(DAMAGE_CHILD);
+      }
     } else if (p.level || !p.hmenubar) {
       // item didn't change on drag/move, check for autoscroll:
       if (event_y_root() <= MENUAREA.y()) {
@@ -824,10 +844,12 @@ int MWindow::handle(int event) {
 	if (!p.menus[menu]->autoscroll(item)) forward(p, p.level);
       }
     }
-    return 1;}
+    return 1;
+  }
 
   case RELEASE:
     pushed_ = 0;
+    valuator = false;
     // The initial click just brings up the menu. The user has to either
     // drag the mouse around, hold it still for a long time, or click
     // again to actually pick an item and dismiss the menu. You can
@@ -898,10 +920,12 @@ Widget* Menu::try_popup(const Rectangle& r, const char* title, bool menubar)
   p.menus[0] = &toplevel;
   p.fakemenu = 0;
 
+  track_mouse = true; //event_state(ANY_BUTTON);
   if (menubar) {
-    if (value() < 0)
+    if (value() < 0) {
       toplevel.handle(PUSH); // get menu mouse points at to appear
-    else {
+    } else {
+      track_mouse = false;
       p.indexes[0] = value();
       p.indexes[1] = -1;
       p.level = 0;
@@ -949,7 +973,6 @@ Widget* Menu::try_popup(const Rectangle& r, const char* title, bool menubar)
 
   Widget* saved_modal = modal(); bool saved_grab = grab();
   p.state = INITIAL_STATE;
-  track_mouse = true; //event_state(ANY_BUTTON);
 #ifdef DEBUG
 #define MODAL false
 #else
@@ -1072,5 +1095,5 @@ int Menu::popup(const Rectangle& rectangle, const char* title, bool menubar)
 }
 
 //
-// End of "$Id: Menu_popup.cxx 5743 2007-03-12 18:24:21Z spitzak $".
+// End of "$Id: Menu_popup.cxx 6506 2008-11-09 21:23:30Z spitzak $".
 //

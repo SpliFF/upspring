@@ -1,5 +1,5 @@
 //
-// "$Id: checkers.cxx 5115 2006-05-12 16:00:00Z fabien $"
+// "$Id: checkers.cxx 5918 2007-06-26 18:49:21Z spitzak $"
 //
 // Checkers game for the Fast Light Tool Kit (FLTK).
 //
@@ -330,7 +330,7 @@ void evaluateboard(node *n,int print) {
 	   spiece*(friendpieces-enemypieces));
     printf("kings\t%d\t%d\t%d\n",enemykings,friendkings,
 	   (sking-spiece)*(friendkings-enemykings));
-    printf("mobil\t%d\t%d\n",f->mobil,n->mobil);
+    printf("mobil\t%d\t%d\t%d\n",f->mobil,n->mobil,n->mobil?0:sallpin);
     printf("deny\t%d\t%d\t%d\n",f->deny,n->deny,sdeny*(n->deny-f->deny));
     printf("pin\t%d\t%d\t%d\n",f->pin,n->pin,spin*(n->pin-f->pin));
     printf("threat\t%d\t%d\t%d\n",f->threat,n->threat,sthreat*(n->threat-f->threat));
@@ -342,7 +342,7 @@ void evaluateboard(node *n,int print) {
     printf("mode2\t%d\t%d\t%d\n",f->mode2,n->mode2,smode2*(n->mode2-f->mode2));
     printf("mode3\t%d\t%d\t%d\n",f->mode3,n->mode3,smode3*(n->mode3-f->mode3));
     printf("demmo\t%d\t%d\t%d\n",f->demmo,n->demmo,sdemmo*(n->demmo-f->demmo));
-    printf("cent\t%d\t%d\t%dn",enemycent,friendcent,scent*(friendcent-enemycent));
+    printf("cent\t%d\t%d\t%d\n",enemycent,friendcent,scent*(friendcent-enemycent));
     printf("kcent\t%d\t%d\t%d\n",enemykcent,friendkcent,skcent*(friendkcent-enemykcent));
     printf("total:\t\t\t%d\n",total);
   }
@@ -1384,5 +1384,5 @@ int main(int argc, char **argv) {
 }
 
 //
-// End of "$Id: checkers.cxx 5115 2006-05-12 16:00:00Z fabien $".
+// End of "$Id: checkers.cxx 5918 2007-06-26 18:49:21Z spitzak $".
 //

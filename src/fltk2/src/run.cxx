@@ -1,4 +1,4 @@
-// "$Id: run.cxx 5743 2007-03-12 18:24:21Z spitzak $"
+// "$Id: run.cxx 6232 2008-09-14 04:11:27Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -19,6 +19,8 @@
 //
 // Please report all bugs and problems to "fltk-bugs@fltk.org".
 
+/** \namespace fltk */
+
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,6 +37,10 @@
 #include <fltk/Style.h>
 #include <fltk/Tooltip.h>
 #include <fltk/filename.h>
+
+#if defined(__APPLE__)
+#include <sys/time.h>
+#endif
 
 #if defined(_WIN32) && USE_MULTIMONITOR && WINVER<0x0500
 // Make the headers declare the functions needed for multimonitor:
@@ -122,12 +128,10 @@ FL_API char* newstring(const char *from) {
   if (!from) return 0;
   unsigned n = strlen(from)+1;
   char* ret = new char[n];
-  strcpy(ret, from);
+  memcpy(ret, from, n);
   return ret;
 }
 } /* extern "C" */
-
-bool fltk::in_main_thread_ = true;
 
 /*! Tries to make this widget be the keyboard focus widget, by first
   sending it an fltk::FOCUS event, and if it returns non-zero, setting
@@ -1302,6 +1306,10 @@ bool fltk::handle(int event, Window* window)
     to = focus();
     break;
 
+  case MOUSEWHEEL:
+    Tooltip::exit();
+    break;
+
 //default: break;
   }
 
@@ -1320,5 +1328,5 @@ bool fltk::handle(int event, Window* window)
 }
 
 //
-// End of "$Id: run.cxx 5743 2007-03-12 18:24:21Z spitzak $".
+// End of "$Id: run.cxx 6232 2008-09-14 04:11:27Z spitzak $".
 //

@@ -1,8 +1,6 @@
-// "$Id: run.h 5446 2006-09-18 21:57:27Z spitzak $"
+// "$Id: run.h 6233 2008-09-14 07:54:06Z spitzak $"
 //
-/*! \file
-  The basic fltk runtime. Every program needs to call this somewhere.
-*/
+// The basic fltk runtime. Every program needs to call this somewhere.
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
 // This library is free software; you can redistribute it and/or
@@ -31,6 +29,9 @@
 #endif
 
 namespace fltk {
+
+/// \name fltk/run.h
+//@{
 
 FL_API void display(const char*);
 FL_API int arg(int, char**, int&);
@@ -79,13 +80,13 @@ FL_API void add_fd(int fd, int when, FileHandler, void* =0);
 FL_API void add_fd(int fd, FileHandler, void* = 0);
 FL_API void remove_fd(int, int when = -1);
 
-extern FL_API bool in_main_thread_;
-
 FL_API void lock();
 FL_API void unlock();
 FL_API void awake(void* message = 0);
 FL_API void* thread_message();
-inline bool in_main_thread() {return in_main_thread_;}
+FL_API bool in_main_thread();
+
+//@}
 
 }
 

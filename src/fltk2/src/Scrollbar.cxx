@@ -1,5 +1,5 @@
 //
-// "$Id: Scrollbar.cxx 5591 2007-01-09 06:38:04Z spitzak $"
+// "$Id: Scrollbar.cxx 5956 2007-10-17 19:57:31Z spitzak $"
 //
 // Scroll bar widget for the Fast Light Tool Kit (FLTK).
 //
@@ -76,7 +76,7 @@ using namespace fltk;
   \a l = the total size of your data.
 
 */
-int Scrollbar::value(int p, int w, int t, int l) {
+bool Scrollbar::value(int p, int w, int t, int l) {
   if (p+w > t+l) l = p+w-t;
   if (l <= 0) l = 1;
   int b = l-w+t;
@@ -315,5 +315,5 @@ Scrollbar::Scrollbar(int X, int Y, int W, int H, const char* L)
 }
 
 //
-// End of "$Id: Scrollbar.cxx 5591 2007-01-09 06:38:04Z spitzak $".
+// End of "$Id: Scrollbar.cxx 5956 2007-10-17 19:57:31Z spitzak $".
 //

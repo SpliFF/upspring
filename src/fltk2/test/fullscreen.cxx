@@ -1,5 +1,5 @@
 //
-// "$Id: fullscreen.cxx 5115 2006-05-12 16:00:00Z fabien $"
+// "$Id: fullscreen.cxx 6150 2008-08-04 22:53:30Z spitzak $"
 //
 // Fullscreen test program for the Fast Light Tool Kit (FLTK).
 //
@@ -196,6 +196,11 @@ void fullscreen_cb(fltk::Widget *o, void *p) {
   }
 }
 
+void maximize_cb(fltk::Widget *o, void *p) {
+  fltk::Window *w = (fltk::Window *)p;
+  w->maximize();
+}
+
 void exit_cb(fltk::Widget *, void *) {
   // Turn fullscreen off when exit
   if(fullscreen)
@@ -203,7 +208,7 @@ void exit_cb(fltk::Widget *, void *) {
   exit(0);
 }
 
-#define NUMB 4
+#define NUMB 5
 
 int twowindow = 0;
 int initfull = 0;
@@ -268,6 +273,10 @@ int main(int argc, char **argv) {
   b3.callback(fullscreen_cb,w);
   y+=30;
 
+  fltk::Button btnMaximize(50,y,window.w()-60,30,"Maximize me!");
+  btnMaximize.callback(maximize_cb,&window);
+  y+=30;
+
   fltk::Button eb(50,y,window.w()-60,30,"Exit");
   eb.callback(exit_cb);
   y+=30;
@@ -281,5 +290,5 @@ int main(int argc, char **argv) {
 }
 
 //
-// End of "$Id: fullscreen.cxx 5115 2006-05-12 16:00:00Z fabien $".
+// End of "$Id: fullscreen.cxx 6150 2008-08-04 22:53:30Z spitzak $".
 //

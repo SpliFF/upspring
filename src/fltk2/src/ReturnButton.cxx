@@ -1,5 +1,5 @@
 //
-// "$Id: ReturnButton.cxx 4886 2006-03-30 09:55:32Z fabien $"
+// "$Id: ReturnButton.cxx 5876 2007-06-05 21:35:43Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -45,7 +45,7 @@ public:
     int x1 = x0+d;
     int y0 = r.center_y();
 #if 1
-    setcolor(WHITE);
+    setcolor(GRAY99);
     newpath();
     addvertex(x0, y0);
     addvertex(x1, y0+d);
@@ -93,5 +93,5 @@ ReturnButton::ReturnButton(int x,int y,int w,int h,const char *l)
 }
 
 //
-// End of "$Id: ReturnButton.cxx 4886 2006-03-30 09:55:32Z fabien $".
+// End of "$Id: ReturnButton.cxx 5876 2007-06-05 21:35:43Z spitzak $".
 //

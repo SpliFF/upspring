@@ -1,5 +1,5 @@
 //
-// "$Id: FileIcon.cxx 5444 2006-09-18 20:25:15Z spitzak $"
+// "$Id: FileIcon.cxx 5918 2007-06-26 18:49:21Z spitzak $"
 //
 // FileIcon routines for the Fast Light Tool Kit (FLTK).
 //
@@ -272,7 +272,6 @@ void FileIcon::_draw(const Rectangle& r) const {
   // fabien: must save currentcolor because otherwise the browser would write the text
   // with icon color, thanks bill for having removed the back pointer !
   Color saved_color = getcolor(); 
-					    
 
   // Setup the transform matrix as needed...
   scale = float(r.w() < r.h() ? r.w() : r.h());
@@ -390,5 +389,5 @@ void FileIcon::_draw(const Rectangle& r) const {
 
 
 //
-// End of "$Id: FileIcon.cxx 5444 2006-09-18 20:25:15Z spitzak $".
+// End of "$Id: FileIcon.cxx 5918 2007-06-26 18:49:21Z spitzak $".
 //

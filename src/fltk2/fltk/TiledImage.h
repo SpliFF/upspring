@@ -1,5 +1,5 @@
 //
-// "$Id: TiledImage.h 5465 2006-09-19 03:21:56Z spitzak $"
+// "$Id: TiledImage.h 5810 2007-05-11 22:44:12Z spitzak $"
 //
 // A tiled image completely fills the bounding box passed to it with
 // replications of the internal Image passed to it.
@@ -40,12 +40,11 @@ public:
   void image(const Symbol* i) {image_ = i;}
   void _measure(int& w, int& h) const;
   void _draw(const Rectangle&) const;
-  void inset(Rectangle&) const;
 };
 
 }
 #endif
 
 //
-// End of "$Id: TiledImage.h 5465 2006-09-19 03:21:56Z spitzak $"
+// End of "$Id: TiledImage.h 5810 2007-05-11 22:44:12Z spitzak $"
 //

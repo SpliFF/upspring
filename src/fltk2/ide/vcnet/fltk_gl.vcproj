@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\fltk_gld.lib"/>
+				OutputFile="..\..\lib\fltk2_gld.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -74,7 +74,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\lib\fltk_gl.lib"/>
+				OutputFile="..\..\lib\fltk2_gl.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -128,11 +128,6 @@
 			<File
 				RelativePath="..\..\fltk\GlWindow.h">
 			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 		</Filter>
 	</Files>
 	<Globals>

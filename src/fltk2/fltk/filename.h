@@ -1,7 +1,4 @@
-// "$Id: filename.h 5197 2006-06-14 07:43:46Z spitzak $"
-/*! \file
-  Some functions to manipulate filenames, to make portable programs.
-*/
+// "$Id: filename.h 6483 2008-10-22 07:01:02Z spitzak $"
 
 /* Copyright 1998-2006 by Bill Spitzak and others.
  *
@@ -34,6 +31,16 @@
 #ifndef DOXYGEN
 // dirent (what a pain)...
 
+// FC: UNDER WIN32/VC6 long long is undefined, so use __int64 instead
+//  for cross platform type compatibility though in fact VC6 uses 
+//  a 32 bit long to calculate size in the stat struct so don't expect
+//  to handle >4GB files here...
+#if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__MINGW32__) && (_MSC_VER==1200)
+typedef unsigned __int64 FL_FILESIZE_T;
+#else
+typedef unsigned long long FL_FILESIZE_T;
+#endif
+
 #if defined(__WATCOMC__)
 
 # include <sys/types.h>
@@ -56,8 +63,12 @@ struct dirent {char d_name[1];};
 # include <features.h>
 # include <sys/types.h>
 # include <dirent.h>
-# define dirent dirent64
-# define scandir scandir64
+# if defined(__GLIBC_PREREQ)
+#  if __GLIBC_PREREQ(2,3)
+#   define dirent dirent64
+#   define scandir scandir64
+#  endif
+# endif
 
 #else
 // warning: on some systems (very few nowadays?) <dirent.h> may not exist.
@@ -87,6 +98,10 @@ struct dirent {char d_name[1];};
 
 namespace fltk {
 
+/// \name fltk/filename.h
+/// Some functions to manipulate filenames, to make portable programs.
+//@{
+
 FL_API int filename_absolute(char *to, int tolen, const char *from, const char* cwd=0);
 FL_API int filename_relative(char *to, int tolen, const char *from, const char* cwd=0);
 FL_API const char *filename_name(const char *);
@@ -96,7 +111,7 @@ inline char* filename_ext(char* a) {return (char*)(filename_ext((const char*)a))
 FL_API bool filename_match(const char *, const char *pattern); // glob match
 FL_API bool filename_exist(const char*);
 FL_API bool filename_isdir(const char*);
-FL_API double filename_size(const char *); // return size of file
+FL_API FL_FILESIZE_T filename_size(const char *); // return size of file
 FL_API long int filename_mtime(const char *); // return modification time
 
 typedef int (File_Sort_F)(const dirent*const*, const dirent*const*);
@@ -107,8 +122,10 @@ FL_API int numericsort(const dirent*const*, const dirent*const*);
 FL_API int filename_list(const char *d, dirent ***list, File_Sort_F *sort);
 FL_API int filename_list(const char *d, dirent ***list); // uses numericsort
 
+//@}
+
 }
 
 #endif
 
-// End of "$Id: filename.h 5197 2006-06-14 07:43:46Z spitzak $".
+// End of "$Id: filename.h 6483 2008-10-22 07:01:02Z spitzak $".

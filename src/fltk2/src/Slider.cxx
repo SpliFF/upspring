@@ -1,5 +1,5 @@
 //
-// "$Id: Slider.cxx 5451 2006-09-19 02:34:05Z spitzak $"
+// "$Id: Slider.cxx 5927 2007-07-13 14:16:33Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -203,19 +203,35 @@ double Slider::position_value(int X, int w) {
   return value;
 }
 
+static char* printtick(char* buffer, double v) {
+  if (fabs(v)>=1) {
+    sprintf(buffer, "%g", v);
+    return buffer;
+  } else {
+    sprintf(buffer, "%.3g", v);
+    char* p = buffer;
+    if (v < 0) p++;
+    while (p[0]=='0' && p[1]) p++;
+    if (v < 0) *--p = '-';
+    return p;
+  }
+}
+
 /*! Draw tick marks. These lines cross the passed rectangle perpendicular to
   the slider direction. In the direction parallel to the slider direction
   the box should have the same size as the area the slider moves in. */
 void Slider::draw_ticks(const Rectangle& r, int min_spacing)
 {
-  int x1, y1, x2, y2, dx, dy, w;
+  int x1, sx1, y1, sy1, x2, y2, dx, dy, w;
   if (horizontal()) {
-    x1 = x2 = r.x()+(slider_size_-1)/2; dx = 1;
+    sx1 = x1 = x2 = r.x()+(slider_size_-1)/2; dx = 1;
     y1 = r.y(); y2 = r.b()-1; dy = 0;
+    sy1 = y1+1+r.h()/4;
     w = r.w();
   } else {
     x1 = r.x(); x2 = r.r()-1; dx = 0;
-    y1 = y2 = r.y()+(slider_size_-1)/2; dy = 1;
+    sx1 = x1+1+r.w()/4;
+    sy1 = y1 = y2 = r.y()+(slider_size_-1)/2; dy = 1;
     w = r.h();
   }
   if (w <= 0) return;
@@ -259,43 +275,84 @@ void Slider::draw_ticks(const Rectangle& r, int min_spacing)
     //if (derivative > num) {num *= 5; smallmod = powincr = nummod = 2;}
   }
 
-  Color textcolor = getcolor();
+  Color textcolor = this->textcolor();
   Color linecolor = lerp(getbgcolor(), textcolor, .66666f);
   setcolor(linecolor);
+  setfont(textfont(), textsize());
+  float yt = horizontal() ? y1+getsize()-getdescent() : y1-1;
+  double v; char buffer[20]; char* p; int t; float x, y;
   for (int n = 0; ; n++) {
     // every ten they get further apart for log slider:
     if (n > powincr) {mul *= 10; n = (n-1)/10+1;}
-    double v = mul*n/div;
-    if (v > fabs(A) && v > fabs(B)) break;
-    int small = n%smallmod ? 3 : 0;
-    if (v >= A && v <= B) {
-      int t = slider_position(v, w);
-      drawline(x1+dx*t+dy*small, y1+dy*t+dx*small, x2+dx*t, y2+dy*t);
-      if (n%nummod == 0) {
-	char buffer[20]; sprintf(buffer,"%g",v);
-	char* p = buffer;
-	while (p[0]=='0' && p[1]) p++;
-	setfont(textfont(), textsize());
-	setcolor(textcolor);
-	drawtext(p, float(x1+dx*t), float(y1+dy*t+getsize()-getdescent()));
-	setcolor(linecolor);
+    v = mul*n/div;
+    if (v >= fabs(A) && v >= fabs(B)) break;
+    if (n%smallmod) {
+      if (v > A && v < B) {
+        t = slider_position(v, w);
+        drawline(sx1+dx*t, sy1+dy*t, x2+dx*t, y2+dy*t);
       }
-    }
-    if (v && -v >= A && -v <= B) {
-      int t = slider_position(-v, w);
-      drawline(x1+dx*t+dy*small, y1+dy*t+dx*small, x2+dx*t, y2+dy*t);
-      if (n%nummod == 0) {
-	char buffer[20]; sprintf(buffer+1,"%g",v);
-	char* p = buffer+1;
-	while (p[0]=='0' && p[1]) p++;
-	p--; p[0] = '-';
-	setfont(textfont(), textsize());
-	setcolor(textcolor);
-	drawtext(p, float(x1+dx*t), float(y1+dy*t+getsize()-getdescent()));
-	setcolor(linecolor);
+      if (v && -v > A && -v < B) {
+        t = slider_position(-v, w);
+        drawline(sx1+dx*t, sy1+dy*t, x2+dx*t, y2+dy*t);
+      }
+    } else {
+      if (v > A && v < B) {
+        t = slider_position(v, w);
+        drawline(x1+dx*t, y1+dy*t, x2+dx*t, y2+dy*t);
+        if (n%nummod == 0) {
+          p = printtick(buffer, v);
+          x = x1+dx*t+1;
+          y = yt+dy*t;
+          if (dx && (x < r.x()+3*min_spacing || x >= r.r()-5*min_spacing));
+          else if (dy && (y < r.y()+5*min_spacing || y >= r.b()-3*min_spacing));
+          else {
+            setcolor(textcolor);
+            drawtext(p, x,y);
+            setcolor(linecolor);
+          }
+        }
+      }
+      if (v && -v > A && -v < B) {
+        t = slider_position(-v, w);
+        drawline(x1+dx*t, y1+dy*t, x2+dx*t, y2+dy*t);
+        if (n%nummod == 0) {
+          p = printtick(buffer, v);
+          x = x1+dx*t+1;
+          y = yt+dy*t;
+          if (dx && (x < r.x()+3*min_spacing || x >= r.r()-5*min_spacing));
+          else if (dy && (y < r.y()+5*min_spacing || y >= r.b()-3*min_spacing));
+          else {
+            setcolor(textcolor);
+            drawtext(p, x,y);
+            setcolor(linecolor);
+          }
+        }
       }
     }
   }
+
+  // draw the end ticks with numbers:
+
+  v = minimum();
+  t = slider_position(v, w);
+  drawline(x1+dx*t, y1+dy*t, x2+dx*t, y2+dy*t);
+  p = printtick(buffer, v);
+  x = x1+dx*t+1;
+  y = yt+dy*t;
+  setcolor(textcolor);
+  drawtext(p, x,y);
+  setcolor(linecolor);
+
+  v = maximum();
+  t = slider_position(v, w);
+  drawline(x1+dx*t, y1+dy*t, x2+dx*t, y2+dy*t);
+  p = printtick(buffer, v);
+  x = x1+dx*t+1;
+  if (dx) {float w = getwidth(p); if (x+w > r.r()) x -= 2+w;}
+  y = yt+dy*t;
+  if (dy) y += getsize();
+  setcolor(textcolor);
+  drawtext(p, x,y);
 }
 
 void Slider::draw()
@@ -308,14 +365,16 @@ void Slider::draw()
   Box* box = this->box();
   if (!box->fills_rectangle()) draw_background();
   drawstyle(style(),flags);
-  Rectangle r(w(),h()); box->draw(r); box->inset(r);
+  Rectangle r(w(),h());
+  box->draw(r);
 
   // we draw the slot if box() has a zero-sized border:
-  draw(r, f2, r.y()==0);
+  Rectangle r1(r); box->inset(r1);
+  draw(r1, f2, r1.y()==0);
 
   // draw the focus indicator inside the box:
   drawstyle(style(),flags);
-  focusbox()->draw(r);
+  box->draw_symbol_overlay(r);
 }
 
 /*!
@@ -365,7 +424,6 @@ bool Slider::draw(const Rectangle& sr, Flags flags, bool slot)
         break;
       }
     }
-    setcolor(inactive(contrast(textcolor(),color()),flags));
     draw_ticks(tr, (slider_size()+1)/2);
   }
 
@@ -528,13 +586,13 @@ public:
       int x = r.x()+(r.w()-1)/2;
       setcolor(GRAY33);
       drawline(x, r.y(), x, r.b());
-      setcolor(WHITE);
+      setcolor(GRAY99);
       drawline(x+1, r.y(), x+1, r.b());
     } else { // vertical
       int y = r.y()+r.h()/2;
       setcolor(GRAY33);
       drawline(r.x(), y, r.r(), y);
-      setcolor(WHITE);
+      setcolor(GRAY99);
       drawline(r.x(), y+1, r.r(), y+1);
     }
   }
@@ -560,5 +618,5 @@ Slider::Slider(int x, int y, int w, int h, const char* l)
 }
 
 //
-// End of "$Id: Slider.cxx 5451 2006-09-19 02:34:05Z spitzak $".
+// End of "$Id: Slider.cxx 5927 2007-07-13 14:16:33Z spitzak $".
 //

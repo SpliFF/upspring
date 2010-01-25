@@ -1,5 +1,5 @@
 //
-// "$Id: FileChooser2.cxx 5497 2006-09-29 02:57:28Z spitzak $"
+// "$Id: FileChooser2.cxx 6138 2008-06-17 00:48:20Z spitzak $"
 //
 // More FileChooser routines.
 //
@@ -645,7 +645,7 @@ void FileChooser::fileNameCB() {
         max_match == (int)strlen(fileList->child(first_line-1)->label())) {
       // This is the only possible match...
       fileList->deselect(0);
-      fileList->select(first_line);
+      fileList->select(first_line - 1);
       fileList->redraw();
     } else if (max_match > min_match && first_line) {
       // Add the matching portion...
@@ -893,6 +893,12 @@ FileChooser::showChoiceCB()
 void
 FileChooser::update_favorites()
 {
+  if(favorites_showing) {
+	favoritesButton->show();
+  } else {
+	favoritesButton->hide();
+  }
+
   int		i;			// Looping var
   char		pathname[1024],		// Pathname
 		menuname[2048];		// Menu name
@@ -1120,7 +1126,7 @@ FileChooser::value(const char *filename)
   // See if there is a directory in there...
   fltk::filename_absolute(pathname, sizeof(pathname), filename);
   char dir[1024]="";
-  if (pathname) strncpy(dir,pathname,sizeof(dir));
+  strlcpy(dir,pathname,sizeof(dir));
   if ((slash = strrchr(dir, '/')) != NULL) {
     // Yes, change the display to the directory... 
     if (!fltk::filename_isdir(dir)) *slash++ = '\0';
@@ -1241,5 +1247,5 @@ unquote_pathname(char       *dst,	// O - Destination string
 
 
 //
-// End of "$Id: FileChooser2.cxx 5497 2006-09-29 02:57:28Z spitzak $".
+// End of "$Id: FileChooser2.cxx 6138 2008-06-17 00:48:20Z spitzak $".
 //

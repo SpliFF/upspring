@@ -1,5 +1,5 @@
 //
-// "$Id: Window_fullscreen.cxx 5464 2006-09-19 02:54:35Z spitzak $"
+// "$Id: Window_fullscreen.cxx 6232 2008-09-14 04:11:27Z spitzak $"
 //
 // Fullscreen window support for the Fast Light Tool Kit (FLTK).
 //
@@ -28,6 +28,8 @@
 #include <fltk/Monitor.h>
 #include <fltk/events.h>
 #include <fltk/x.h>
+#include <string.h>
+
 using namespace fltk;
 
 static void innards(Window*, bool fullscreen, int X, int Y, int W, int H);
@@ -85,12 +87,20 @@ static void innards(Window* window, bool fullscreen, int X, int Y, int W, int H)
     // Unfortunatly stoopid MetaCity raises the window. Sigh
     CreatedWindow::find(window)->sendxjunk();
 
-# if 0
+# if 1
     // Supposedly this tells the new X window managers to put this atop 
     // the taskbar. My tests have shown absolutly zero effect, so this is
     // either wrong or the window managers are ignoreing it. Newer X
     // window managers seem to work without this, they probably recognize
     // attempts to make the window the size of the screen
+
+    // this method does in fact work, and is used below in my maximize()
+    // so it should probably work here as well
+    // possible problem is that sometimes one have to process/flush events
+    // i.e. by using fltk::wait(1) to have this working
+    // Perhaps below code can be done correctly(?) again - look at maximize()
+    // (or perhaps Im totally wrong, Im new to Xlib  ;)  --Rafal
+
     static Atom _NET_WM_STATE;
     static Atom _NET_WM_STATE_REMOVE;
     static Atom _NET_WM_STATE_ADD;
@@ -98,7 +108,7 @@ static void innards(Window* window, bool fullscreen, int X, int Y, int W, int H)
     if (!_NET_WM_STATE) {
 # define MAX_ATOMS 30
       Atom* atom_ptr[MAX_ATOMS];
-      char* names[MAX_ATOMS];
+      const char* names[MAX_ATOMS];
       int i = 0;
 # define atom(a,b) atom_ptr[i] = &a; names[i] = b; i++
       atom(_NET_WM_STATE		, "_NET_WM_STATE");
@@ -107,7 +117,7 @@ static void innards(Window* window, bool fullscreen, int X, int Y, int W, int H)
       atom(_NET_WM_STATE_FULLSCREEN, "_NET_WM_STATE_FULLSCREEN");
 # undef atom
       Atom atoms[MAX_ATOMS];
-      XInternAtoms(xdisplay, names, i, 0, atoms);
+      XInternAtoms(xdisplay, (char**)names, i, 0, atoms);
       for (; i--;) *atom_ptr[i] = atoms[i];
     }
     XEvent e;
@@ -169,6 +179,48 @@ static void innards(Window* window, bool fullscreen, int X, int Y, int W, int H)
   window->resize(X, Y, W, H);
 }
 
+void Window::maximize() {
+#ifdef __WIN32__
+  // ShowWindow - http://msdn.microsoft.com/en-us/library/ms633548.aspx
+  // idea from Edzard Egberts - thanks
+
+  HWND hWnd = fltk::xid(this);
+  ShowWindow(hWnd, SW_MAXIMIZE);
+
+#elif USE_X11
+  // #elif __linux__
+  // by Rafal Maj on idea from Mans Rullgard http://tinyurl.com/68mvk3
+  // TODO: make it work on very old/simple WMs (as described in url above)
+  // TODO: test it more / cleanup (some Xlib expert, please take a look)
+
+  Display *dpy = xdisplay;
+
+  XEvent xev;
+  Atom wm_state = XInternAtom(dpy, "_NET_WM_STATE", False);
+  Atom maximizeV = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+  Atom maximizeH = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+  // XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False); // that would give true fullscreen
+
+  memset(&xev, 0, sizeof(xev));
+  xev.type = ClientMessage;
+  xev.xclient.window = fltk::xid(this);
+  xev.xclient.message_type = wm_state;
+  xev.xclient.format = 32;
+  xev.xclient.data.l[0] = 1;
+  xev.xclient.data.l[1] = maximizeV;
+  xev.xclient.data.l[2] = maximizeH;
+  xev.xclient.data.l[3] = 0;
+  XSendEvent(xdisplay, RootWindow(xdisplay, xscreen), 0,
+             SubstructureNotifyMask|SubstructureRedirectMask, &xev);
+
+  // flush it right away? Also seems to works without this as well...
+  // XFlush(dpy);
+
+#else
+# warning "This method will not work on this system. (you can ignore this warning)"
+#endif
+}
+
 /*! void Window::clear_border()
   This may only be called on a newly constructed window before the
   first call to show().  There will not be any visible border around
@@ -201,5 +253,5 @@ static void innards(Window* window, bool fullscreen, int X, int Y, int W, int H)
 */
 
 //
-// End of "$Id: Window_fullscreen.cxx 5464 2006-09-19 02:54:35Z spitzak $".
+// End of "$Id: Window_fullscreen.cxx 6232 2008-09-14 04:11:27Z spitzak $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: GlChoice.h 4886 2006-03-30 09:55:32Z fabien $"
+// "$Id: GlChoice.h 5880 2007-06-06 17:48:47Z spitzak $"
 //
 // OpenGL definitions for the Fast Light Tool Kit (FLTK).
 //
@@ -70,7 +70,11 @@
 #else
 # include <fltk/x.h>
 # define Window XWindow
-# include <GL/glx.h>
+# if USE_GLEW
+#  include <GL/glxew.h>
+# else
+#  include <GL/glx.h>
+# endif
 # undef Window
 # define GLContext GLXContext
 #endif
@@ -127,5 +131,5 @@ void delete_gl_context(GLContext);
 #endif
 
 //
-// End of "$Id: GlChoice.h 4886 2006-03-30 09:55:32Z fabien $".
+// End of "$Id: GlChoice.h 5880 2007-06-06 17:48:47Z spitzak $".
 //

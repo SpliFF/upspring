@@ -1,5 +1,5 @@
 //
-// "$Id: setcolor.cxx 5588 2007-01-07 08:58:19Z spitzak $"
+// "$Id: setcolor.cxx 6249 2008-09-15 06:21:01Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -99,15 +99,14 @@ Color fltk::lerp(Color color0, Color color1, float weight) {
 	(uchar)(((uchar)(rgb1>>8))*weight + ((uchar)(rgb0>>8))*(1-weight)));
 }
 
-/*! Same as lerp(c, GRAY75, .7), it grays out the color. */
-Color fltk::inactive(Color c) {
-  return lerp(c, GRAY75, 0.70f);
+/*! Same as lerp(fg, bg, .5), it grays out the color. */
+Color fltk::inactive(Color fg, Color bg) {
+  return lerp(fg, bg, .5);
 }
 
-/*! Same as (f&INACTIVE_R) ? inactive(c) : c */
-Color fltk::inactive(Color c, Flags f) {
-  if (f&INACTIVE_R) return lerp(c, GRAY75, 0.70f);
-  return c;
+/*! Same as lerp(fg, getbgcolor(), .5). This is for back-compatability only? */
+Color fltk::inactive(Color fg) {
+  return lerp(fg, current_bgcolor_, .5);
 }
 
 /*! Returns \a fg if fltk decides it can be seen well when drawn against
@@ -129,7 +128,123 @@ Color fltk::contrast(Color fg, Color bg) {
     return WHITE;
 }
 
-#if USE_X11
+#if USE_CAIRO || DOXYGEN
+
+/**
+  Set the color for all subsequent drawing operations.
+  \see setcolor_alpha()   
+*/
+void fltk::setcolor(Color color) {
+  current_color_ = color;
+  uchar r,g,b; split_color(color,r,g,b);
+  cairo_set_source_rgb(cr,r/255.0,g/255.0,b/255.0);
+}
+
+/**
+   Sets the current rgb and alpha to draw in, on rendering systems that
+   allow it. If alpha is not supported this is the same as setcolor().
+   The color you pass should \e not premultiplied by the alpha value,
+   that would be a different, nyi, call.
+*/
+void fltk::setcolor_alpha(Color color, float alpha) {
+  current_color_ = color;
+  uchar r,g,b; split_color(color,r,g,b);
+  cairo_set_source_rgba(cr,r/255.0,g/255.0,b/255.0,alpha);
+}
+
+/**
+  Set how to draw lines (the "pen"). If you change this it is your
+  responsibility to set it back to the default with
+  fltk::line_style(0).
+
+  \a style is a bitmask in which you 'or' the following values. If you
+  don't specify a dash type you will get a solid line. If you don't
+  specify a cap or join type you will get a system-defined default of
+  whatever value is fastest.
+  - fltk::SOLID      -------
+  - fltk::DASH       - - - -
+  - fltk::DOT        ·········
+  - fltk::DASHDOT    - · - ·
+  - fltk::DASHDOTDOT - ·· - ··
+  - fltk::CAP_FLAT
+  - fltk::CAP_ROUND
+  - fltk::CAP_SQUARE (extends past end point 1/2 line width)
+  - fltk::JOIN_MITER (pointed)
+  - fltk::JOIN_ROUND
+  - fltk::JOIN_BEVEL (flat)
+
+  \a width is the number of pixels thick to draw the lines. Zero
+  results in the system-defined default, which on both X and Windows
+  is somewhat different and nicer than 1.
+
+  \a dashes is a pointer to an array of dash lengths, measured in
+  pixels, if set then the dash pattern in \a style is ignored.
+  The first location is how long to draw a solid portion, the
+  next is how long to draw the gap, then the solid, etc. It is
+  terminated with a zero-length entry. A null pointer or a zero-length
+  array results in a solid line. Odd array sizes are not supported and
+  result in undefined behavior. <i>The dashes array is ignored on
+  Windows 95/98.</i>
+*/
+void fltk::line_style(int style, float width, const char* dashes) {
+  line_style_ = style;
+  line_width_ = width;
+  line_dashes_ = dashes;
+  char buf[7];
+  int ndashes = dashes ? strlen(dashes) : 0;
+  // emulate the _WIN32 dash patterns on X
+  if (!ndashes && style&0xff) {
+    int w = int(width+.5); if (w<1) w = 1;
+    char dash, dot, gap;
+    // adjust lengths to account for cap:
+    if (style & 0x200 || !width) {
+      dash = char(2*w);
+      dot = 0;
+      gap = char(2*w);
+    } else {
+      dash = char(3*w);
+      dot = gap = char(w);
+    }
+    dashes = buf;
+    char* p = buf;
+    switch (style & 0xff) {
+    default:
+    case DASH:
+      *p++ = dash; *p++ = gap;
+      break;
+    case DOT:
+      *p++ = dot; *p++ = gap;
+      break;
+    case DASHDOT:
+      *p++ = dash; *p++ = gap; *p++ = dot; *p++ = gap;
+      break;
+    case DASHDOTDOT:
+      *p++ = dash; *p++ = gap; *p++ = dot; *p++ = gap; *p++ = dot; *p++ = gap;
+      break;
+    }
+    ndashes = p-buf;
+  }
+  if (!width) {
+    cairo_set_line_width(cr, 1.0);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_SQUARE);
+  } else {
+    cairo_set_line_width(cr, width);
+    int c = (style>>8)&3; if (c) c--;
+    cairo_set_line_cap(cr, (cairo_line_cap_t)c);
+  }
+  int j = (style>>12)&3; if (j) j--;
+  cairo_set_line_join(cr, (cairo_line_join_t)j);
+  if (ndashes) {
+    double dash[20];
+    for (int i = 0; i < ndashes; i++) dash[i] = dashes[i];
+    cairo_set_dash(cr, dash, ndashes, 0);
+  } else {
+    cairo_set_dash(cr, 0, 0, 0);
+  }
+}
+
+// Include the non-Cairo versions:
+#elif USE_X11
 # include "x11/setcolor.cxx"
 #elif defined(_WIN32)
 # include "win32/setcolor.cxx"
@@ -143,7 +258,9 @@ Color fltk::contrast(Color fg, Color bg) {
   in the range 0-255, and \a c must be a non-indexed rgb color. */
 void fltk::set_color_index(Color i, Color color) {
   if (cmap[i] != color) {
+#if CALL_FREE_COLOR // defined for X11 colormaps
     free_color(i);
+#endif
     cmap[i] = color;
   }
 }
@@ -169,16 +286,6 @@ Flags	fltk::drawflags_;
 int	fltk::line_style_;
 float	fltk::line_width_;
 const char* fltk::line_dashes_;
-
-/*! \fn void fltk::setcolor(Color)
-  Set the color for all subsequent drawing operations.
-  \see setcolor_alpha()   
-*/
-
-/*! \fn void fltk::setcolor_alpha(Color, float)
-  Set the color + a transparency coeff for all subsequent drawing operations.
-  \see setcolor()   
-*/
 
 /*! \fn Color fltk::getcolor()
   Returns the last Color passed to setcolor().
@@ -213,9 +320,9 @@ const char* fltk::line_dashes_;
     - INACTIVE_R : Draw inactive, fill images with solid fg color
     - VALUE: Draw turned on or checked
     - SELECTED: Draw as though selected in a browser or menu.
-    - HIGHLIGHT: Draw as though highlighted with the mouse pointing at it
-    - PUSHED: The mouse is pushing this button. This also inverts VALUE.
-    - FOCUSED: Indicates that the current object has keyboard focus.
+    - HIGHLIGHT: Draw as though highlighted by the mouse pointing at it
+    - PUSHED: Draw as though pushed by the user
+    - FOCUSED: Draw as though it has keyboard focus
     - INVISIBLE: Some boxes don't draw their interior if this is set
 
   \see fltk::drawstyle()
@@ -228,42 +335,6 @@ const char* fltk::line_dashes_;
 /*! \fn Flags fltk::drawflags(Flags f)
   Same as (drawflags() & f), returns true if any of the flags in \a f
   are set.
-*/
-
-/*! \fn void fltk::line_style(int style, float width, const char* dashes)
-
-  Set how to draw lines (the "pen"). If you change this it is your
-  responsibility to set it back to the default with
-  fltk::line_style(0).
-
-  \a style is a bitmask in which you 'or' the following values. If you
-  don't specify a dash type you will get a solid line. If you don't
-  specify a cap or join type you will get a system-defined default of
-  whatever value is fastest.
-  - fltk::SOLID      -------
-  - fltk::DASH       - - - -
-  - fltk::DOT        ·········
-  - fltk::DASHDOT    - · - ·
-  - fltk::DASHDOTDOT - ·· - ··
-  - fltk::CAP_FLAT
-  - fltk::CAP_ROUND
-  - fltk::CAP_SQUARE (extends past end point 1/2 line width)
-  - fltk::JOIN_MITER (pointed)
-  - fltk::JOIN_ROUND
-  - fltk::JOIN_BEVEL (flat)
-
-  \a width is the number of pixels thick to draw the lines. Zero
-  results in the system-defined default, which on both X and Windows
-  is somewhat different and nicer than 1.
-
-  \a dashes is a pointer to an array of dash lengths, measured in
-  pixels, if set then the dash pattern in \a style is ignored.
-  The first location is how long to draw a solid portion, the
-  next is how long to draw the gap, then the solid, etc. It is
-  terminated with a zero-length entry. A null pointer or a zero-length
-  array results in a solid line. Odd array sizes are not supported and
-  result in undefined behavior. <i>The dashes array is ignored on
-  Windows 95/98.</i>
 */
 
 /*! \fn int fltk::line_style()
@@ -282,18 +353,6 @@ const char* fltk::line_dashes_;
   if it is NULL or not.
 */
 
-/**
-   Sets the current rgb and alpha to draw in, on rendering systems that
-   allow it. If alpha is not supported this is the same as setcolor().
-*/
-FL_API void fltk::setcolor_alpha(Color c, float alpha) {
-  fltk::setcolor(c);
-#if USE_CAIRO
-  uchar r,g,b; split_color(c,r,g,b);
-  cairo_set_source_rgba(cc,r/255.0,g/255.0,b/255.0,alpha);
-#endif
-}
-
 //
-// End of "$Id: setcolor.cxx 5588 2007-01-07 08:58:19Z spitzak $".
+// End of "$Id: setcolor.cxx 6249 2008-09-15 06:21:01Z spitzak $".
 //

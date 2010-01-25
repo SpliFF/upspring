@@ -1,4 +1,4 @@
-// "$Id: win32.h 5583 2007-01-06 21:26:09Z fabien $"
+// "$Id: win32.h 6233 2008-09-14 07:54:06Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -114,6 +114,9 @@ extern pfGetTextMetricsW     __GetTextMetricsW;
 
 namespace fltk {
 
+/// \name fltk/win32.h
+//@{
+
 ////////////////////////////////////////////////////////////////
 // constant information about the display:
 
@@ -181,10 +184,12 @@ extern FL_API HCURSOR default_cursor;
 
 #endif // Fl_Window_H
 
+//@}
+
 }
 
 #endif
 
 //
-// End of "$Id: win32.h 5583 2007-01-06 21:26:09Z fabien $".
+// End of "$Id: win32.h 6233 2008-09-14 07:54:06Z spitzak $".
 //

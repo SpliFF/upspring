@@ -1,4 +1,4 @@
-// "$Id: Fl_Gl_Window.cxx 5233 2006-06-25 06:11:31Z spitzak $"
+// "$Id: Fl_Gl_Window.cxx 5936 2007-07-24 11:25:53Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -29,6 +29,7 @@
 #include <fltk/visual.h>
 #include <fltk/layout.h>
 #include <fltk/run.h>
+#include <fltk/events.h>
 #include <stdlib.h>
 #include <string.h>
 using namespace fltk;
@@ -248,12 +249,15 @@ void GlWindow::make_current() {
     if (!gl_choice) {error("Insufficient GL support"); return;}
   }
 #endif
+
   if (!context_) {
     mode_ &= ~NON_LOCAL_CONTEXT;
     context_ = create_gl_context(this, gl_choice);
+    set_gl_context(this, context_);
     valid(0);
+  } else {
+    set_gl_context(this, context_);
   }
-  set_gl_context(this, context_);
 }
 
 /**
@@ -363,8 +367,8 @@ void GlWindow::flush() {
       static GLContext ortho_context = 0;
       static GlWindow* ortho_window = 0;
       if (!ortho_context) {
-	ortho_context = create_gl_context(this, gl_choice);
-	save_valid = 0;
+        ortho_context = create_gl_context(this, gl_choice);
+        save_valid = 0;
       }
       set_gl_context(this, ortho_context);
       if (!save_valid || ortho_window != this) {
@@ -533,8 +537,20 @@ and initialize to exactly the same setting.
 */
 void GlWindow::draw_overlay() {}
 
+int GlWindow::handle( int event )
+{
+#if USE_QUARTZ
+    switch ( event ) {
+    case HIDE:
+        aglSetDrawable( context(), NULL );
+        break;
+    }
+#endif
+    return Window::handle( event );
+}
+
 #endif
 
 //
-// End of "$Id: Fl_Gl_Window.cxx 5233 2006-06-25 06:11:31Z spitzak $".
+// End of "$Id: Fl_Gl_Window.cxx 5936 2007-07-24 11:25:53Z spitzak $".
 //

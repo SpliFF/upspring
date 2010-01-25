@@ -1,5 +1,5 @@
 //
-// "$Id: list_fonts.cxx 5556 2006-12-13 00:55:45Z spitzak $"
+// "$Id: list_fonts.cxx 5958 2007-10-17 20:21:38Z spitzak $"
 //
 // _WIN32 font utilities for the Fast Light Tool Kit (FLTK).
 //
@@ -172,7 +172,10 @@ int fltk::list_fonts(Font**& arrayp) {
   HDC dc = getDC();
 
   if (has_unicode()) {
-    EnumFontFamiliesExW(dc, NULL, (FONTENUMPROCW)enumcbW, 0, 0);
+    LOGFONTW lf;
+    memset(&lf, 0, sizeof(lf));
+    lf.lfCharSet = DEFAULT_CHARSET;
+    EnumFontFamiliesExW(dc, &lf, (FONTENUMPROCW)enumcbW, 0, 0);
   } else {
     LOGFONT lf;
     memset(&lf, 0, sizeof(lf));
@@ -224,5 +227,5 @@ static const char* GetFontSubstitutes(const char* name,int& len)
 #endif
 
 //
-// End of "$Id: list_fonts.cxx 5556 2006-12-13 00:55:45Z spitzak $"
+// End of "$Id: list_fonts.cxx 5958 2007-10-17 20:21:38Z spitzak $"
 //

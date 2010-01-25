@@ -1,5 +1,5 @@
 //
-// "$Id: Style.cxx 5459 2006-09-19 02:44:35Z spitzak $"
+// "$Id: Style.cxx 5918 2007-06-26 18:49:21Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -72,7 +72,6 @@ static void revert(Style* s) {
   s->parent_		= 0;	// this is the topmost style always
   s->box_		= DOWN_BOX;
   s->buttonbox_		= UP_BOX;
-  s->focusbox_		= FOCUS_FRAME;
   s->glyph_		= Widget::default_glyph;
   s->labelfont_		= HELVETICA;
   s->textfont_		= HELVETICA;
@@ -105,17 +104,6 @@ int Style::wheel_scroll_lines_ = 3;
 /*! \fn Box* Style::buttonbox()	const
   The type of box to draw buttons internal the widget (notice that
   fltk::Button uses box, however). The default is fltk::UP_BOX.
-*/
-
-/*! \fn Box* Style::focusbox() const
-
-  Widgets draw this box atop the buttonbox() after they draw any
-  labels or other graphics. If you have working alpha compositing
-  this can add a translucent or highlighted overlay over the buttons.
-
-  This is called focusbox() because by default it is used to draw
-  the Windows-style dotted focus lines. The default box draws this
-  dotted line if FOCUESED is true, and draws nothing if false.
 */
 
 /*! \fn Symbol* Style::glyph() const;
@@ -293,7 +281,6 @@ void Widget::FIELD(TYPE v) {		\
 
 style_functions(Box*,	box		)
 style_functions(Box*,	buttonbox	)
-style_functions(Box*,	focusbox	)
 style_functions(Symbol*,	glyph		)
 style_functions(Font*,		labelfont	)
 style_functions(Font*,		textfont	)
@@ -409,7 +396,7 @@ void fltk::drawstyle(const Style* style, Flags flags) {
     else {bg = style->color(); fg = style->textcolor();}
     // fg = contrast(fg, bg);this messes up things
   }
-  if (flags & INACTIVE_R) fg = inactive(fg);
+  if (flags & INACTIVE_R) fg = inactive(fg,bg);
   setcolor(fg);
   setbgcolor(bg);
   if (flags & OUTPUT) setfont(style->labelfont(), style->labelsize());
@@ -583,26 +570,23 @@ bool fltk::reset_theme() {
 void fltk::set_background(Color c) {
   uchar r, g, b;
   split_color( c, r, g, b );
-  double powr,powg,powb;
-  if (r < 0x10 || g < 0x10 || b < 0x10) {
-    powr = powg = powb = 1;
-  } else if (r <= 0xf0 && g <= 0xf0 && b <= 0xf0) {
-    powr = log(r/255.0)/log((GRAY75-GRAY00)/float(GRAY99-GRAY00));
-    powg = log(g/255.0)/log((GRAY75-GRAY00)/float(GRAY99-GRAY00));
-    powb = log(b/255.0)/log((GRAY75-GRAY00)/float(GRAY99-GRAY00));
-  } else {
-    powr = powg = powb = 4;
+  int i;
+  int R, G, B;
+  for (i = GRAY00; i <= GRAY99; i++) {
+    if (i <= GRAY75) {
+      R = r*(i-GRAY00)/(GRAY75-GRAY00);
+      G = g*(i-GRAY00)/(GRAY75-GRAY00);
+      B = b*(i-GRAY00)/(GRAY75-GRAY00);
+    } else {
+      const int DELTA = ((0xff-0xe0)*(i-GRAY75))/(GRAY99-GRAY75);
+      R = r+DELTA; if (R > 255) R = 255;
+      G = g+DELTA; if (G > 255) G = 255;
+      B = b+DELTA; if (B > 255) B = 255;
+    }
+    set_color_index(Color(i), color(R,G,B));
   }
-  for (int i = 0; i <= (GRAY99-GRAY00); i++) if (i != GRAY75) {
-    double gray = i/float(GRAY99-GRAY00);
-    set_color_index(Color(GRAY00+i),
-		    color(uchar(pow(gray,powr)*255+.5),
-			  uchar(pow(gray,powg)*255+.5),
-			  uchar(pow(gray,powb)*255+.5)));
-  }
-  set_color_index(GRAY75, c);
 }
 
 //
-// End of "$Id: Style.cxx 5459 2006-09-19 02:44:35Z spitzak $".
+// End of "$Id: Style.cxx 5918 2007-06-26 18:49:21Z spitzak $".
 //

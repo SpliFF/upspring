@@ -1,5 +1,5 @@
 //
-// "$Id: WidgetType.cxx 5736 2007-03-12 16:50:16Z spitzak $"
+// "$Id: WidgetType.cxx 6141 2008-07-13 06:41:56Z spitzak $"
 //
 // Widget type code for the Fast Light Tool Kit (FLTK).
 //
@@ -1220,7 +1220,7 @@ void line_cb(fltk::ValueInput* i, void* v) {
     i->value(((fltk::Valuator*)(current_widget->o))->linesize());
   } else {
     int n = int(i->value());
-    if (n > 0) for_all_selected_widgets() {
+    if (n >= 0) for_all_selected_widgets() {
       modflag = 1;
       WidgetType* q = (WidgetType*)o;
       if (q->is_valuator()) {
@@ -2359,6 +2359,19 @@ void WidgetType::copy_properties() {
   if (resizable() && w->parent()) 
     w->parent()->resizable(o);
 }
+
+int WidgetType::textstuff(int w, fltk::Font* f, float& s, fltk::Color c) {
+  fltk::Widget *myo = (fltk::Widget *)(w==4 ? ((WidgetType*)factory)->o : o);
+  switch (w) {
+    case 4:
+    case 0: f = myo->textfont(); s = myo->textsize(); c = myo->textcolor(); break;
+    case 1: myo->textfont(f); break;
+    case 2: myo->textsize((float)s); break;
+    case 3: myo->textcolor(c); break;
+  }
+  return 1;
+}
+
 //
-// End of "$Id: WidgetType.cxx 5736 2007-03-12 16:50:16Z spitzak $".
+// End of "$Id: WidgetType.cxx 6141 2008-07-13 06:41:56Z spitzak $".
 //

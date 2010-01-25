@@ -1,5 +1,5 @@
 //
-// "$Id: list_visuals.cxx 4886 2006-03-30 09:55:32Z fabien $"
+// "$Id: list_visuals.cxx 6143 2008-07-16 04:51:50Z spitzak $"
 //
 // Visual list utility for the Fast Light Tool Kit (FLTK).
 //
@@ -128,7 +128,7 @@ void list_visuals() {
 			   overlayVisualsAtom, 0L, 10000L, False,
 			   overlayVisualsAtom, &actualType, &actualFormat,
 			   &sizeData, &bytesLeft,
-			   (unsigned char **) &overlayInfo))
+			   (unsigned char **)(void*)&overlayInfo))
       numoverlayinfo = int(sizeData/4);
   }
 
@@ -223,5 +223,5 @@ int main(int argc, char **argv) {
 #endif
 
 //
-// End of "$Id: list_visuals.cxx 4886 2006-03-30 09:55:32Z fabien $".
+// End of "$Id: list_visuals.cxx 6143 2008-07-16 04:51:50Z spitzak $".
 //

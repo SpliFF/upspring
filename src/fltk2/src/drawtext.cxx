@@ -1,5 +1,5 @@
 //
-// "$Id: drawtext.cxx 5516 2006-10-10 10:27:04Z fabien $"
+// "$Id: drawtext.cxx 6052 2008-02-26 16:52:07Z fabien $"
 //
 // Copyright 1998-2003 by Bill Spitzak and others.
 //
@@ -433,9 +433,20 @@ static void wrap(
     width = 0;
     if (underscore) {
       if (!fl_hide_underscore) {
-	const char* us = "_";
-	add(0, us, us+1, x, y+ascent, getsize(),getsize(), ascent, spacing);
-      }
+	const char* us = "_"; 
+	// on the some platforms the underscore sticks to the bottom of the letter
+	// so add space to enhance the shortcut appearance 
+	// finally, the shortcut symbol should be centered for all platforms 
+	// whatever the font is so add a potential delta
+	int xdelta = (int) (getwidth(p,1)-getwidth(us,1))/2;
+	int ydelta =
+#ifndef	_WIN32
+	    (getdescent())/2;
+#else
+	(getdescent())/2 -1;
+#endif
+	add(0, us, us+1, x+xdelta, y+ascent+ydelta, getsize(),getsize(), ascent, spacing);
+}
       p = q;
     } else if (symbol) {
       if (!symbol_w) {
@@ -508,7 +519,7 @@ static float split(
       x = 0; y = max_y;
       column = column_widths_;
       current_column = 0;
-      ::flags = flags;
+      //::flags = flags;
     } else { // tab
       x += w;
       current_column++;
@@ -665,5 +676,5 @@ void fltk::measure(float (*getwidth)(const char*, int),
 }
 
 //
-// End of "$Id: drawtext.cxx 5516 2006-10-10 10:27:04Z fabien $".
+// End of "$Id: drawtext.cxx 6052 2008-02-26 16:52:07Z fabien $".
 //

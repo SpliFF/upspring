@@ -1,5 +1,5 @@
 //
-// "$Id: Menu_add.cxx 5473 2006-09-21 01:32:47Z spitzak $"
+// "$Id: Menu_add.cxx 5896 2007-06-08 18:19:39Z spitzak $"
 //
 // Menu utilities for the Fast Light Tool Kit (FLTK).
 //
@@ -222,6 +222,7 @@ static Widget* innards(
   item->shortcut(shortcut);
   if (callback) item->callback(callback);
   item->user_data(data);
+  item->w(0); item->h(0); // force re-measure
   top->relayout();
   return item;
 }
@@ -451,5 +452,5 @@ Widget* Menu::add_many(const char *str) {
 }
 
 //
-// End of "$Id: Menu_add.cxx 5473 2006-09-21 01:32:47Z spitzak $".
+// End of "$Id: Menu_add.cxx 5896 2007-06-08 18:19:39Z spitzak $".
 //

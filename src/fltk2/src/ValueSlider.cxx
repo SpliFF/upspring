@@ -1,4 +1,4 @@
-// "$Id: ValueSlider.cxx 5433 2006-09-16 03:00:02Z spitzak $"
+// "$Id: ValueSlider.cxx 5826 2007-05-14 13:31:59Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -213,4 +213,4 @@ ValueSlider::~ValueSlider() {
   input.parent(0); // keep it from calling Group::remove(&input) on this
 }
 
-// End of "$Id: ValueSlider.cxx 5433 2006-09-16 03:00:02Z spitzak $".
+// End of "$Id: ValueSlider.cxx 5826 2007-05-14 13:31:59Z spitzak $".

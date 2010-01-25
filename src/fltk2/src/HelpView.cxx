@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.cxx 5448 2006-09-19 01:14:07Z spitzak $"
+// "$Id: HelpView.cxx 5959 2007-10-17 20:38:11Z spitzak $"
 //
 // HelpView widget routines.
 //
@@ -59,6 +59,7 @@
 #include <fltk/Font.h>
 #include <fltk/xpmImage.h>
 #include <fltk/draw.h>
+#include <fltk/damage.h>
 #include <fltk/events.h>
 #include <fltk/Cursor.h>
 #include <stdio.h>
@@ -334,9 +335,9 @@ static void fltk_xyline(int x, int y, int x1) {
 
 void 
 HelpView::write_text (const char * buf, const char * ptr, int X, int Y, int X1, int underline) {
-    drawtext (buf, (float) X+x(), (float) Y+y());
+    drawtext (buf, (float) X, (float) Y);
     if (underline) {
-      fltk_xyline(X+x(), Y+1+y(), X+X1+x());
+      fltk_xyline(X, Y+1, X+X1);
     }
 }
 
@@ -370,6 +371,11 @@ HelpView::draw()
   box(b);
   draw_box(Rectangle(0, 0, ww, hh));
 
+  if (damage() & (DAMAGE_ALL | DAMAGE_CHILD)) {
+    hscrollbar_->set_damage(DAMAGE_ALL);
+	scrollbar_->set_damage(DAMAGE_ALL);
+  }
+
   if (hscrollbar_->visible()) {
     update_child (*hscrollbar_);
     hh -= 17;
@@ -389,7 +395,14 @@ HelpView::draw()
     return;
 
   // Clip the drawing to the inside of the box...
-  Rectangle tmp(*this);
+  Rectangle tmp(0, 0, w(), h());
+
+  if(scrollbar_->visible())
+    tmp.w(tmp.w() - scrollbar_->w());
+
+  if(hscrollbar_->visible())
+    tmp.h(tmp.h() - hscrollbar_->h());
+
   b->inset(tmp);
   fltk::push_clip(tmp);
 
@@ -487,8 +500,8 @@ HelpView::draw()
 
 	      drawtext (buf, float(xx - leftline_), float(yy));
 	      ww = (int)getwidth(buf);
-	      if (underline) fltk_xyline(xx + x() - leftline_, yy + y() + 1,
-	                               xx + x() - leftline_ + ww);
+	      if (underline) fltk_xyline(xx - leftline_, yy + 1,
+	                               xx - leftline_ + ww);
               xx += ww;
 	    }
 
@@ -548,8 +561,7 @@ HelpView::draw()
 	  }
 	  else if (strcasecmp(buf, "HR") == 0)
 	  {
-	    fltk_line(block->x + x(), yy + y(), block->w + x(),
-	            yy + y());
+	    fltk_line(block->x, yy, block->w, yy);
 
 	    if (line < 31)
 	      line ++;
@@ -859,8 +871,8 @@ HelpView::draw()
       if (s > buf && !head)
       {
         drawtext(buf, (float) xx - leftline_, (float) yy );
-	if (underline) fltk_xyline(xx + x() - leftline_, yy + y() + 1,
-	                         xx + x() - leftline_ + ww);
+	if (underline) fltk_xyline(xx - leftline_, yy + 1,
+	                         xx - leftline_ + ww);
       }
     }
 
@@ -969,8 +981,6 @@ HelpView::format()
 		columns[MAX_COLUMNS];
 				// Column widths
   Color	tc, rc;		// Table/row background color
-  Box * b = box() ? box() : DOWN_BOX;
-				// Box to draw...
 
 
   // Reset document width...
@@ -1687,30 +1697,6 @@ HelpView::format()
     qsort(targets_, ntargets_, sizeof(HelpTarget),
           (compare_func_t)compare_targets);
 
-  Rectangle inside(*this);
-  b->inset(inside);
-
-  if (hsize_ > (inside.w() - 17)) {
-    hscrollbar_->show();
-
-    if (size_ <= (inside.h() - 17)) {
-      scrollbar_->hide();
-      hscrollbar_->resize(inside.x(), inside.b()-17, inside.w(), 17);
-    } else {
-      scrollbar_->show();
-      scrollbar_->resize(inside.r()-17, inside.y(), 17, inside.h()-17);
-      hscrollbar_->resize(inside.x(), inside.b()-17, inside.w()-17, 17);
-    }
-  } else {
-    hscrollbar_->hide();
-    if (size_ <= inside.h())
-      scrollbar_->hide();
-    else {
-      scrollbar_->resize(inside.r()-17, inside.y(), 17, inside.h());
-      scrollbar_->show();
-    }
-  }
-
   // Reset scrolling if it needs to be...
   if (scrollbar_->visible()) {
     int temph = h() - 8;
@@ -2410,8 +2396,8 @@ HelpView::handle(int event)	// I - Event to handle
 	  return (1);
 
     case MOVE :
-        xx = event_x() - x() + leftline_;
-	yy = event_y() - y() + topline_;
+        xx = event_x() + leftline_;
+        yy = event_y() + topline_;
 	break;
 
     case LEAVE :
@@ -2583,21 +2569,20 @@ HelpView::HelpView(int        xx,	// I - Left position
   size_         = 0;
   hsize_        = 0;
 
-  scrollbar_ = new Scrollbar(ww - 17, 0, 17, hh - 17);
+  scrollbar_ = new Scrollbar(ww - 17, yy, 17, hh - 17);
   scrollbar_->value(0, hh, 0, 1);
   scrollbar_->step(8.0);
-  scrollbar_->set_vertical();
   scrollbar_->callback(scrollbar_callback);
-  //scrollbar_->show();
+  scrollbar_->set_vertical();
 
-  hscrollbar_= new Scrollbar(0, hh - 17, ww - 17, 17);
+  hscrollbar_= new Scrollbar(xx, hh - 17, ww - 17, 17);
   hscrollbar_->value(0, ww, 0, 1);
   hscrollbar_->step(8.0);
   hscrollbar_->callback(hscrollbar_callback);
-  //hscrollbar_->show();
+
   end();
 
-  resize(xx, yy, ww, hh);
+  //resize(xx, yy, ww, hh);
 }
 
 
@@ -2715,25 +2700,38 @@ HelpView::load(const char *f)// I - Filename to load (may also have target)
   return (0);
 }
 
-
-//
-// 'HelpView::resize()' - Resize the help widget.
-// WAS: this should be removed and put into layout()!
-
-void
-HelpView::resize(int xx,	// I - New left position
-                     int yy,	// I - New top position
-		     int ww,	// I - New width
-		     int hh)	// I - New height
-{
-  Widget::resize(xx, yy, ww, hh);
-  format();
-}
-
-
 void 
 HelpView::layout() {
-  Group::layout();
+  Rectangle inside(0, 0, w(), h());
+  Box *b = box() ? box () : DOWN_BOX;
+  b->inset(inside);
+
+  if (hsize_ > (inside.w() - 17)) {
+    hscrollbar_->show();
+
+    if (size_ <= (inside.h() - 17)) {
+      scrollbar_->hide();
+      hscrollbar_->resize(inside.x(), inside.b()-17, inside.w(), 17);
+	  hscrollbar_->layout();
+    } else {
+      scrollbar_->show();
+      scrollbar_->resize(inside.r()-17, inside.y(), 17, inside.h()-17);
+      hscrollbar_->resize(inside.x(), inside.b()-17, inside.w()-17, 17);
+    }
+
+  } else {
+    hscrollbar_->hide();
+    if (size_ <= inside.h())
+      scrollbar_->hide();
+    else {
+      scrollbar_->resize(inside.r()-17, inside.y(), 17, inside.h());
+      scrollbar_->show();
+    }
+  }
+
+  // scrollbars will format() update additionaly
+  format();
+  Widget::layout();
 }
 
 
@@ -2982,5 +2980,5 @@ hscrollbar_callback(Widget *s, void *)
 }
 
 //
-// End of "$Id: HelpView.cxx 5448 2006-09-19 01:14:07Z spitzak $".
+// End of "$Id: HelpView.cxx 5959 2007-10-17 20:38:11Z spitzak $".
 //

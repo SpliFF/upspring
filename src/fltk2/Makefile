@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile 5254 2006-07-11 09:32:27Z fabien $"
+# "$Id: Makefile 6140 2008-06-17 19:03:01Z TobiasFar $"
 #
 # Top-level makefile for the Fast Light Tool Kit (FLTK).
 #
@@ -99,5 +99,6 @@ dos2unix:
 	chmod -x fltk/*.h src/*.cxx src/win32/*.cxx src/*.c images/*.cxx \
 		fluid/*.cxx fluid/*.h fluid/*.fl test/*.cxx test/*.h 
 #
-# End of "$Id: Makefile 5254 2006-07-11 09:32:27Z fabien $".
+# End of "$Id: Makefile 6140 2008-06-17 19:03:01Z TobiasFar $".
 #
+# DO NOT DELETE

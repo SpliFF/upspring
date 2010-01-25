@@ -1,5 +1,5 @@
 //
-// "$Id: fonts.cxx 5516 2006-10-10 10:27:04Z fabien $"
+// "$Id: fonts.cxx 5864 2007-05-31 14:27:07Z sanel.z $"
 //
 // Font demo program for the Fast Light Tool Kit (FLTK).
 //
@@ -47,7 +47,7 @@ fltk::Widget* id_box;
 
 void FontDisplay::draw() {
   draw_box();
-  fltk::push_clip(2,2,w()-2,h()-2);
+  fltk::push_clip(2,2,w()-4,h()-4);
   const char* saved_encoding = fltk::get_encoding();
   fltk::set_encoding(encoding);
   fltk::setfont(font, size);
@@ -142,17 +142,16 @@ void font_cb(fltk::Widget *, long) {
 
 void encoding_cb(fltk::Widget *, long) {
   int i = encobj->value();
-// CET - FIXME - new browser code has value starting from 0!
-//  if (!i) return;
+  if (i < 0)
+     return;
   textobj->encoding = encobj->child(i)->label();
   textobj->redraw();
 }
 
 void size_cb(fltk::Widget *, long) {
   int i = sizeobj->value();
-  if (i < 0) return;
-// CET - FIXME - new browser code has value starting from 0!
-//  if (!i) return;
+  if (i < 0) 
+     return;
   const char *c = sizeobj->child(i)->label();
   while (*c < '0' || *c > '9') c++;
   pickedsize = (float) atoi(c);
@@ -199,8 +198,9 @@ void create_the_forms() {
 int main(int argc, char **argv) {
   create_the_forms();
   int numfonts = fltk::list_fonts(fonts);
-  for (int i = 0; i < numfonts; i++) fontobj->add(fonts[i]->name());
-// CET - FIXME - new browser code has value starting from 0!
+  for (int i = 0; i < numfonts; i++)
+       fontobj->add(fonts[i]->name());
+
   fontobj->value(0);
   textobj->encoding = fltk::get_encoding();
   font_cb(fontobj,0);
@@ -209,5 +209,5 @@ int main(int argc, char **argv) {
 }
 
 //
-// End of "$Id: fonts.cxx 5516 2006-10-10 10:27:04Z fabien $".
+// End of "$Id: fonts.cxx 5864 2007-05-31 14:27:07Z sanel.z $".
 //

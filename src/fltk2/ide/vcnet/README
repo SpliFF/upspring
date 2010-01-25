@@ -3,5 +3,8 @@ Project files for MS Visual Studio .NET
 
 config.h is located in ../visualc directory.
 
+PLEASE *DO NOT* CHANGE THE VCPROJ TEST FILES DIRECTORY STRUCTURE !
+ALL PROJECT FILES MUST BE UPDABLE FROM VC6 TO VCNET IN ONE OPERATION,
+THUS FACILITATING FREQUENT UPDATES.
 .......................................
-$Id: README 5197 2006-06-14 07:43:46Z spitzak $
+$Id: README 6039 2008-02-22 20:04:05Z fabien $

@@ -1,4 +1,4 @@
-// "$Id: TabGroup.cxx 5575 2007-01-02 17:31:40Z spitzak $"
+// "$Id: TabGroup.cxx 6382 2008-10-05 22:23:51Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -471,8 +471,8 @@ void TabGroup::draw_tab(int x1, int x2, int W, int H, Widget* o, int what) {
 		abs(H)-1);
     drawstyle(o->style(), sel && focused() ? FOCUSED|OUTPUT : OUTPUT);
     setcolor(sel  ? selection_textcolor() : o->textcolor());
-    o->draw_label(r, ALIGN_CENTER);
-    if (sel && focused()) focusbox()->draw(r);
+    o->draw_label(r, (o->flags() & ~ALIGN_MASK)|ALIGN_CENTER);
+    FLAT_BOX->draw_symbol_overlay(r);
   }
 }
 
@@ -522,4 +522,4 @@ TabGroup::TabGroup(int X,int Y,int W, int H, const char *l,bool begin)
   pager_ = default_pager_->clone();
 }
 
-// End of "$Id: TabGroup.cxx 5575 2007-01-02 17:31:40Z spitzak $".
+// End of "$Id: TabGroup.cxx 6382 2008-10-05 22:23:51Z spitzak $".

@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile 4923 2006-04-10 12:02:26Z fabien $"
+# "$Id: Makefile 6151 2008-08-04 23:03:58Z spitzak $"
 #
 # FLTK-plugin makefile for the Fast Light Tool Kit (FLTK).
 #
@@ -87,8 +87,7 @@ none.theme : $(NONE_OBJ)
 	$(THEMECOMMAND) $@ $(NONE_OBJ) $(DSOLIBS) $(THEMELIBS)
 
 clean :
-	-@ rm -f *.o $(LIBRARY)$(LIBEXT) $(THEMES) core *~ makedepend
-	@touch makedepend
+	-@ rm -f *.o $(LIBRARY)$(LIBEXT) $(THEMES) core *~
 
 install : $(INSTALLTARGETS)
 
@@ -108,8 +107,10 @@ depend:
 	cat foo >> makedepend
 	rm foo
 
+makedepend:
+	touch makedepend
 include makedepend
 
 #
-# End of "$Id: Makefile 4923 2006-04-10 12:02:26Z fabien $".
+# End of "$Id: Makefile 6151 2008-08-04 23:03:58Z spitzak $".
 #

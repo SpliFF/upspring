@@ -1,5 +1,5 @@
 //
-// "$Id: FileInput.cxx 5600 2007-01-13 00:04:55Z spitzak $"
+// "$Id: FileInput.cxx 5918 2007-06-26 18:49:21Z spitzak $"
 //
 // File_Input header file for the Fast Light Tool Kit (FLTK).
 //
@@ -212,12 +212,12 @@ void FileInput::draw() {
 	  fltk::setfont(labelfont(), labelsize());
 	  float width = getwidth(label());
 	  label_width = int(width+getwidth(":")+2.5);
-	  setcolor(color());
+          Color color = this->color();
+	  setcolor(color);
 	  Rectangle lr(r); lr.w(label_width);
 	  fillrect(lr);
-	  Color color = labelcolor();
-	  if (flag(INACTIVE_R)) color = inactive(color);
-	  setcolor(color);
+	  if (flag(INACTIVE_R)) setcolor(inactive(labelcolor(), color));
+          else setcolor(labelcolor());
 	  float y = r.y()+((r.h()-height)>>1)+desc;
 	  drawtext(label(), float(r.x()+2), y);
 	  drawtext(":", r.x()+2+width, y);
@@ -347,5 +347,5 @@ FileInput::handle_button(int event)		// I - Event
 
 
 //
-// End of "$Id: FileInput.cxx 5600 2007-01-13 00:04:55Z spitzak $".
+// End of "$Id: FileInput.cxx 5918 2007-06-26 18:49:21Z spitzak $".
 //

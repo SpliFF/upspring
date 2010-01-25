@@ -1,5 +1,5 @@
 //
-// "$Id: code.cxx 5058 2006-05-01 17:28:45Z fabien $"
+// "$Id: code.cxx 5935 2007-07-23 21:14:48Z spitzak $"
 //
 // Code output routines for the Fast Light Tool Kit (FLTK).
 //
@@ -347,10 +347,9 @@ int write_code(const char *s, const char *t) {
   fprintf(header_file, "#define %s\n", define_name);
   }  
 
-  if (*t == '.' && strchr(t, '/') == NULL) {
+  if (t) {
+    // Ideally this should figure out the relative path between s and t:
     write_c("#include \"%s\"\n", filename_name(t));
-  } else {
-    write_c("#include \"%s\"\n", t);
   }
 
   for (FluidType* p = FluidType::first; p; p = p->next_brother) {
@@ -393,5 +392,5 @@ void FluidType::write_code() {
 }
 
 //
-// End of "$Id: code.cxx 5058 2006-05-01 17:28:45Z fabien $".
+// End of "$Id: code.cxx 5935 2007-07-23 21:14:48Z spitzak $".
 //

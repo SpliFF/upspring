@@ -1,5 +1,5 @@
 //
-// "$Id: TextEditor.cxx 5389 2006-09-01 15:39:19Z spitzak $"
+// "$Id: TextEditor.cxx 6508 2008-11-09 23:35:19Z spitzak $"
 //
 // Copyright 2001-2006 by Bill Spitzak and others.
 // Original code Copyright Mark Edel.  Permission to distribute under
@@ -53,7 +53,11 @@ TextEditor::TextEditor(int X, int Y, int W, int H, const char* l)
   default_key_function(kf_default);
 }
 
-TextEditor::~TextEditor() { remove_all_key_bindings(); }
+extern Widget* fl_pending_callback;
+TextEditor::~TextEditor() {
+  if (fl_pending_callback == this) fl_pending_callback = 0;
+  remove_all_key_bindings();
+}
 
 TextEditor::Key_Binding* TextEditor::global_key_bindings = 0;
 
@@ -198,8 +202,9 @@ int TextEditor::kf_ignore(int, TextEditor*) {
 }
 
 int TextEditor::kf_backspace(int, TextEditor* e) {
+  int oldpos = e->insert_position();
   if (!e->buffer()->selected() && e->move_left())
-    e->buffer()->select(e->insert_position(), e->insert_position()+1);
+    e->buffer()->select(e->insert_position(), oldpos);
   kill_selection(e);
   e->show_insert_position();
   e->maybe_do_callback();
@@ -339,8 +344,9 @@ int TextEditor::kf_insert(int, TextEditor* e) {
 }
 
 int TextEditor::kf_delete(int, TextEditor* e) {
-  if (!e->buffer()->selected())
-    e->buffer()->select(e->insert_position(), e->insert_position()+1);
+  int oldpos = e->insert_position();
+  if (!e->buffer()->selected() && e->move_right())
+    e->buffer()->select(oldpos, e->insert_position());
   kill_selection(e);
   e->show_insert_position();
   e->maybe_do_callback();
@@ -396,8 +402,8 @@ int TextEditor::handle_key() {
   int del;
   if (fltk::compose(del)) {
     if (del) buffer()->select(insert_position()-del, insert_position());
-    kill_selection(this);
     if (event_length()) {
+      kill_selection(this);
       if (insert_mode()) insert(event_text());
       else overstrike(event_text());
     }
@@ -415,8 +421,6 @@ int TextEditor::handle_key() {
   if (default_key_function_ && !state) return default_key_function_(c, this);
   return 0;
 }
-
-extern Widget* fl_pending_callback;
 
 // Called by any changes to the text, this correctly triggers callbacks:
 void TextEditor::maybe_do_callback() {
@@ -490,5 +494,5 @@ int TextEditor::handle(int event) {
 }
 
 //
-// End of "$Id: TextEditor.cxx 5389 2006-09-01 15:39:19Z spitzak $".
+// End of "$Id: TextEditor.cxx 6508 2008-11-09 23:35:19Z spitzak $".
 //

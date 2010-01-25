@@ -1,4 +1,4 @@
-// "$Id: osx.h 5578 2007-01-03 04:06:26Z spitzak $"
+// "$Id: osx.h 6233 2008-09-14 07:54:06Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -52,9 +52,11 @@ the X version of these is described here.
 # include "draw.h"
 
 ////////////////////////////////////////////////////////////////
-// Emulate X somewhat:
 
 namespace fltk {
+
+/// \name fltk/osx.h
+//@{
 
 ////////////////////////////////////////////////////////////////
 // constant information about the display:
@@ -129,6 +131,8 @@ extern const Widget* cursor_for;
 
 # endif //Fl_Window_H
 
+//@}
+
 }
 
 # if USE_CAIRO
@@ -140,4 +144,4 @@ extern const Widget* cursor_for;
 
 #endif
 
-// End of "$Id: osx.h 5578 2007-01-03 04:06:26Z spitzak $".
+// End of "$Id: osx.h 6233 2008-09-14 07:54:06Z spitzak $".

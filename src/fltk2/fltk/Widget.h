@@ -1,4 +1,4 @@
-// "$Id: Widget.h 5600 2007-01-13 00:04:55Z spitzak $"
+// "$Id: Widget.h 6518 2008-11-11 22:31:26Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -31,6 +31,8 @@ class FL_API Widget;
 class FL_API Window;
 class FL_API Symbol;
 class FL_API Group;
+class FL_API AssociationType;
+class FL_API AssociationFunctor;
 struct Cursor;
 
 typedef void (Callback )(Widget*, void*);
@@ -70,12 +72,11 @@ public:
 
   enum WidgetVisualType {
     // Values for type() shared by Button and menu Item, and for fake RTTI:
-    NORMAL = 0,
     RESERVED_TYPE      = 0x64,
-    TOGGLE = RESERVED_TYPE+1,
-    RADIO  = RESERVED_TYPE+2,
+    TOGGLE    = RESERVED_TYPE+1,
+    RADIO     = RESERVED_TYPE+2,
     GROUP_TYPE         = 0xe0,
-    WINDOW_TYPE                = 0xf0
+    WINDOW_TYPE        = 0xf0
   };
 
   uchar	type() const		{ return type_; }
@@ -101,10 +102,10 @@ public:
   void	tooltip(const char *t)	{ tooltip_ = t; }
 
   unsigned shortcut() const	;
-  bool	shortcut(unsigned key)	;
+  void	shortcut(unsigned key)	;
   bool	add_shortcut(unsigned key);
   bool	remove_shortcut(unsigned key);
-  bool  remove_shortcuts()	;
+  void  remove_shortcuts()	;
   unsigned label_shortcut() const;
   bool	test_label_shortcut() const;
   bool	test_shortcut() const	;
@@ -216,7 +217,6 @@ public:
 
   Box*	box()			const;
   Box*	buttonbox()		const;
-  Box*	focusbox()		const;
   Symbol* glyph()		const;
   Font*	labelfont()		const;
   Font*	textfont()		const;
@@ -237,7 +237,6 @@ public:
 
   void box(Box*)		;
   void buttonbox(Box*)		;
-  void focusbox(Box*)		;
   void glyph(Symbol*)		;
   void labelfont(Font*)		;
   void textfont(Font*)		;
@@ -255,6 +254,13 @@ public:
   void leading(float a)		;
   void scrollbar_align(unsigned char);
   void scrollbar_width(unsigned char);
+
+  void  add(const AssociationType&, void* data);
+  void  set(const AssociationType&, void* data);
+  void* get(const AssociationType&) const;
+  void* foreach(const AssociationType&, AssociationFunctor&) const;
+  bool  remove(const AssociationType&, void* data);
+  bool  find(const AssociationType&, void* data) const;
 
 #ifdef FLTK_1_WIDGET  // back-compatability section:
 
@@ -321,5 +327,5 @@ enum { // Widget::when() values
 #endif
 
 //
-// End of "$Id: Widget.h 5600 2007-01-13 00:04:55Z spitzak $".
+// End of "$Id: Widget.h 6518 2008-11-11 22:31:26Z spitzak $".
 //

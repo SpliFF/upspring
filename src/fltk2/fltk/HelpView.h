@@ -1,5 +1,5 @@
 //
-// "$Id: HelpView.h 4886 2006-03-30 09:55:32Z fabien $"
+// "$Id: HelpView.h 5860 2007-05-30 18:32:26Z sanel.z $"
 //
 // Help Viewer widget definitions.
 //
@@ -171,7 +171,6 @@ public:
     link_ = fn;
   }
   int load (const char *f);
-  void resize (int, int, int, int);
   void layout();
   int size () const { return (size_); } 
 
@@ -198,5 +197,5 @@ public:
 #endif // !HelpView_H
 
 //
-// End of "$Id: HelpView.h 4886 2006-03-30 09:55:32Z fabien $".
+// End of "$Id: HelpView.h 5860 2007-05-30 18:32:26Z sanel.z $".
 //

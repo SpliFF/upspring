@@ -1,5 +1,5 @@
 //
-// "$Id: WindowType.cxx 5493 2006-09-28 03:31:05Z spitzak $"
+// "$Id: WindowType.cxx 5826 2007-05-14 13:31:59Z spitzak $"
 //
 // Window type code for the Fast Light Tool Kit (FLTK).
 //
@@ -801,5 +801,5 @@ void WindowType::copy_properties() {
 }
 
 //
-// End of "$Id: WindowType.cxx 5493 2006-09-28 03:31:05Z spitzak $".
+// End of "$Id: WindowType.cxx 5826 2007-05-14 13:31:59Z spitzak $".
 //

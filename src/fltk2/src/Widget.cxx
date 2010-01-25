@@ -1,5 +1,5 @@
 //
-// "$Id: Widget.cxx 5600 2007-01-13 00:04:55Z spitzak $"
+// "$Id: Widget.cxx 6514 2008-11-10 21:10:13Z spitzak $"
 //
 // Base widget class for the Fast Light Tool Kit (FLTK).
 //
@@ -76,21 +76,23 @@ Widget::Widget(int X, int Y, int W, int H, const char* L) :
 #else
   flags_	= TAB_TO_FOCUS;
 #endif
-  type_		= NORMAL;
+  type_		= 0;
   damage_	= DAMAGE_ALL;
   layout_damage_= LAYOUT_DAMAGE;
   when_		= WHEN_RELEASE;
   if (Group::current()) Group::current()->add(this);
 }
 
+extern void delete_associations_for(Widget* widget); // in WidgetAssociation.cxx
+
 /*! The destructor is virtual. The base class removes itself from the
   parent widget (if any), and destroys any label made with copy_label().
 */
 Widget::~Widget() {
   remove_timeout();
-  remove_shortcuts();
   if (parent_) parent_->remove(this);
   throw_focus();
+  delete_associations_for(this);
   if (style_->dynamic()) {
     // When a widget is destroyed it can destroy unique styles:
     delete (Style*)style_; // cast away const
@@ -602,7 +604,7 @@ void Widget::redraw_label() {
     the widget if the no highlight color is being used.
 */
 void Widget::redraw_highlight() {
-  if (active() && highlight_color())
+  if (active() && highlight_color() && box()!=NO_BOX)
     redraw(DAMAGE_HIGHLIGHT);
 }
 
@@ -671,12 +673,14 @@ int Widget::handle(int event) {
     redraw_highlight();
     // fall through to MOVE:
   case MOVE:
-    // Setting belowmouse directly is not needed by most widgets, as
-    // send() will do it if this returns true. However if this widget
-    // has children and one of them is the belowmouse, send will not
-    // change it, so I have to call this here.
+    // This calls belowmouse() directly do this works as the fallback
+    // for Group::handle(), and also so it somewhat works if called
+    // directly rather than from send():
     fltk::belowmouse(this);
     return true;
+  case DND_DRAG:
+    fltk::belowmouse(this);
+    return false;
   case LEAVE:
     redraw_highlight();
     return true;
@@ -735,14 +739,12 @@ int Widget::send(int event) {
     // figure out correct type of event:
     event = (contains(fltk::belowmouse())) ? MOVE : ENTER;
     ret = handle(event);
-    if (ret) {
-      // If return value is true then this is the belowmouse widget,
-      // set it, but only if handle() did not set it to some child:
-      if (!contains(fltk::belowmouse())) fltk::belowmouse(this);
-    }
+    // Set belowmouse only if handle() did not set it to some child:
+    if (!contains(fltk::belowmouse())) fltk::belowmouse(this);
     break;
 
   case LEAVE:
+  case DND_LEAVE:
     clear_flag(HIGHLIGHT);
     ret = handle(event);
     break;
@@ -755,11 +757,8 @@ int Widget::send(int event) {
     event = (contains(fltk::belowmouse())) ? DND_DRAG : DND_ENTER;
     // see if it wants the event:
     ret = handle(event);
-    if (ret) {
-      // If return value is true then this is the belowmouse widget,
-      // set it, but only if handle() did not set it to some child:
-      if (!contains(fltk::belowmouse())) fltk::belowmouse(this);
-    }
+    // Set belowmouse only if handle() did not set it to some child:
+    if (!contains(fltk::belowmouse())) fltk::belowmouse(this);
     break;
 
   case PUSH:
@@ -1049,17 +1048,26 @@ bool Widget::state(bool v) {
 }
 
 /*!
-  Calls set() on this widget and calls clear() on all other widgets in
+  Calls set() on this widget and calls clear() on all adjacent widgets in
   the same parent Group that have the type() set to RADIO.
 */
 void Widget::setonly() {
   set();
-  for (int i = parent()->children(); i--;) {
-    Widget* o = parent()->child(i);
-    if (o != this && o->type() == RADIO) o->clear();
+  Group* g = parent();
+  int my_index = g->find( this );
+  int i;
+  for(i = my_index-1; i >= 0; --i ) {
+    Widget* c = g->child(i);
+    if( RADIO != c->type() ) break;
+    c->clear();
+  }
+  for(i = my_index+1; i < g->children(); ++i ) {
+    Widget* c = g->child(i);
+    if( RADIO != c->type() ) break;
+    c->clear();
   }
 }
 
 //
-// End of "$Id: Widget.cxx 5600 2007-01-13 00:04:55Z spitzak $".
+// End of "$Id: Widget.cxx 6514 2008-11-10 21:10:13Z spitzak $".
 //

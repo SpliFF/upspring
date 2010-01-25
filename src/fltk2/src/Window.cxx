@@ -1,5 +1,5 @@
 //
-// "$Id: Window.cxx 5600 2007-01-13 00:04:55Z spitzak $"
+// "$Id: Window.cxx 6393 2008-10-08 06:01:51Z spitzak $"
 //
 // Window widget class for the Fast Light Tool Kit (FLTK).
 //
@@ -132,10 +132,14 @@ void Window::_Window() {
 /*! This constructor is for \e child windows. You should use the
   constructor with just W and H for normal parent windows. This
   constructor leaves visible() true, so the child window will appear
-  when the parent window has show() called. */
+  when the parent window has show() called. WARNING: this is misleading
+  if this is *not* a child window, call clear_visible() for top-level
+  ones.
+*/
 Window::Window(int X,int Y,int W, int H, const char *l, bool begin)
 : Group(X, Y, W, H, l, begin) {
   _Window();
+  // if (!parent()) clear_visible(); // this breaks the popup menus
 }
 
 /*! This form of the constructor should be used for a "top-level"
@@ -339,7 +343,10 @@ int Window::handle(int event) {
   case HIDE:
     if (flag(MODAL)) modal(0, false);
 #if USE_X11
-    if (i) XUnmapWindow(xdisplay, i->xid);
+    if (i) {
+      if (!parent()) XWithdrawWindow(xdisplay, i->xid, xscreen);
+      XUnmapWindow(xdisplay, i->xid);
+    }
 #elif defined(_WIN32)
     if (i) {
       deferred_call(SHOW_WINDOW, i->xid, SW_HIDE);
@@ -822,9 +829,19 @@ void Window::destroy() {
   i = 0;
 
   // remove from the list of windows:
+#if USE_QUARTZ
+  // remove child/brother pointers as well...
+  if (CreatedWindow::first == x) CreatedWindow::first = x->next;
+  for (CreatedWindow* w = CreatedWindow::first; w; w = w->next) {
+    if (w->children == x) w->children = x->brother;
+    if (w->brother == x) w->brother = x->brother;
+    if (w->next == x) w->next = x->next;
+  }
+#else
   CreatedWindow** pp = &CreatedWindow::first;
   for (; *pp != x; pp = &(*pp)->next) if (!*pp) return;
   *pp = x->next;
+#endif
 
   // recursively remove any subwindows:
   for (CreatedWindow *x1 = CreatedWindow::first; x1;) {
@@ -891,5 +908,5 @@ Window::~Window() {
 // Implementation in the system-specific code
 
 //
-// End of "$Id: Window.cxx 5600 2007-01-13 00:04:55Z spitzak $".
+// End of "$Id: Window.cxx 6393 2008-10-08 06:01:51Z spitzak $".
 //

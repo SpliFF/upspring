@@ -1,4 +1,4 @@
-// "$Id: default_glyph.cxx 5008 2006-04-20 08:36:58Z spitzak $"
+// "$Id: default_glyph.cxx 5865 2007-06-01 13:04:19Z sanel.z $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -111,7 +111,7 @@ void DefaultGlyph::_draw(const Rectangle& rr) const
     if (i) {i = 0; setcolor(saved_color);}
     else break;
   }
-  if (box) drawstyle()->focusbox()->draw(r);
+  if (box) box->draw_symbol_overlay(rr);
 }
 
 /**
@@ -132,5 +132,5 @@ void Widget::draw_glyph(int which, const Rectangle& rectangle) const {
 }
 
 //
-// End of "$Id: default_glyph.cxx 5008 2006-04-20 08:36:58Z spitzak $".
+// End of "$Id: default_glyph.cxx 5865 2007-06-01 13:04:19Z sanel.z $".
 //

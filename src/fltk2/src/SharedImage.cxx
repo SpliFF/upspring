@@ -1,4 +1,4 @@
-// "$Id: SharedImage.cxx 5568 2006-12-30 07:54:24Z spitzak $"
+// "$Id: SharedImage.cxx 5768 2007-04-08 19:58:56Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -147,8 +147,7 @@ SharedImage* SharedImage::get(SharedImage* (*create)(),
     image=create();
     image->refcount = 1;
     image->name = newstring(name);
-    image->datas=datas;
-    image->setsize(-1,-1); // We mark the fact the it has never been measured yet
+    image->datas = datas;
     image->l1 = image->l2 = 0;
     SharedImage::insert(first_image, image);
   } else {
@@ -295,5 +294,5 @@ void SharedImage::remove_handler(SharedImage::Handler  f) {
 }
 
 //
-// End of "$Id: SharedImage.cxx 5568 2006-12-30 07:54:24Z spitzak $"
+// End of "$Id: SharedImage.cxx 5768 2007-04-08 19:58:56Z spitzak $"
 //

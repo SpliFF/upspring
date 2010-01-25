@@ -1,5 +1,5 @@
 //
-// "$Id: ThumbWheel.cxx 5600 2007-01-13 00:04:55Z spitzak $"
+// "$Id: ThumbWheel.cxx 5865 2007-06-01 13:04:19Z sanel.z $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -168,7 +168,7 @@ void ThumbWheel::draw() {
     }
   }
   setcolor(fg);
-  focusbox()->draw(r);
+  box()->draw_symbol_overlay(Rectangle(w(),h()));
 }
 
 ThumbWheel::ThumbWheel(int X,int Y,int W,int H,const char* L) : Valuator(X,Y,W,H,L) {
@@ -178,5 +178,5 @@ ThumbWheel::ThumbWheel(int X,int Y,int W,int H,const char* L) : Valuator(X,Y,W,H
 }
 
 //
-// End of "$Id: ThumbWheel.cxx 5600 2007-01-13 00:04:55Z spitzak $".
+// End of "$Id: ThumbWheel.cxx 5865 2007-06-01 13:04:19Z sanel.z $".
 //

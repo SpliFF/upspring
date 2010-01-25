@@ -1,5 +1,5 @@
 //
-// "$Id: TextDisplay.cxx 5576 2007-01-03 00:20:28Z spitzak $"
+// "$Id: TextDisplay.cxx 6921 2009-10-22 11:44:48Z AlbrechtS $"
 //
 // Copyright 2001-2006 by Bill Spitzak and others.
 // Original code Copyright Mark Edel.  Permission to distribute under
@@ -857,10 +857,11 @@ int TextDisplay::wrapped_row(int row) {
 void TextDisplay::display_insert() {
   int hOffset, topLine, X, Y;
   int lastChar = lastchar_;
+  int oldTopLine = topline_num_; // determine whether to update v_scrollbar
 
   /* FLTK widget shows one line too much (clipped at the bottom), so get last char from line before that */
   if (visiblelines_cnt_ > 1 && linestarts_[visiblelines_cnt_-2] != -1) {
-    lastChar = buffer()->line_end(linestarts_[visiblelines_cnt_-2]);
+    lastChar = line_end(linestarts_[visiblelines_cnt_-2]);
   }
 
   hOffset = horiz_offset_;
@@ -899,7 +900,7 @@ void TextDisplay::display_insert() {
   if(hOffset<0) hOffset = 0;
 
   /* Do the scroll */
-  if (topLine != topline_num_ || hOffset != horiz_offset_) {
+  if (topLine != oldTopLine || hOffset != horiz_offset_) {
     scroll_(topLine, hOffset);
     update_v_scrollbar();
     update_h_scrollbar();
@@ -958,7 +959,7 @@ bool TextDisplay::move_up() {
   if (position_to_line(cursor_pos_, &visLineNum))
     lineStartPos = linestarts_[visLineNum];
   else {
-    lineStartPos = buffer()->line_start(cursor_pos_);
+    lineStartPos = line_start(cursor_pos_);
     visLineNum = -1;
   }
   if (lineStartPos == 0)
@@ -972,7 +973,7 @@ bool TextDisplay::move_up() {
   if (visLineNum != -1 && visLineNum != 0)
     prevLineStartPos = linestarts_[visLineNum - 1];
   else
-    prevLineStartPos = buffer()->rewind_lines(lineStartPos, 1);
+    prevLineStartPos = rewind_lines(lineStartPos, 1);
 
   newPos = buffer_->skip_displayed_characters_utf(prevLineStartPos, column);
 
@@ -2277,7 +2278,8 @@ void TextDisplay::draw_line_numbers(bool clearAll) {
   fltk::push_clip(clipRect);
   
   // Erase background
-  fltk::setcolor(fltk::lerp(color(), fltk::BLACK, .1f));
+  Color bg = fltk::lerp(color(), fltk::BLACK, .1f);
+  fltk::setcolor(bg);
   fltk::fillrect(clipRect);
 
   // Draw separator line
@@ -2285,7 +2287,7 @@ void TextDisplay::draw_line_numbers(bool clearAll) {
   fltk::drawline(clipRect.r()-1, clipRect.y(), clipRect.r()-1, clipRect.b());
 
   // Draw text
-  fltk::setcolor(fltk::BLACK);
+  fltk::setcolor(fltk::contrast(color(), bg));
   fltk::setfont(textfont(), textsize());
 
   /* Draw the line numbers, aligned to the text */
@@ -3138,5 +3140,5 @@ int TextDisplay::handle(int event) {
 }
 
 //
-// End of "$Id: TextDisplay.cxx 5576 2007-01-03 00:20:28Z spitzak $".
+// End of "$Id: TextDisplay.cxx 6921 2009-10-22 11:44:48Z AlbrechtS $".
 //

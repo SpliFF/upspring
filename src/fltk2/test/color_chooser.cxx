@@ -1,4 +1,4 @@
-// "$Id: color_chooser.cxx 4793 2006-02-18 10:04:45Z mikko $"
+// "$Id: color_chooser.cxx 6249 2008-09-15 06:21:01Z spitzak $"
 //
 // Color chooser test program for the Fast Light Tool Kit (FLTK).
 //
@@ -145,7 +145,9 @@ int main(int argc, char **argv)
     if (!fltk::xvisual) fltk::fatal("No visual with id %d",visid);
     fltk::xcolormap = XCreateColormap(fltk::xdisplay, RootWindow(fltk::xdisplay,fltk::xscreen),
 				  fltk::xvisual->visual, AllocNone);
+# if !USE_CAIRO
     fltk::xpixel(fltk::BLACK); // make sure black is allocated
+# endif
 #else
     fltk::fatal("Visual id's not supported on this platform");
 #endif
@@ -159,5 +161,5 @@ int main(int argc, char **argv)
 }
 
 //
-// End of "$Id: color_chooser.cxx 4793 2006-02-18 10:04:45Z mikko $".
+// End of "$Id: color_chooser.cxx 6249 2008-09-15 06:21:01Z spitzak $".
 //

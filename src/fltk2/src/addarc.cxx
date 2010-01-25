@@ -1,5 +1,5 @@
 //
-// "$Id: addarc.cxx 5632 2007-01-22 12:00:52Z yuri $"
+// "$Id: addarc.cxx 6396 2008-10-08 14:46:10Z spitzak $"
 //
 // Arc functions for the Fast Light Tool Kit (FLTK).
 //
@@ -45,19 +45,20 @@ using namespace fltk;
 void fltk::addarc(float l, float t, float w, float h, float start, float end)
 {
 #if USE_CAIRO
-  cairo_save(cc);//push cairo state
-  transform(l,t);
+  cairo_save(cr);
+  extern void fl_set_cairo_ctm();
+  fl_set_cairo_ctm();
   float x = l+w/2;
   float y = t+h/2;
-  
+
   double scl=h/w;
-  cairo_scale(cc,1.,scl);//Need for 'ovals'
+  cairo_scale(cr,1.,scl);//Need for 'ovals'
   y/=scl;//restore coordinate
   if (start > end)
-    cairo_arc(cc,x,y,w/2,start*(-M_PI/180),end*(-M_PI/180));
+    cairo_arc(cr,x,y,w/2,start*(-M_PI/180),end*(-M_PI/180));
   else
-    cairo_arc_negative(cc,x,y,w/2,start*(-M_PI/180),end*(-M_PI/180));
-  cairo_restore(cc);//pop cairo state
+    cairo_arc_negative(cr,x,y,w/2,start*(-M_PI/180),end*(-M_PI/180));
+  cairo_restore(cr);
 #else
   const float x = l+w/2;
   const float y = t+h/2;
@@ -98,7 +99,7 @@ void fltk::addarc(float l, float t, float w, float h, float start, float end)
   int i = int(ceilf(fabsf(angle)/epsilon));// Segments in approximation
   if (i > MAXPOINTS-1) i = MAXPOINTS-1;
 
-  if (i) {
+  if (i>0) {
     epsilon = angle/i;		// Arc length for equal-size steps
     // calculate transformation matrix that does rotation by epsilon in
     // a scaled by w,h coordinate system. We could in fact figure out a
@@ -122,5 +123,5 @@ void fltk::addarc(float l, float t, float w, float h, float start, float end)
 }
 
 //
-// End of "$Id: addarc.cxx 5632 2007-01-22 12:00:52Z yuri $".
+// End of "$Id: addarc.cxx 6396 2008-10-08 14:46:10Z spitzak $".
 //

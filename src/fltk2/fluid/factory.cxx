@@ -1,5 +1,5 @@
 //
-// "$Id: factory.cxx 5493 2006-09-28 03:31:05Z spitzak $"
+// "$Id: factory.cxx 5940 2007-08-02 14:22:54Z spitzak $"
 //
 // Widget factory code for the Fast Light Tool Kit (FLTK).
 //
@@ -49,7 +49,7 @@ using namespace fltk;
 
 ////////////////////////////////////////////////////////////////
 const Enumeration buttontype_menu[] = {
-  {"Normal", 0,		(void*)fltk::Button::NORMAL},
+  {"Normal", 0,		(void*)0},
   {"Toggle", "TOGGLE",	(void*)fltk::Button::TOGGLE},
   {"Radio",  "RADIO",	(void*)fltk::Button::RADIO},
   {0}};
@@ -357,5 +357,5 @@ int lookup_fdesign(const char *name, int &v, int numberok) {
 }
 
 //
-// End of "$Id: factory.cxx 5493 2006-09-28 03:31:05Z spitzak $".
+// End of "$Id: factory.cxx 5940 2007-08-02 14:22:54Z spitzak $".
 //

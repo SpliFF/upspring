@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile 5603 2007-01-15 00:56:30Z spitzak $"
+# "$Id: Makefile 6920 2009-10-22 10:58:07Z AlbrechtS $"
 #
 # FLUID makefile for the Fast Light Tool Kit (FLTK).
 #
@@ -36,8 +36,8 @@ include ../makeinclude
 
 CPPFILES = \
 	about_panel.cxx \
-	alignment_panel.cxx \
 	align_widget.cxx \
+	alignment_panel.cxx \
 	code.cxx \
 	CodeEditor.cxx \
 	coding_style.cxx \
@@ -45,22 +45,22 @@ CPPFILES = \
 	Enumeration.cxx \
 	factory.cxx \
 	file.cxx \
+	fluid.cxx \
+	Fluid_Image.cxx \
+	fluid_img.cxx \
+	fluid_menus.cxx \
+	Fluid_Plugins.cxx \
+	FluidType.cxx \
+	function_panel.cxx \
 	FunctionType.cxx \
 	GroupType.cxx \
 	MenuType.cxx \
-	FluidType.cxx \
-	fluid.cxx \
-	fluid_menus.cxx \
-	Fluid_Image.cxx \
-	Fluid_Plugins.cxx \
+	template_panel.cxx \
+	undo.cxx \
+	widget_panel.cxx \
 	WidgetClassType.cxx \
 	WidgetType.cxx \
-	WindowType.cxx \
-	function_panel.cxx \
-	template_panel.cxx \
-	fluid_img.cxx \
-	widget_panel.cxx \
-	undo.cxx
+	WindowType.cxx
 
 CFILES	=
 
@@ -98,6 +98,8 @@ depend:
 # Include automatically generated dependencies...
 #
 
+makedepend:
+	touch makedepend
 include makedepend
 
 
@@ -132,7 +134,7 @@ install:
 	-$(MKDIR) $(DESTDIR)$(bindir)
 	$(CP) $(FLUID) $(DESTDIR)$(bindir)/fluid2$(EXEEXT)
 	$(STRIP) $(DESTDIR)$(bindir)/fluid2$(EXEEXT)
-	$(bindir)/fltk2-config --post $(DESTDIR)$(bindir)/fluid2$(EXEEXT)
+	$(DESTDIR)$(bindir)/fltk2-config --post $(DESTDIR)$(bindir)/fluid2$(EXEEXT)
 	$(CHMOD) 755 $(DESTDIR)$(bindir)/fluid2$(EXEEXT)
 
 
@@ -154,5 +156,5 @@ rebuild:
 
 
 #
-# End of "$Id: Makefile 5603 2007-01-15 00:56:30Z spitzak $".
+# End of "$Id: Makefile 6920 2009-10-22 10:58:07Z AlbrechtS $".
 #

@@ -1,5 +1,5 @@
 //
-// "$Id: dnd.cxx 5460 2006-09-19 02:46:27Z spitzak $"
+// "$Id: dnd.cxx 5934 2007-07-23 20:12:39Z spitzak $"
 //
 // Drag & Drop code for the Fast Light Tool Kit (FLTK).
 //
@@ -135,7 +135,7 @@ bool fltk::dnd() {
   drop_ok = true;
   moved = true;
 
-  while (pushed()) {
+  while (event_state(ANY_BUTTON)) {
 
     // figure out what window we are pointing at:
     XWindow new_window = 0; int new_version = 0;
@@ -241,5 +241,5 @@ bool fltk::dnd() {
 
 
 //
-// End of "$Id: dnd.cxx 5460 2006-09-19 02:46:27Z spitzak $".
+// End of "$Id: dnd.cxx 5934 2007-07-23 20:12:39Z spitzak $".
 //

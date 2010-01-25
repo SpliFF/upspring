@@ -1,5 +1,5 @@
 //
-// "$Id: Item.cxx 5600 2007-01-13 00:04:55Z spitzak $"
+// "$Id: Item.cxx 5990 2007-11-28 19:42:30Z dejan $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -22,9 +22,11 @@
 //
 
 #include <fltk/Item.h>
+#include <fltk/Group.h>
 #include <fltk/Box.h>
 #include <fltk/CheckButton.h>
 #include <fltk/draw.h>
+#include <fltk/events.h>
 #include <string.h>
 
 using namespace fltk;
@@ -132,7 +134,6 @@ void Item::set_style(const Style* style, bool menubar) {
 }
 
 /** The SELECTED flag will cause it to draw using the selected colors.
-    Focusbox is also drawn if FOCUSED is on.
 
     The current version can also draw check or radio buttons
     but this functionality may be removed.
@@ -146,17 +147,14 @@ void Item::draw() {
   Rectangle r(w(),h());
   Box* box = this->box();
   box->draw(r);
-  box->inset(r);
+  Rectangle r1(r); box->inset(r1);
   if (type()) {
     int gw = int(textsize())+2;
-    Rectangle lr(r);
-    lr.move_x(gw+3);
-    draw_label(lr, flags());
-    draw_glyph(0, Rectangle(r.x()+3, r.y()+((r.h()-gw)>>1), gw, gw));
-  } else {
-    draw_label(r, flags());
+    draw_glyph(0, Rectangle(r1.x()+3, r1.y()+((r1.h()-gw)>>1), gw, gw));
+    r1.move_x(gw+3);
   }
-  focusbox()->draw(r);
+  draw_label(r1, flags());
+  box->draw_symbol_overlay(r);
 }
 
 /** Measure the space the draw() will take and set w() and h().
@@ -167,22 +165,47 @@ void Item::layout() {
   setfont(textfont(), textsize());
   int w = 250, h = 250;
   measure(label(), w, h);
-  if (w) {w += 6+int(textsize())/2;}
-  if (type()) w += 15;
+  if (w) {
+    w += int(textsize())/2; // put 1 space between menubar items
+    h += int(leading());
+  }
   if (image()) {
     int W,H;
     image()->measure(W, H);
-    if (H > h) h = H;
-    w += W;
+    if (flag(ALIGN_LEFT|ALIGN_RIGHT)) {
+      if (H > h) h = H;
+      w += W;
+    } else {
+      if (w) h += H; else h = H;
+      if (W > w) w = W;
+    }
+  } else if ((type() & RADIO) || (type() & TOGGLE)) {
+      w += 20;
+  }
+  else {
+    w += 6; // further adjustment to match Windows menubars
   }
   this->w(w);
-  this->h(h+int(leading()));
+  this->h(h);
   Widget::layout();
 }
 
 /** Returns 0 always. Items do not accept \e any events. Any results
     of clicking on them is handled by the parent Menu or Browser. */
-int Item::handle(int) {return 0;}
+int Item::handle(int event) {
+  if (type() == TOGGLE) {
+    if (event == PUSH && event_clicks() > 0) state(!state());
+  } else if (type() == RADIO) {
+    if (event == PUSH && event_clicks() > 0) {
+      state(true);
+      Group *g = parent();
+      for (int n = 0; n < g->children(); n++) {
+        if (g->child(n) != this) g->child(n)->state(false);
+      }
+    }
+  }
+  return 0;
+}
 
 ////////////////////////////////////////////////////////////////
 
@@ -242,9 +265,9 @@ void ItemGroup::draw() {
   Rectangle r(w(),h());
   Box* box = this->box();
   box->draw(r);
-  box->inset(r);
-  draw_label(r, flags());
-  focusbox()->draw(r);
+  Rectangle r1(r); box->inset(r1);
+  draw_label(r1, flags());
+  box->draw_symbol_overlay(r);
 }
 
 void ItemGroup::layout() {
@@ -253,15 +276,25 @@ void ItemGroup::layout() {
   setfont(textfont(), textsize());
   int w = 250, h = 250;
   measure(label(), w, h);
-  if (w) {w += 6+int(textsize())/2;}
+  if (w) {
+    w += int(textsize())/2; // put 1 space between menubar items
+    h += int(leading());
+  }
   if (image()) {
     int W,H;
     image()->measure(W, H);
-    if (H > h) h = H;
-    w += W;
+    if (flag(ALIGN_LEFT|ALIGN_RIGHT)) {
+      if (H > h) h = H;
+      w += W;
+    } else {
+      if (w) h += H; else h = H;
+      if (W > w) w = W;
+    }
+  } else {
+    w += 6; // further adjustment to match Windows menubars
   }
   this->w(w);
-  this->h(h+int(leading()));
+  this->h(h);
   Widget::layout();
 }
 
@@ -292,12 +325,12 @@ void Divider::draw() {
   if (w() > h()) {
     int y = (h()-1)/2;
     drawline(0, y, w()-1, y);
-    setcolor(WHITE);
+    setcolor(GRAY99);
     drawline(0, y+1, w()-1, y+1);
   } else if (h()) {
     int x = (w()-1)/2;
     drawline(x, 0, x, h()-1);
-    setcolor(WHITE);
+    setcolor(GRAY99);
     drawline(x+1, 0, x+1, h()-1);
   }
 }

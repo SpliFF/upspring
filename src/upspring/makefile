@@ -10,8 +10,8 @@ MKDIR  = mkdir
 TARGET = UpSpring
 
 FLTK2_SRCDIR  = ../fltk2/
-LUAJIT_SRCDIR = ../LuaJIT-1.1.2/
-LIB3DS_SRCDIR = ../lib3ds-1.2/
+LUA_SRCDIR = ../lua/
+LIB3DS_SRCDIR = ../lib3ds/
 
 SRC_BASE_DIR = ./
 OBJ_BASE_DIR = ../obj
@@ -28,9 +28,9 @@ MATH_OBJ_DIR      = $(OBJ_BASE_DIR)/math
 SWIG_SRC_DIR      = $(SRC_BASE_DIR)/swig
 SWIG_OBJ_DIR      = $(OBJ_BASE_DIR)/swig
 
-IFLAGS_FLTK2 = -I$(SRC_BASE_DIR) -I$(LUAJIT_SRCDIR) -I$(LUAJIT_SRCDIR)/src  -I$(LIB3DS_SRCDIR) -I$(FLTK2_SRCDIR)
+IFLAGS_FLTK2 = -I$(SRC_BASE_DIR) -I$(LUA_SRCDIR) -I$(LUA_SRCDIR)/src  -I$(LIB3DS_SRCDIR) -I$(FLTK2_SRCDIR)
 
-
+LIB_DIR_FLAGS = -L$(FLTK2_SRCDIR)/lib -L$(LUA_SRCDIR) -L$(LIB3DS_SRCDIR)/.libs
 
 CREG_OBS = \
 	$(CREG_OBJ_DIR)/creg.o       \
@@ -134,7 +134,7 @@ dirs:
 
 target:
 	## FIXME: the extra linker argument should not be needed
-	$(CC)   -o $(BIN_BASE_DIR)/$(TARGET)   $(OBJECTS) -lfltk2_images $(LFLAGS)
+	$(CC)   -o $(BIN_BASE_DIR)/$(TARGET)   $(OBJECTS) $(LIB_DIR_FLAGS) $(LFLAGS)
 
 all:
 	make dirs

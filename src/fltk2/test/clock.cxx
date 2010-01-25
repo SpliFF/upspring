@@ -1,5 +1,5 @@
 //
-// "$Id: clock.cxx 4886 2006-03-30 09:55:32Z fabien $"
+// "$Id: clock.cxx 5972 2007-11-14 16:49:25Z dejan $"
 //
 // Clock test program for the Fast Light Tool Kit (FLTK).
 //
@@ -70,7 +70,8 @@ int main(int argc, char **argv) {
   window.begin();
   // don't show window manager border-- some window managers do this for you
   // if an arbitrary shape is assigned to the window.
-  //window.clear_border();
+  // previously windows.clear_border();
+  // window.border(false); // not needed now because now ShapedWindow implicitly sets border to false.
 #ifdef WIN32
   Clock clock(0,0,220,220);
 #else
@@ -97,5 +98,5 @@ int main(int argc, char **argv) {
 }
 
 //
-// End of "$Id: clock.cxx 4886 2006-03-30 09:55:32Z fabien $".
+// End of "$Id: clock.cxx 5972 2007-11-14 16:49:25Z dejan $".
 //

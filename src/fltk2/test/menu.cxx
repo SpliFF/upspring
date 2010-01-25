@@ -19,6 +19,7 @@
 #include <fltk/Slider.h>
 #include <fltk/StringList.h>
 #include <fltk/events.h>
+#include <fltk/ask.h>
 using namespace fltk;
 
 #define WIDTH 600
@@ -34,13 +35,19 @@ void callback(Widget* w, void*) {
   printf("event_button = %d\n", fltk::event_button());
 }
 
+void never_cb(Widget* w, void*) {
+  alert("This callback should not be ever executed");
+}
+
 const char* const strings[] = {
   "This","is","a","test","of","a","menu","defined","as a","StringArray"
 };
 StringArray thelist(strings, sizeof(strings)/sizeof(*strings));
 
 void build_hierarchy() {
-  new Item("&Alpha");
+  Item* ii = new Item("&Alpha");
+  ii->when(WHEN_NEVER);
+  ii->callback(never_cb);
   new Item("&Beta");
   new Item("&Gamma");
   new Item("&Delta");
@@ -73,6 +80,14 @@ void build_hierarchy() {
 }
 
 void quit_cb(Widget*, void*) {exit(0);}
+
+class ListShortcuts : public ShortcutFunctor {
+public:
+  bool handle(const Widget* widget, unsigned key) {
+    printf("Widget=%s shortcut=%s\n", widget->label() ? widget->label() : "NULL", key_name(key));
+    return false;
+  }
+} listShortcuts;
 
 int main(int argc, char **argv) {
   Window window(WIDTH,400);
@@ -178,6 +193,8 @@ int main(int argc, char **argv) {
   window.size_range(300,20);
   window.end();
   window.show(argc, argv);
+
+  foreachShortcut(listShortcuts);
 
   return run();
 }

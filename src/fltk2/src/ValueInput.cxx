@@ -1,4 +1,4 @@
-// "$Id: ValueInput.cxx 5600 2007-01-13 00:04:55Z spitzak $"
+// "$Id: ValueInput.cxx 5882 2007-06-06 19:09:26Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -127,7 +127,7 @@ void ValueInput::draw() {
   input.label(label());
   input.align(align());
   input.copy_style(style());
-  input.flags(flags()|CLICK_TO_FOCUS);
+  input.flags((flags()&~COPIED_LABEL)|CLICK_TO_FOCUS);
   input.draw(r);
   input.set_damage(0);
 }
@@ -279,5 +279,5 @@ ValueInput::~ValueInput() {
 }
 
 //
-// End of "$Id: ValueInput.cxx 5600 2007-01-13 00:04:55Z spitzak $".
+// End of "$Id: ValueInput.cxx 5882 2007-06-06 19:09:26Z spitzak $".
 //

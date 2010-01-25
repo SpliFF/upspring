@@ -1,5 +1,5 @@
 //
-// "$Id: fl_png.cxx 5709 2007-02-23 01:03:47Z spitzak $"
+// "$Id: fl_png.cxx 5780 2007-04-16 14:48:06Z sanel.z $"
 //
 // PNG reading code for the Fast Light Tool Kit (FLTK).
 //
@@ -29,14 +29,14 @@
 #include <config.h>
 
 #if HAVE_LIBPNG
-
-# ifdef HAVE_LOCAL_PNG_H
-# include "libpng/png.h"
-#elif defined(HAVE_PNG_H)
-# include <png.h>
-#elif defined(HAVE_LIBPNG_PNG_H)
-# include <libpng/png.h>
+extern "C"
+{
+#ifdef HAVE_LOCAL_PNG_H
+#  include "libpng/png.h"
+#else
+#  include <png.h>
 #endif
+}
 
 # include <stdlib.h>
 
@@ -176,5 +176,5 @@ bool pngImage::fetch()
 }
 
 //
-// End of "$Id: fl_png.cxx 5709 2007-02-23 01:03:47Z spitzak $"
+// End of "$Id: fl_png.cxx 5780 2007-04-16 14:48:06Z sanel.z $"
 //

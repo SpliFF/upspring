@@ -1,5 +1,5 @@
 //
-// "$Id: boxtype.cxx 5448 2006-09-19 01:14:07Z spitzak $"
+// "$Id: boxtype.cxx 5810 2007-05-11 22:44:12Z spitzak $"
 //
 // Boxtype test program for the Fast Light Tool Kit (FLTK).
 //
@@ -86,7 +86,7 @@ int main(int argc, char ** argv) {
     bt("fltk::OFLAT_BOX",fltk::OFLAT_BOX);
     //    bt("fltk::PLASTIC_UP_BOX", fltk::PLASTIC_UP_BOX);
     //    bt("fltk::PLASTIC_DOWN_BOX", fltk::PLASTIC_DOWN_BOX);
-    bt("fltk::FOCUS_FRAME", fltk::FOCUS_FRAME);
+    //    bt("fltk::FOCUS_FRAME", fltk::FOCUS_FRAME);
     bt("fltk::BORDER_FRAME", fltk::BORDER_FRAME);
     bt("fltk::PLASTIC_UP_BOX", fltk::PLASTIC_UP_BOX)->color(12);
     bt("fltk::PLASTIC_DOWN_BOX", fltk::PLASTIC_DOWN_BOX)->color(12);
@@ -97,5 +97,5 @@ int main(int argc, char ** argv) {
 }
 
 //
-// End of "$Id: boxtype.cxx 5448 2006-09-19 01:14:07Z spitzak $".
+// End of "$Id: boxtype.cxx 5810 2007-05-11 22:44:12Z spitzak $".
 //

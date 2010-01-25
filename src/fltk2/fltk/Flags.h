@@ -1,5 +1,5 @@
 //
-// "$Id: Flags.h 5433 2006-09-16 03:00:02Z spitzak $"
+// "$Id: Flags.h 6233 2008-09-14 07:54:06Z spitzak $"
 //
 // Unified flags set for fltk. These flags control the appearance of
 // boxes and widgets. This same value is used to:
@@ -37,7 +37,8 @@
 
 namespace fltk {
 
-/*! \file */
+/// \name fltk/Flags.h
+//@{
 
 /*! Type returned by fltk::Widget::flags() and passed to fltk::Box
   and many other drawing functions. */
@@ -100,10 +101,12 @@ enum {
   OPENED		  = STATE	//!< opened browser hierarchy parent
 };
 
+//@}
+
 }
 
 #endif
 
 //
-// End of "$Id: Flags.h 5433 2006-09-16 03:00:02Z spitzak $".
+// End of "$Id: Flags.h 6233 2008-09-14 07:54:06Z spitzak $".
 //

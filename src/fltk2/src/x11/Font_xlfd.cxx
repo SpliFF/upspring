@@ -1,4 +1,4 @@
-// "$Id: Font_xlfd.cxx 5461 2006-09-19 02:49:30Z spitzak $"
+// "$Id: Font_xlfd.cxx 5955 2007-10-17 19:46:35Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -432,7 +432,7 @@ void fltk::drawtext_transformed(const char *text, int n, float x, float y) {
 #if !X_UTF8_FONT
     XDrawString16(xdisplay, xwindow, gc,
 		  int(floorf(x+.5f)),
-		  int(floorf(y+.5f)), buffer, n);
+		  int(floorf(y+.5f)), buffer, count);
 #else
 #ifdef FONT_DEBUG
 	//printf("current = %s\n", current->name);
@@ -689,5 +689,5 @@ fltk::Font* const fltk::ZAPF_DINGBATS		= &(fonts[15].f);
 fltk::Font* fltk::font(int i) {return &(fonts[i%16].f);}
 
 //
-// End of "$Id: Font_xlfd.cxx 5461 2006-09-19 02:49:30Z spitzak $"
+// End of "$Id: Font_xlfd.cxx 5955 2007-10-17 19:46:35Z spitzak $"
 //

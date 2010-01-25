@@ -1,5 +1,5 @@
 //
-// "$Id: Valuator.cxx 5602 2007-01-14 23:48:24Z spitzak $"
+// "$Id: Valuator.cxx 6944 2009-11-27 12:18:37Z cwarrens $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -49,7 +49,7 @@ using namespace fltk;
     moves the slider and then lets it go on a different value than it
     started.
   - fltk::WHEN_RELEASE_ALWAYS: will do the callback when
-  the user lets go of the slider whether or not the value changed.
+    the user lets go of the slider whether or not the value changed.
   - fltk::WHEN_NEVER: do not do the callback, instead it will turn
     on the changed() flag.
 
@@ -81,6 +81,7 @@ Valuator::Valuator(int X, int Y, int W, int H, const char* L)
   minimum_ = 0;
   maximum_ = 1;
   linesize_ = 0;
+  previous_value_ = 0;
 }
 
 /*! \fn double Valuator::value() const
@@ -91,13 +92,14 @@ Valuator::Valuator(int X, int Y, int W, int H, const char* L)
   Sets the current value, redrawing the widget if necessary by calling
   value_damage(). <i>The new value is stored unchanged, even if it is
   outside the range or not a multiple of step()</i>.
+  Returns true if the new value is different.
 */
-int Valuator::value(double v) {
+bool Valuator::value(double v) {
   clear_changed();
-  if (v == value_) return 0;
+  if (v == value_) return false;
   value_ = v;
   value_damage();
-  return 1;
+  return true;
 }
 
 /*! \fn void Valuator::set_value(double)
@@ -184,7 +186,6 @@ void Valuator::value_damage() {
 /*! \fn double Valuator::previous_value() const
   Value saved when handle_push() was last called.
 */
-double Valuator::previous_value_;
 
 /*! \fn void Valuator::handle_push()
   Subclasses should call this when the user starts to change the value. 
@@ -321,6 +322,7 @@ int Valuator::handle(int event) {
     return 0;
   }
   case MOUSEWHEEL:
+    previous_value_ = value();
     handle_drag(value()+(event_dx()-event_dy())*linesize());
     return 1;
   }
@@ -328,5 +330,5 @@ int Valuator::handle(int event) {
 }
 
 //
-// End of "$Id: Valuator.cxx 5602 2007-01-14 23:48:24Z spitzak $".
+// End of "$Id: Valuator.cxx 6944 2009-11-27 12:18:37Z cwarrens $".
 //

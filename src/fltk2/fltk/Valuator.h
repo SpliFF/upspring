@@ -1,4 +1,4 @@
-// "$Id: Valuator.h 5737 2007-03-12 16:51:16Z spitzak $"
+// "$Id: Valuator.h 6944 2009-11-27 12:18:37Z cwarrens $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -33,7 +33,7 @@ class FL_API Valuator : public Widget {
 public:
 
   double value() const {return value_;}
-  int value(double);
+  bool value(double);
 
   double minimum() const {return minimum_;}
   void minimum(double a) {minimum_ = a;}
@@ -78,7 +78,7 @@ public:
 private:
 
   double value_;
-  static double previous_value_;
+  double previous_value_;
   double minimum_;
   double maximum_;
   double step_;
@@ -90,4 +90,4 @@ private:
 
 #endif
 
-// End of "$Id: Valuator.h 5737 2007-03-12 16:51:16Z spitzak $".
+// End of "$Id: Valuator.h 6944 2009-11-27 12:18:37Z cwarrens $".

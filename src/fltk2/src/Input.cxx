@@ -1,5 +1,5 @@
 //
-// "$Id: Input.cxx 5743 2007-03-12 18:24:21Z spitzak $"
+// "$Id: Input.cxx 5918 2007-06-26 18:49:21Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -239,12 +239,12 @@ void Input::draw() {
       fltk::setfont(labelfont(), labelsize());
       float width = getwidth(label());
       label_width = int(width+getwidth(":")+2.5);
-      setcolor(color());
+      Color color = this->color();
+      setcolor(color);
       Rectangle lr(r); lr.w(label_width);
       fillrect(lr);
-      Color color = labelcolor();
-      if (flag(INACTIVE_R)) color = inactive(color);
-      setcolor(color);
+      if (flag(INACTIVE_R)) setcolor(inactive(labelcolor(), color));
+      else setcolor(labelcolor());
       float y = r.y()+((r.h()-height)>>1)+desc;
       drawtext(label(), float(r.x()+2), y);
       drawtext(":", r.x()+2+width, y);
@@ -269,8 +269,7 @@ void Input::draw(const Rectangle& r)
 {
 
   // ignore HIGHLIGHT so it does not change color when mouse points at it:
-  Flags flags = this->flags()&~HIGHLIGHT;
-  drawstyle(style(), flags);
+  drawstyle(style(), this->flags()&~HIGHLIGHT);
 
   const Color background = getbgcolor();
   const Color textcolor = getcolor();
@@ -1136,9 +1135,10 @@ bool Input::handle_key() {
 		   event_text(), event_length());
   }
 
+  bool command = event_state(COMMAND);
   bool ctrl = event_state(CTRL);
   bool shift = event_state(SHIFT);
-  bool alt = event_state(ALT|META);
+  bool alt = event_state(OPTION);
 
   switch (event_key()) {
 
@@ -1205,7 +1205,7 @@ bool Input::handle_key() {
     return true;}
 
   case 'a':
-    if (ctrl) {
+    if (command) {
       // if already at start of line, select the entire buffer. This
       // makes two ^A's do a select-all for both Emacs & Win32 compatability
       i = line_start(position());
@@ -1259,7 +1259,7 @@ bool Input::handle_key() {
 
   case ReturnKey:
   case KeypadEnter:
-    if (ctrl || shift) return false;
+    if (command || shift) return false;
     if (when() & WHEN_ENTER_KEY) {
       position(size(), 0);
       if (fl_pending_callback==this || (when()&WHEN_NOT_CHANGED)) {
@@ -1286,7 +1286,7 @@ bool Input::handle_key() {
     return true;
 
   case 'c':
-    if (!ctrl && try_shortcut()) return true;
+    if (!command && try_shortcut()) return true;
     return copy();
 
   case 'o': // Emacs insert newline after cursor
@@ -1316,7 +1316,7 @@ bool Input::handle_key() {
     return cut();
 
   case 'v':
-    if (!ctrl && try_shortcut()) return true;
+    if (!command && try_shortcut()) return true;
     paste(*this,true);
     return true;
 
@@ -1326,7 +1326,7 @@ bool Input::handle_key() {
     return cut();
 
   case 'x':
-    if (!ctrl && try_shortcut()) return true;
+    if (!command && try_shortcut()) return true;
     copy();
     return cut();
 
@@ -1358,6 +1358,10 @@ bool Input::handle_key() {
   case RightShiftKey:
   case LeftCtrlKey:
   case RightCtrlKey:
+#if defined(__APPLE__)
+  case LeftCmdKey:
+  case RightCmdKey:
+#endif
     // Don't pass these to other widgets. The user considers them
     // part of typing.
     return true;
@@ -1645,5 +1649,5 @@ int Input::handle(int event, const Rectangle& r) {
 }
 
 //
-// End of "$Id: Input.cxx 5743 2007-03-12 18:24:21Z spitzak $".
+// End of "$Id: Input.cxx 5918 2007-06-26 18:49:21Z spitzak $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: help.cxx 4829 2006-03-20 20:16:25Z fabien $"
+// "$Id: help.cxx 5918 2007-06-26 18:49:21Z spitzak $"
 //
 // Fl_Help_Dialog test program.
 //
@@ -52,7 +52,7 @@ main(int  argc,			// I - Number of command-line arguments
   else
     help->load(argv[1]);
 
-  help->show(argc, argv);
+  help->show();
 
   fltk::run();
 
@@ -63,5 +63,5 @@ main(int  argc,			// I - Number of command-line arguments
 
 
 //
-// End of "$Id: help.cxx 4829 2006-03-20 20:16:25Z fabien $".
+// End of "$Id: help.cxx 5918 2007-06-26 18:49:21Z spitzak $".
 //

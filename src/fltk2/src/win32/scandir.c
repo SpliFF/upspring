@@ -43,9 +43,9 @@ int scandir(const char *dirname, struct dirent ***namelist,
   int nDir = 0, NDir = 0;
   struct dirent **dir = 0, *selectDir;
   unsigned long ret;
-  char findIn[MAX_PATH*4];
+  char findIn[MAX_PATH];
 
-  utf8tomb(dirname, strlen(dirname), findIn, _MAX_PATH);
+  strlcpy ( findIn, dirname, MAX_PATH );
   d = findIn+strlen(findIn);
   if (d==findIn) *d++ = '.';
   if (*(d-1)!='/' && *(d-1)!='\\') *d++ = '/';

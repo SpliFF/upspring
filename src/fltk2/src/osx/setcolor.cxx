@@ -1,5 +1,5 @@
 //
-// "$Id: setcolor.cxx 5560 2006-12-20 03:29:32Z spitzak $"
+// "$Id: setcolor.cxx 6249 2008-09-15 06:21:01Z spitzak $"
 //
 // MacOS color functions for the Fast Light Tool Kit (FLTK).
 //
@@ -43,22 +43,10 @@ void restore_quartz_line_style() {
 
 } // end of namespace
 
-// Because carbon has a 'current color' in the drawing context this
-// is really simple.
-
-void fltk::setcolor(Color i) {
-  current_color_ = i;
-  // get fltk indexed color:
-  if (!(i & 0xFFFFFF00)) i = cmap[i];
-  // get the individual colors and put into Mac color structure:
+void fltk::setcolor(Color color) {
+  current_color_ = color;
   if (!quartz_gc) return; // no context yet? We will assign the color later.
-  uchar r, g, b;
-  r = i>>24;
-  g = i>>16;
-  b = i>> 8;
-#if USE_CAIRO
-  cairo_set_source_rgb(cc, r/255.0, g/255.0, b/255.0);
-#endif
+  uchar r,g,b; split_color(color,r,g,b);
   float fr = r/255.0f;
   float fg = g/255.0f;
   float fb = b/255.0f;
@@ -66,8 +54,16 @@ void fltk::setcolor(Color i) {
   CGContextSetRGBStrokeColor(quartz_gc, fr, fg, fb, 1.0f);
 }
 
-// Used by setcolor_index
-static void free_color(Color) {}
+void fltk::setcolor_alpha(Color color, float alpha) {
+  current_color_ = color;
+  if (!quartz_gc) return; // no context yet? We will assign the color later.
+  uchar r,g,b; split_color(color,r,g,b);
+  float fr = r/255.0f;
+  float fg = g/255.0f;
+  float fb = b/255.0f;
+  CGContextSetRGBFillColor(quartz_gc, fr, fg, fb, alpha);
+  CGContextSetRGBStrokeColor(quartz_gc, fr, fg, fb, alpha);
+}
 
 static enum CGLineCap Cap[4] = {
   kCGLineCapButt, kCGLineCapButt, kCGLineCapRound, kCGLineCapSquare
@@ -117,23 +113,8 @@ void fltk::line_style(int style, float  width, const char* dashes) {
     quartz_line_pattern_size = 0;
   }
   restore_quartz_line_style();
-#if USE_CAIRO
-  cairo_set_line_width(cc, width ? width : 1.0);
-  int c = (style>>8)&3; if (c) c--;
-  cairo_set_line_cap(cc, (cairo_line_cap_t)c);
-  int j = (style>>12)&3; if (j) j--;
-  cairo_set_line_join(cc, (cairo_line_join_t)j);
-  int ndashes = quartz_line_pattern_size;
-  if (ndashes) {
-    double dash[20];
-    for (int i = 0; i < ndashes; i++) dash[i] = (double) dashes[i];
-    cairo_set_dash(cc, dash, ndashes, 0);
-  } else {
-    cairo_set_dash(cc, 0, 0, 0);
-  }
-#endif
 }
 
 //
-// End of "$Id: setcolor.cxx 5560 2006-12-20 03:29:32Z spitzak $".
+// End of "$Id: setcolor.cxx 6249 2008-09-15 06:21:01Z spitzak $".
 //

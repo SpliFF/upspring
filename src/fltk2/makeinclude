@@ -24,14 +24,14 @@
 # Please report all bugs and problems to "fltk-bugs@fltk.org".
 #
 
-prefix		= /usr/local/
+prefix		= /usr/local
 exec_prefix	= ${prefix}
 bindir		= ${exec_prefix}/bin
 datadir		= ${prefix}/share
 docdir		= ${prefix}/share/doc/fltk
 includedir	= ${prefix}/include
 libdir		= ${exec_prefix}/lib
-mandir		= ${prefix}/man
+mandir		= ${prefix}/share/man
 srcdir		= .
 
 
@@ -77,8 +77,8 @@ LOCALIMAGES	=
 ZLIBINC		= 
 
 # libraries to link with:
-LDLIBS =   -lX11 -lXi -lXinerama -lXft -lpthread -lm  -lXext  -lsupc++
-GLDLIBS =   -lGLU -lGL -lX11 -lXi -lXinerama -lXft -lpthread -lm  -lXext  -lsupc++
+LDLIBS =  -L/usr/lib64  -lX11 -lXi -lXinerama -lXcursor -lXft -lpthread -lm  -lXext  -lsupc++
+GLDLIBS =  -L/usr/lib64  -lGLU -lGL -lX11 -lXi -lXinerama -lXcursor -lXft -lpthread -lm  -lXext  -lsupc++
 LINKFLTK = -L../lib -lfltk2
 LINKFLTKGL = -L../lib -lfltk2_gl -lfltk2
 LINKFLTKFORMS = -L../lib -lfltk2_forms -lfltk2

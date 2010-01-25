@@ -1,4 +1,4 @@
-// "$Id: PopupMenu.cxx 5433 2006-09-16 03:00:02Z spitzak $"
+// "$Id: PopupMenu.cxx 6141 2008-07-13 06:41:56Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -79,12 +79,17 @@ void PopupMenu::draw() {
   drawstyle(style(), flags);
   Rectangle r(w(),h());
   box->draw(r);
-  box->inset(r);
-  draw_label(r, flags);
+  Rectangle r1(r); box->inset(r1);
+  draw_label(r1, flags);
   // draw the little mark at the right:
-//    int w1 = int(textsize());
-//    draw_glyph(GLYPH_DOWN, x+w-w1, y, w1, h, flags);
-  focusbox()->draw(r);
+  int w1 = int(textsize());
+  r.move_x(w()-w1);
+  const Color saved_color = getcolor();
+  setcolor(selection_color());
+  draw_glyph(ALIGN_BOTTOM, r);
+  //  draw_glyph(ALIGN_BOTTOM, x+w-w1, y, w1, h, flags);
+  setcolor(saved_color);
+  box->draw_symbol_overlay(r);
 }
 
 /*! Wrapper for Menu::popup(). For NORMAL PopupMenu this places the
@@ -166,5 +171,5 @@ PopupMenu::PopupMenu(int X,int Y,int W,int H,const char *l)
 }
 
 //
-// End of "$Id: PopupMenu.cxx 5433 2006-09-16 03:00:02Z spitzak $".
+// End of "$Id: PopupMenu.cxx 6141 2008-07-13 06:41:56Z spitzak $".
 //

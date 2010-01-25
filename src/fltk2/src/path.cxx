@@ -1,5 +1,5 @@
 //
-// "$Id: path.cxx 5557 2006-12-19 18:56:00Z spitzak $"
+// "$Id: path.cxx 6396 2008-10-08 14:46:10Z spitzak $"
 //
 // Path construction and filling. I think this file is always linked
 // into any fltk program, so try to keep it reasonably small.
@@ -47,10 +47,15 @@ static int sptr = 0;
 // Returns true if transformation is an integer translate only
 bool fl_trivial_transform() {return m.trivial;}
 
-#if USE_QUARTZ
+#if USE_CAIRO
+void fl_set_cairo_ctm() {
+  cairo_matrix_t cm = { m.a, m.b, m.c, m.d, m.x, m.y };
+  cairo_transform(cr, &cm);
+}
+#elif USE_QUARTZ
 extern int fl_clip_h;
 void fl_set_quartz_ctm() {
-  CGAffineTransform mx = {m.a, -m.c, m.b, -m.d, m.x-.5f, -fl_clip_h+m.y-.5f};
+  CGAffineTransform mx = {m.a, m.b, -m.c, -m.d, m.x-.5f, -fl_clip_h+m.y-.5f};
   CGContextConcatCTM(quartz_gc, mx);
 }
 #endif
@@ -298,19 +303,19 @@ void fltk::transform(const Rectangle& from, Rectangle& to) {
   float d1x,d1y; d1x = float(from.w()); d1y = 0; transform_distance(d1x, d1y);
   float d2x,d2y; d2x = 0; d2y = float(from.h()); transform_distance(d2x, d2y);
   float w = rintf(sqrtf(d1x*d1x+d2x*d2x));
-  x = floorf(x - (w+1)/2);
+  x = floorf(x - w/2);
   float h = rintf(sqrtf(d1y*d1y+d2y*d2y));
-  y = floorf(y - (h+1)/2);
+  y = floorf(y - h/2);
   to.set(int(x),int(y),int(w),int(h));
 }
 
 /**
-Same as transform(Rectangle(X,Y,W,H),to). This may be faster as it
-avoids the rectangle construction.
+Same as transform(Rectangle(X,Y,W,H),to) but replaces XYWH with the transformed
+rectangle. This may be faster as it avoids the rectangle construction.
 */
-void fltk::transform(int X,int Y,int W,int H, Rectangle& to) {
+void fltk::transform(int& X,int& Y,int& W,int& H) {
   if (m.trivial) {
-    to.set(X+m.ix, Y+m.iy, W, H);
+    X += m.ix; Y += m.iy;
     return;
   }
   float x = X+W*.5f;
@@ -318,11 +323,10 @@ void fltk::transform(int X,int Y,int W,int H, Rectangle& to) {
   transform(x,y);
   float d1x,d1y; d1x = float(W); d1y = 0; transform_distance(d1x, d1y);
   float d2x,d2y; d2x = 0; d2y = float(H); transform_distance(d2x, d2y);
-  float w = rintf(sqrtf(d1x*d1x+d2x*d2x));
-  x = floorf(x - (w+1)/2);
-  float h = rintf(sqrtf(d1y*d1y+d2y*d2y));
-  y = floorf(y - (h+1)/2);
-  to.set(int(x),int(y),int(w),int(h));
+  W = int(sqrtf(d1x*d1x+d2x*d2x)+.5f);
+  H = int(sqrtf(d1y*d1y+d2y*d2y)+.5f);
+  X = int(floorf(x - .5f*W));
+  Y = int(floorf(y - .5f*H));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -343,9 +347,6 @@ namespace fltk {
     }
   }
 }
-static fltk::Rectangle circle;
-static float circle_start, circle_end;
-enum CircleType {NONE=0, PIE, CHORD} circle_type;
 #else
 // We have to store the path ourselves on X11 and Win32. Path is stored
 // as transformed points plus lengths of "loops".
@@ -382,7 +383,7 @@ static void add_n_points(int n) {
 // The path also contains one dummy pie/chord piece:
 static fltk::Rectangle circle;
 static float circle_start, circle_end;
-enum {NONE=0, PIE, CHORD} circle_type;
+static enum {NONE=0, PIE, CHORD} circle_type;
 
 #endif // local path storage
 
@@ -394,7 +395,7 @@ enum {NONE=0, PIE, CHORD} circle_type;
 void fltk::addvertex(float X, float Y) {
 #if USE_CAIRO
   transform(X,Y);
-  cairo_line_to(cc,X,Y);
+  cairo_line_to(cr,X,Y);
 #elif USE_QUARTZ
   transform(X, Y);
   quartz_add_vertex(X, Y);
@@ -422,7 +423,7 @@ void fltk::addvertex(float X, float Y) {
 void fltk::addvertex(int X, int Y) {
 #if USE_CAIRO
   transform(X,Y);
-  cairo_line_to(cc,X,Y);
+  cairo_line_to(cr,X,Y);
 #elif USE_QUARTZ
   transform(X, Y);
   quartz_add_vertex(X, Y);
@@ -455,7 +456,7 @@ void fltk::addvertices(int n, const float array[][2]) {
   for (; a < e; a += 2) {
     float X = (float) a[0]; float Y = (float) a[1];
     transform(X,Y);
-    cairo_line_to(cc,X,Y);
+    cairo_line_to(cr,X,Y);
   }
 #elif USE_QUARTZ
   for (; a < e; a += 2) {
@@ -499,7 +500,7 @@ void fltk::addvertices(int n, const int array[][2]) {
   for (; a < e; a += 2) {
     float X = (float) a[0]; float Y = (float) a[1];
     transform(X,Y);
-    cairo_line_to(cc,X,Y);
+    cairo_line_to(cr,X,Y);
   }
 #elif USE_QUARTZ
   for (; a < e; a += 2) {
@@ -544,7 +545,7 @@ void fltk::addvertices_transformed(int n, const float array[][2]) {
   const float* a = array[0];
   const float* e = a+2*n;
 #if USE_CAIRO
-  for (; a < e; a += 2) cairo_line_to(cc,a[0],a[1]);
+  for (; a < e; a += 2) cairo_line_to(cr,a[0],a[1]);
 #elif USE_QUARTZ
   for (; a < e; a += 2) quartz_add_vertex(a[0], a[1]);
 #else
@@ -574,7 +575,8 @@ void fltk::addvertices_transformed(int n, const float array[][2]) {
 */
 void fltk::closepath() {
 #if USE_CAIRO
-  cairo_close_path(cc);
+  cairo_close_path(cr);
+  cairo_new_sub_path(cr);
 #elif USE_QUARTZ
   if (!first_point) 
     CGContextClosePath(quartz_gc);
@@ -623,17 +625,11 @@ void fltk::closepath() {
   \see addchord()
 */
 void fltk::addpie(const Rectangle& r, float start, float end) {
-#if USE_CAIRO
+#if USE_CAIRO || USE_QUARTZ
   closepath();
   addvertex(r.x()+r.w()*.5f, r.y()+r.h()*.5f);
-  float delta = sqrtf(1/(m.a*m.a+m.d*m.d));
+  float delta = sqrtf(1/fabsf(m.a*m.d-m.b*m.c));
   addarc(r.x()+delta/2, r.y()+delta/2, r.w()-delta, r.h()-delta, start, end);
-  closepath();
-#elif USE_QUARTZ
-  circle = r;
-  circle_start = start;
-  circle_end = end;
-  circle_type = PIE;
 #else
   transform(r, circle);
   circle_start = start;
@@ -650,19 +646,13 @@ void fltk::addpie(const Rectangle& r, float start, float end) {
 
   This tries to take advantage of the primitive calls provided by
   Xlib and GDI32. Limitations are that you can only draw one,
-  a rotated current transform does not work, and whether stroke
-  of a closed version draws the straight edge is indeterminate.
+  a rotated current transform does not work.
 */
 void fltk::addchord(const Rectangle& r, float start, float end) {
-#if USE_CAIRO
+#if USE_CAIRO || USE_QUARTZ
   closepath();
-  float delta = sqrtf(1/(m.a*m.a+m.d*m.d));
+  float delta = sqrtf(1/fabsf(m.a*m.d-m.b*m.c));
   addarc(r.x()+delta/2, r.y()+delta/2, r.w()-delta, r.h()-delta, start, end);
-#elif USE_QUARTZ
-  circle = r;
-  circle_start = start;
-  circle_end = end;
-  circle_type = CHORD;
 #else
   transform(r, circle);
   circle_start = start;
@@ -673,10 +663,9 @@ void fltk::addchord(const Rectangle& r, float start, float end) {
 
 static inline void inline_newpath() {
 #if USE_CAIRO
-  cairo_new_path(cc);
+  cairo_new_path(cr);
 #elif USE_QUARTZ
   first_point = true;
-  circle_type = NONE;
   CGContextBeginPath(quartz_gc);
 #else
   numpoints = loop_start = loops = 0;
@@ -721,16 +710,9 @@ void fltk::drawpoints() {
 */
 void fltk::strokepath() {
 #if USE_CAIRO
-  cairo_stroke(cc);
+  cairo_stroke(cr);
 #elif USE_QUARTZ
   CGContextStrokePath(quartz_gc);
-  if (circle_type) {
-    first_point = true;
-    CGContextBeginPath(quartz_gc);
-    const Rectangle& r = circle;
-    addarc(r.x(), r.y(), r.w()-1, r.h()-1, circle_start, circle_end);
-    CGContextStrokePath(quartz_gc);
-  }
 #elif USE_X11
   if (circle_type) {
     int A = int(circle_start*64);
@@ -795,17 +777,9 @@ void fltk::strokepath() {
 */
 void fltk::fillpath() {
 #if USE_CAIRO
-  cairo_fill(cc);
+  cairo_fill(cr);
 #elif USE_QUARTZ
   CGContextFillPath(quartz_gc);
-  if (circle_type) {
-    first_point = true;
-    CGContextBeginPath(quartz_gc);
-    const Rectangle& r = circle;
-    addvertex(r.x()+(r.w()-1)*0.5f, r.y()+(r.h()-1)*0.5f);
-    addarc(r.x(), r.y(), r.w()-1, r.h()-1, circle_start, circle_end);
-    CGContextFillPath(quartz_gc);
-  }
 #elif USE_X11
   if (circle_type) {
     int A = int(circle_start*64);
@@ -872,28 +846,15 @@ void fltk::fillpath() {
 */
 void fltk::fillstrokepath(Color color) {
 #if USE_CAIRO
-  cairo_save(cc);
-  cairo_fill_preserve(cc);
-  cairo_restore(cc);
+  closepath();
+  cairo_fill_preserve(cr);
   setcolor(color);
-  cairo_stroke(cc);
+  cairo_stroke(cr);
 #elif USE_QUARTZ
   uchar r, g, b; 
   split_color(color, r, g, b);
   CGContextSetRGBStrokeColor(quartz_gc, r/255.0f, g/255.0f, b/255.0f, 1.0);
   CGContextDrawPath(quartz_gc, kCGPathFillStroke);
-  if (circle_type) {
-    first_point = true;
-    CGContextBeginPath(quartz_gc);
-    const Rectangle& r = circle;
-    if (circle_type==PIE) addvertex(r.x()+(r.w()-1)*0.5f, r.y()+(r.h()-1)*0.5f);
-    addarc(r.x(), r.y(), r.w()-1, r.h()-1, circle_start, circle_end);
-    CGContextFillPath(quartz_gc);
-    first_point = true;
-    CGContextBeginPath(quartz_gc);
-    addarc(r.x(), r.y(), r.w()-1, r.h()-1, circle_start, circle_end);
-    CGContextStrokePath(quartz_gc);
-  }
   setcolor(color);
   inline_newpath();
 #elif USE_X11
@@ -902,12 +863,7 @@ void fltk::fillstrokepath(Color color) {
     int B = int(circle_end*64)-A;
     const Rectangle& r = circle;
     XSetArcMode(xdisplay, gc, circle_type == PIE ? ArcPieSlice : ArcChord);
-    if (r.w() < 2 || r.h() < 2) {
-      if (!r.empty())
-	XFillRectangle(xdisplay, xwindow, gc, r.x(), r.y(), r.w(), r.h());
-    } else {
-      XFillArc(xdisplay, xwindow, gc, r.x(), r.y(), r.w()-1, r.h()-1, A, B);
-    }
+    XFillArc(xdisplay, xwindow, gc, r.x(), r.y(), r.w()-1, r.h()-1, A, B);
   }
   closepath();
   if (numpoints > 2) {
@@ -957,5 +913,5 @@ void fltk::fillstrokepath(Color color) {
 }
 
 //
-// End of "$Id: path.cxx 5557 2006-12-19 18:56:00Z spitzak $".
+// End of "$Id: path.cxx 6396 2008-10-08 14:46:10Z spitzak $".
 //

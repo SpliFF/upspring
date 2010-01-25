@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile 5029 2006-04-25 07:40:40Z spitzak $"
+# "$Id: Makefile 6151 2008-08-04 23:03:58Z spitzak $"
 #
 # Library makefile for the Fast Light Tool Kit (FLTK).
 #
@@ -85,6 +85,8 @@ depend:
 # Include automatically generated dependencies...
 #
 
+makedepend:
+	touch makedepend
 include makedepend
 
 
@@ -148,5 +150,5 @@ uninstall:
 
 
 #
-# End of "$Id: Makefile 5029 2006-04-25 07:40:40Z spitzak $".
+# End of "$Id: Makefile 6151 2008-08-04 23:03:58Z spitzak $".
 #

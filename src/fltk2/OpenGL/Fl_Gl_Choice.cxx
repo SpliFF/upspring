@@ -1,5 +1,5 @@
 //
-// "$Id: Fl_Gl_Choice.cxx 4886 2006-03-30 09:55:32Z fabien $"
+// "$Id: Fl_Gl_Choice.cxx 6875 2009-09-17 01:57:42Z spitzak $"
 //
 // OpenGL visual selection code for the Fast Light Tool Kit (FLTK).
 //
@@ -165,7 +165,14 @@ GlChoice* GlChoice::find(int mode) {
   list[n] = 0;
     
   open_display();
+#if 0 // force it to use a specific visual number, for testing
+  XVisualInfo templt;
+  templt.visualid = 0x34; // use glxinfo to list these numbers
+  int num;
+  XVisualInfo *vis=XGetVisualInfo(xdisplay, VisualIDMask, &templt, &num);
+#else
   XVisualInfo* vis = glXChooseVisual(xdisplay, xscreen, list);
+#endif
   if (!vis) {
 # if defined(GLX_VERSION_1_1) && defined(GLX_SGIS_multisample)
     if (mode&MULTISAMPLE) return find(mode&~MULTISAMPLE);
@@ -204,9 +211,78 @@ static GLContext first_context;
 
 #if USE_X11
 
+// Define this to destroy all OpenGL contexts at exit to try to fix NVidia crashes
+#define DESTROY_ON_EXIT 0
+
+#if DESTROY_ON_EXIT
+static struct Contexts {
+  GLContext context;
+  struct Contexts* next;
+} * context_list;
+
+static void destructor() {
+  if (xdisplay && first_context) {
+    first_context = 0;
+    for (Contexts* p = context_list; p; p = p->next) {
+      glXDestroyContext(xdisplay, p->context);
+    }
+    context_list = 0;
+    XFlush(xdisplay);
+  }
+}
+#endif
+
 GLContext fltk::create_gl_context(XVisualInfo* vis) {
-  GLContext context = glXCreateContext(xdisplay, vis, first_context, 1);
-  if (!first_context) first_context = context;
+  GLContext context;
+#if 0 // enable OpenGL3 support if possible
+  // This is disabled because it does not work on SUSE11 with NVidia cards.
+  // I tried all the visuals and none worked. Error is returned when attempts
+  // are made to use the context:
+  // XRequest.144: BadAlloc (insufficient resources for operation) 0x1e00006
+  // XRequest.144: GLXBadContext 0x1e00006
+  // XRequest.144: GLXBadDrawable 0x1e00004
+  typedef GLXFBConfig (*PFNGLXGETFBCONFIGFROMVISUALSGIXPROC)(
+		Display *dpy,
+		XVisualInfo *vis );
+  typedef GLXContext (*PFNGLXCREATECONTEXTATTRIBSARB)(
+		Display *dpy,
+		GLXFBConfig config,
+		GLXContext share_context,
+		Bool direct,
+		const int *attrib_list);
+
+  PFNGLXGETFBCONFIGFROMVISUALSGIXPROC glXGetFBConfigFromVisualSGIX = (PFNGLXGETFBCONFIGFROMVISUALSGIXPROC)
+		glXGetProcAddress((const GLubyte *) "glXGetFBConfigFromVisualSGIX");
+
+  PFNGLXCREATECONTEXTATTRIBSARB glXCreateContextAttribsARB =
+		(PFNGLXCREATECONTEXTATTRIBSARB)  glXGetProcAddress((const GLubyte *) "glXCreateContextAttribsARB");
+
+  if (glXGetFBConfigFromVisualSGIX && glXCreateContextAttribsARB) {
+    printf("A\n");
+    // printf("Success!\n");
+    GLXFBConfig c = glXGetFBConfigFromVisualSGIX(xdisplay, vis);
+    printf("B\n");
+#   define GLX_CONTEXT_MAJOR_VERSION_ARB		0x2091
+#   define GLX_CONTEXT_MINOR_VERSION_ARB		0x2092
+    int arr2[] = {  GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+                    GLX_CONTEXT_MINOR_VERSION_ARB, 0, None };
+    context = glXCreateContextAttribsARB(xdisplay, c, first_context, True, arr2);
+    printf("C\n");
+  } else
+#endif
+    context = glXCreateContext(xdisplay, vis, first_context, 1);
+#if DESTROY_ON_EXIT
+  Contexts* p = new Contexts;
+  p->context = context;
+  p->next = context_list;
+  context_list = p;
+#endif
+  if (!first_context) {
+    first_context = context;
+#if DESTROY_ON_EXIT
+    atexit(::destructor);
+#endif
+  }
   return context;
 }
 
@@ -245,7 +321,7 @@ void fltk::set_gl_context(const Window* window, GLContext context) {
     fl_current_glcontext = context;
     cached_window = window;
 #if USE_X11
-    glXMakeCurrent(xdisplay, xid(window), context);
+    if (first_context) glXMakeCurrent(xdisplay, xid(window), context);
 #elif defined(_WIN32)
     wglMakeCurrent(CreatedWindow::find(window)->dc, context);
 #elif defined(__APPLE__)
@@ -270,6 +346,14 @@ void fltk::set_gl_context(const Window* window, GLContext context) {
     aglSetDrawable(context, GetWindowPort( xid(window) ) );
     aglSetCurrentContext(context);
 #endif
+# if USE_GLEW
+    static bool beenhere = false;
+    if (!beenhere) {
+      beenhere = true;
+      glewExperimental = GL_TRUE;
+      glewInit();
+    }
+# endif
   }
 }
 
@@ -290,7 +374,18 @@ void fltk::delete_gl_context(GLContext context) {
   if (fl_current_glcontext == context) no_gl_context();
   if (context != first_context) {
 #if USE_X11
-    glXDestroyContext(xdisplay, context);
+    if (first_context) {
+      glXDestroyContext(xdisplay, context);
+#if DESTROY_ON_EXIT
+      Contexts** p = &context_list;
+      Contexts* q = *p;
+      while (q && q->context != context) {
+        p = &(q->next);
+        q = *p;
+      }
+      if (q) {*p = q->next; delete q;}
+#endif
+    }
 #elif defined(_WIN32)
     wglDeleteContext(context);
 #elif defined(__APPLE__)
@@ -304,5 +399,5 @@ void fltk::delete_gl_context(GLContext context) {
 #endif
 
 //
-// End of "$Id: Fl_Gl_Choice.cxx 4886 2006-03-30 09:55:32Z fabien $".
+// End of "$Id: Fl_Gl_Choice.cxx 6875 2009-09-17 01:57:42Z spitzak $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: fluid.cxx 5738 2007-03-12 18:07:45Z spitzak $"
+// "$Id: fluid.cxx 6100 2008-04-13 20:29:52Z fabien $"
 //
 // FLUID main entry for the Fast Light Tool Kit (FLTK).
 //
@@ -662,7 +662,7 @@ void new_cb(Widget *, void *v) {
     modflag = 0;
 }
 */
-static int compile_only = 0;
+int compile_only = 0;
 int header_file_set = 0;
 int code_file_set = 0;
 const char* header_file_name = ".h";
@@ -676,14 +676,16 @@ void write_cb(Widget *, void *) {
     char cname[1024];
     char hname[1024];
     if (code_file_name[0] == '.' && isalpha(code_file_name[1])) {
-	strcpy(cname,filename_name(filename));
-	strcpy((char*)filename_ext(cname), code_file_name);
+	strlcpy(cname, filename, 1024);
+	*filename_ext(cname) = 0;
+	strlcat(cname, code_file_name, 1024);
     } else {
 	strcpy(cname, code_file_name);
     }
     if (header_file_name[0] == '.' && isalpha(header_file_name[1])) {
-	strcpy(hname,filename_name(filename));
-	strcpy((char*)filename_ext(hname), header_file_name);
+	strlcpy(hname, filename, 1024);
+	*filename_ext(hname) = 0;
+	strlcat(hname, header_file_name, 1024);
     } else {
 	strcpy(hname, header_file_name);
     }
@@ -1411,7 +1413,7 @@ int main(int argc,char **argv) {
       fprintf(stderr,"%s : %s\n", c, strerror(errno));
       exit(1);
     }
-    message("XCan't read %s: %s", c, strerror(errno));
+    message("Can't read %s: %s", c, strerror(errno));
   }
   if(sw) sw->show(); // keep splash screen on top if any
   Undo::resume();
@@ -1430,5 +1432,5 @@ int main(int argc,char **argv) {
 }
 
 //
-// End of "$Id: fluid.cxx 5738 2007-03-12 18:07:45Z spitzak $".
+// End of "$Id: fluid.cxx 6100 2008-04-13 20:29:52Z fabien $".
 //

@@ -1,4 +1,4 @@
-// "$Id: file_chooser.h 5197 2006-06-14 07:43:46Z spitzak $"
+// "$Id: file_chooser.h 6233 2008-09-14 07:54:06Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -19,15 +19,15 @@
 //
 // Please report all bugs and problems to "fltk-bugs@fltk.org".
 
-/*! \file
-  Popup file chooser dialog, using the FileChooser widget. */
-
 #ifndef fltk_file_chooser_h
 #define fltk_file_chooser_h
 
 #include "FL_API.h"
 
 namespace fltk {
+
+/// \name fltk/file_chooser.h
+//@{
 
 FL_API void use_system_file_chooser(bool = true);
 
@@ -36,10 +36,12 @@ FL_API const char *file_chooser(const char *message,const char *pattern,
 				const char *filename, int relative = 0);
 FL_API void file_chooser_callback(void (*cb)(const char *));
 
+//@}
+
 }
 
 #endif
 
 //
-// End of "$Id: file_chooser.h 5197 2006-06-14 07:43:46Z spitzak $".
+// End of "$Id: file_chooser.h 6233 2008-09-14 07:54:06Z spitzak $".
 //

@@ -1,4 +1,4 @@
-// "$Id: gl.h 5230 2006-06-23 22:31:13Z spitzak $"
+// "$Id: gl.h 6233 2008-09-14 07:54:06Z spitzak $"
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
 // You must include this instead of GL/gl.h to get the Microsoft
@@ -27,7 +27,10 @@
 
 /*! \file
   Portably include the OpenGL header files, and define a few OpenGL
-  drawing functions provided by fltk.
+  drawing functions provided by fltk. You may want to use the
+  OpenGL Extension Wrangler (glew), which will make it much easier
+  to call modern OpenGL extensions. If so, include glew.h before
+  this file, or define USE_GLEW to 1 before including this.
 */
 
 #ifndef gl_draw_H
@@ -37,38 +40,48 @@
 #include "Color.h"
 #include "Flags.h"
 
-#define GL_GLEXT_PROTOTYPES 1
-#ifdef _WIN32
-# include <windows.h>
-# undef OPAQUE
-# undef DELETE
-# undef ERROR
-# undef IN
-# undef OUT
-# undef POINT
-# undef far
-# undef max
-# undef min
-# undef near
-# include <GL/gl.h>
-#elif defined(__APPLE__)
-#  ifndef APIENTRY
-#      define APIENTRY
-#  endif
-# include <OpenGL/gl.h>
+#if USE_GLEW
+# include <GL/glew.h>
+#elif defined(__GLEW_H__)
+  /* do nothing if they included glew.h */
 #else
-# include <GL/gl.h>
-#endif
 
-#if !defined(GL_VERSION_1_4) || defined(DOXYGEN)
+# define GL_GLEXT_PROTOTYPES 1
+# ifdef _WIN32
+#  include <windows.h>
+#  undef OPAQUE
+#  undef DELETE
+#  undef ERROR
+#  undef IN
+#  undef OUT
+#  undef POINT
+#  undef far
+#  undef max
+#  undef min
+#  undef near
+#  include <GL/gl.h>
+# elif defined(__APPLE__)
+#  ifndef APIENTRY
+#   define APIENTRY
+#  endif
+#  include <OpenGL/gl.h>
+# else
+#  include <GL/gl.h>
+# endif
+
+# if !defined(GL_VERSION_1_4) || defined(DOXYGEN)
 FL_GL_API void glWindowPos2i(int x, int y);
-#endif
+# endif
 
+#endif
 #endif
 
 namespace fltk {
 
 struct Font;
+
+/// \name fltk/gl.h
+//@{
 
 FL_GL_API void glstart();
 FL_GL_API void glfinish();
@@ -91,9 +104,11 @@ FL_GL_API void gldrawtext(const char*, int n, float x, float y, float z = 0);
 
 FL_GL_API void gldrawimage(const uchar *, int x,int y,int w,int h, int d=3, int ld=0);
 
+//@}
+
 }
 #endif
 
 //
-// End of "$Id: gl.h 5230 2006-06-23 22:31:13Z spitzak $".
+// End of "$Id: gl.h 6233 2008-09-14 07:54:06Z spitzak $".
 //

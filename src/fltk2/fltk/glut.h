@@ -1,5 +1,5 @@
 //
-// "$Id: glut.h 5389 2006-09-01 15:39:19Z spitzak $"
+// "$Id: glut.h 6521 2008-11-12 20:49:58Z spitzak $"
 //
 // GLUT emulation header file for the Fast Light Tool Kit (FLTK).
 //
@@ -251,7 +251,7 @@ enum {GLUT_LEFT, GLUT_ENTERED};
 inline void glutVisibilityFunc(void (*f)(int s)) {glut_window->visibility=f;}
 enum {GLUT_NOT_VISIBLE, GLUT_VISIBLE};
 
-inline void glutIdleFunc(void (*f)()) {fltk::set_idle(f);}
+FL_GLUT_API void glutIdleFunc(void (*f)());
 
 // Warning: this cast may not work on all machines:
 inline void glutTimerFunc(unsigned int msec, void (*f)(int), int value) {
@@ -486,5 +486,5 @@ extern void APIENTRY glutSolidIcosahedron();
 #endif                  /* !__glut_h__ */
 
 //
-// End of "$Id: glut.h 5389 2006-09-01 15:39:19Z spitzak $".
+// End of "$Id: glut.h 6521 2008-11-12 20:49:58Z spitzak $".
 //

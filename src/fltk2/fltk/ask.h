@@ -1,9 +1,7 @@
 //
-// "$Id: ask.h 5197 2006-06-14 07:43:46Z spitzak $"
+// "$Id: ask.h 6233 2008-09-14 07:54:06Z spitzak $"
 //
-// Utility pop-up windows for fltk
-//
-// Copyright 2002 by Bill Spitzak and others.
+// Copyright 2008 by Bill Spitzak and others.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Library General Public
@@ -21,7 +19,6 @@
 // USA.
 //
 // Please report all bugs and problems to "fltk-bugs@fltk.org".
-/*! \file */
 
 #ifndef fltk_ask_h
 #define fltk_ask_h
@@ -32,6 +29,9 @@
 namespace fltk {
 
 class Widget;
+
+/// \name fltk/ask.h
+//@{
 
 enum {
   BEEP_DEFAULT = 0,
@@ -58,6 +58,11 @@ FL_API bool beep_on_dialog();
 extern FL_API NamedStyle* icon_style;
 extern FL_API NamedStyle* message_style;
 
+extern FL_API const char* message_window_label;
+extern FL_API float message_window_timeout;
+
+extern FL_API bool message_window_scrollable;
+
 // pointers you can use to change FLTK to a foreign language:
 extern FL_API const char* no;
 extern FL_API const char* yes;
@@ -66,8 +71,10 @@ extern FL_API const char* cancel;
 
 }
 
+//@}
+
 #endif
 
 //
-// End of "$Id: ask.h 5197 2006-06-14 07:43:46Z spitzak $".
+// End of "$Id: ask.h 6233 2008-09-14 07:54:06Z spitzak $".
 //

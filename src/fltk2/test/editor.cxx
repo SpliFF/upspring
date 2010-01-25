@@ -1,5 +1,5 @@
 //
-// "$Id: editor.cxx 5626 2007-01-19 18:48:51Z sanel.z $"
+// "$Id: editor.cxx 6518 2008-11-11 22:31:26Z spitzak $"
 //
 // A simple text editor program for the Fast Light Tool Kit (FLTK).
 //
@@ -49,8 +49,6 @@
 #include <fltk/TextBuffer.h>
 #include <fltk/TextEditor.h>
 #include <fltk/MenuBuild.h>
-
-#include <FL/Fl_Menu_Bar.H>
 
 int                changed = 0;
 char               filename[256] = "";
@@ -733,30 +731,30 @@ static void build_menus(fltk::MenuBar * menu, fltk::Widget *w) {
       g = new fltk::ItemGroup( "&File" );
       g->begin();
 	new fltk::Item( "&New File",        0, (fltk::Callback *)new_cb );
-	new fltk::Item( "&Open File...",    fltk::COMMAND + 'o', (fltk::Callback *)open_cb );
-	new fltk::Item( "&Insert File...",  fltk::COMMAND + 'i', (fltk::Callback *)insert_cb);
+	new fltk::Item( "&Open File...",    fltk::COMMAND + 'O', (fltk::Callback *)open_cb );
+	new fltk::Item( "&Insert File...",  fltk::COMMAND + 'I', (fltk::Callback *)insert_cb);
 	new fltk::Divider();
-	new fltk::Item( "&Save File",       fltk::COMMAND + 's', (fltk::Callback *)save_cb );
-	new fltk::Item( "Save File &As...", fltk::COMMAND + fltk::SHIFT + 's', (fltk::Callback *)saveas_cb);
+	new fltk::Item( "&Save File",       fltk::COMMAND + 'S', (fltk::Callback *)save_cb );
+	new fltk::Item( "Save File &As...", fltk::COMMAND + fltk::SHIFT + 'S', (fltk::Callback *)saveas_cb);
 	new fltk::Divider();
-	new fltk::Item( "New &View", fltk::ACCELERATOR + 'v', (fltk::Callback *)view_cb, 0 );
-	new fltk::Item( "&Close View", fltk::COMMAND + 'w', (fltk::Callback *)close_cb);
+	new fltk::Item( "New &View", fltk::ACCELERATOR + 'V', (fltk::Callback *)view_cb, 0 );
+	new fltk::Item( "&Close View", fltk::COMMAND + 'W', (fltk::Callback *)close_cb);
 	new fltk::Divider();
-	new fltk::Item( "E&xit", fltk::COMMAND + 'q', (fltk::Callback *)quit_cb, 0 );
+	new fltk::Item( "E&xit", fltk::COMMAND + 'Q', (fltk::Callback *)quit_cb, 0 );
       g->end();
       g = new fltk::ItemGroup( "&Edit" );
       g->begin();
-	new fltk::Item( "Cu&t",        fltk::COMMAND + 'x', (fltk::Callback *)cut_cb );
-	new fltk::Item( "&Copy",       fltk::COMMAND + 'c', (fltk::Callback *)copy_cb );
-	new fltk::Item( "&Paste",      fltk::COMMAND + 'v', (fltk::Callback *)paste_cb );
+	new fltk::Item( "Cu&t",        fltk::COMMAND + 'X', (fltk::Callback *)cut_cb );
+	new fltk::Item( "&Copy",       fltk::COMMAND + 'C', (fltk::Callback *)copy_cb );
+	new fltk::Item( "&Paste",      fltk::COMMAND + 'V', (fltk::Callback *)paste_cb );
 	new fltk::Item( "&Delete",     0, (fltk::Callback *)delete_cb );
       g->end();
       g = new fltk::ItemGroup( "&Search" );
       g->begin();
-	new fltk::Item( "&Find...",       fltk::COMMAND + 'f', (fltk::Callback *)find_cb );
-	new fltk::Item( "F&ind Again",    fltk::COMMAND + 'g', find2_cb );
-	new fltk::Item( "&Replace...",    fltk::COMMAND + 'r', replace_cb );
-	new fltk::Item( "Re&place Again", fltk::COMMAND + 't', replace2_cb );
+	new fltk::Item( "&Find...",       fltk::COMMAND + 'F', (fltk::Callback *)find_cb );
+	new fltk::Item( "F&ind Again",    fltk::COMMAND + 'G', find2_cb );
+	new fltk::Item( "&Replace...",    fltk::COMMAND + 'R', replace_cb );
+	new fltk::Item( "Re&place Again", fltk::COMMAND + 'T', replace2_cb );
       g->end();
     menu->end();
 }
@@ -806,5 +804,5 @@ int main(int argc, char **argv) {
 }
 
 //
-// End of "$Id: editor.cxx 5626 2007-01-19 18:48:51Z sanel.z $".
+// End of "$Id: editor.cxx 6518 2008-11-11 22:31:26Z spitzak $".
 //

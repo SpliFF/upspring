@@ -1,5 +1,5 @@
 //
-// "$Id: key_name.cxx 5056 2006-04-30 13:19:39Z fabien $"
+// "$Id: key_name.cxx 6518 2008-11-11 22:31:26Z spitzak $"
 //
 // Turn a fltk (X) keysym + fltk shift flags into a human-readable string.
 //
@@ -76,18 +76,13 @@ static Keyname table[] = {
 #endif
 };
 
-// Secret control for fltk::key_name.
-// 0 = all letters are returned lower-case
-// 1 = all letters are returned upper-case (default)
-// 2 = letters are uppercase if SHIFT is on
-FL_API int fl_key_name_uppercase = 1;
-
 /*!
-  Unparse a fltk::Widget::shortcut() or fltk::event_key() value into
-  human-readable text. Returns a pointer to a
-  human-readable string like "Alt+N". If \a hotkey is zero an empty
-  string is returned. The return value points at a static buffer that
-  is overwritten with each call.
+
+  Unparse a fltk::Widget::shortcut(), an fltk::event_key(), or an
+  fltk::event_key() or'd with fltk::event_state().  Returns a pointer
+  to a human-readable string like "Alt+N". If \a hotkey is zero an
+  empty string is returned. The return value points at a static buffer
+  that is overwritten with each call.
 
   The opposite function is fltk::key().
 */
@@ -142,12 +137,8 @@ const char* fltk::key_name(unsigned hotkey) {
     return buf;
   }
   // if all else fails use the keysym as a character:
-  switch (fl_key_name_uppercase) {
-  case 0: *p = uchar(key); break;
-  case 2: if (!(hotkey&SHIFT)) {*p = uchar(key); break;}
-  default: *p = toupper(uchar(key)); break;
-  }
-  *++p = 0;
+  *p++ = uchar(key);
+  *p = 0;
   return buf;
 }
 
@@ -177,11 +168,11 @@ unsigned fltk::key(const char* name) {
   int shifts = 0;
   while (name[0] && name[1]) {
     if (*name == '#') {
-      shifts |= fltk::ACCELERATOR; name++;
+      shifts |= fltk::ALT; name++;
     } else if (*name == '+') {
       shifts |= fltk::SHIFT; name++;
     } else if (*name == '^') {
-      shifts |= fltk::COMMAND; name++;
+      shifts |= fltk::COMMAND; name++; // ctrl on win/linux, meta on os/x
     } else if (!strncasecmp(name, "alt",  3) && (name[3]=='-'||name[3]=='+')) {
       shifts |= fltk::ALT; name += 4;
     } else if (!strncasecmp(name, "shift",5) && (name[5]=='-'||name[5]=='+')) {
@@ -190,10 +181,10 @@ unsigned fltk::key(const char* name) {
       shifts |= fltk::CTRL; name += 5;
     } else if (!strncasecmp(name, "meta", 4) && (name[4]=='-'||name[4]=='+')) {
       shifts |= fltk::META; name += 5;
-    } else if (!strncasecmp(name,"accelerator",11)&& (name[11]=='-'||name[11]=='+')) {
-      shifts |= fltk::ACCELERATOR; name += 12;
-    } else if (!strncasecmp(name,"command",7)&& (name[7]=='-'||name[7]=='+')) {
-      shifts |= fltk::COMMAND; name += 8;
+//     } else if (!strncasecmp(name,"accelerator",11)&& (name[11]=='-'||name[11]=='+')) {
+//       shifts |= fltk::ACCELERATOR; name += 12;
+    } else if (!strncasecmp(name, "cmd", 3) && (name[3]=='-'||name[3]=='+')) {
+      shifts |= fltk::COMMAND; name += 4; // ctrl on win/linux, meta on os/x
     } else break;
   }
   if (!*name) return 0;
@@ -206,5 +197,5 @@ unsigned fltk::key(const char* name) {
 }
 
 //
-// End of "$Id: key_name.cxx 5056 2006-04-30 13:19:39Z fabien $"
+// End of "$Id: key_name.cxx 6518 2008-11-11 22:31:26Z spitzak $"
 //

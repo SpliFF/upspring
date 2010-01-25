@@ -1,5 +1,5 @@
 //
-// "$Id: FileBrowser.cxx 5071 2006-05-02 21:57:08Z fabien $"
+// "$Id: FileBrowser.cxx 5975 2007-11-16 06:51:32Z dejan $"
 //
 // FileBrowser routines.
 //
@@ -118,6 +118,7 @@ FileBrowser::load(const char     *directory,// I - Directory to load
     return (0);
 
   clear();
+  yposition(0);
   directory_ = directory;
 
   if (directory_[0] == '\0')
@@ -360,5 +361,5 @@ void FileBrowser::insert(int n, const char *label, FileIcon*icon) {
 }
 
 //
-// End of "$Id: FileBrowser.cxx 5071 2006-05-02 21:57:08Z fabien $".
+// End of "$Id: FileBrowser.cxx 5975 2007-11-16 06:51:32Z dejan $".
 //

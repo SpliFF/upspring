@@ -1,4 +1,4 @@
-// "$Id: Browser.cxx 5708 2007-02-23 00:52:14Z spitzak $"
+// "$Id: Browser.cxx 6148 2008-07-17 19:37:04Z TobiasFar $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -619,32 +619,31 @@ void Browser::draw_item(int damage) {
   int inset = (HERE.level+indented())*arrow_size;
 
   // draw the open/close glyphs at the left:
-  if (damage && inset > xposition_) {
-    drawstyle(style(), 0);
-    Color fg = getcolor();
-    setcolor(getbgcolor());
-    fillrect(0, y, inset-xposition_+arrow_size, item_h());
-    setcolor(fg);
-    bool preview_open = openclose_drag == 1 && pushed() && at_mark(FOCUS);
-    for (unsigned j = indented() ? 0 : 1; j <= HERE.level; j++) {
-      int g = (HERE.indexes[j] < children(HERE.indexes,j) - 1) ? 1 : 0;
-      if (j == HERE.level) {
+	if (damage && inset > xposition_) {
+		drawstyle(style(), 0);
+		Color fg = getcolor();
+		setcolor(getbgcolor());
+		fillrect(0, y, inset-xposition_+arrow_size, item_h());
+		setcolor(fg);
+		bool preview_open = openclose_drag == 1 && pushed() && at_mark(FOCUS);
+		for (unsigned j = indented() ? 0 : 1; j <= HERE.level; j++) {
+			int g = (HERE.indexes[j] < children(HERE.indexes,j) - 1) ? 1 : 0;
+			if (j == HERE.level) {
 	if (children(HERE.indexes,j+1)>=0)
-	  if (item_is_open() != preview_open)
-	    g += OPEN_ELL;
-	  else
-	    g += CLOSED_ELL;
+		if (item_is_open() != preview_open)
+			g += OPEN_ELL;
+		else
+			g += CLOSED_ELL;
 	else
-	  g += ELL;
-      }
-      // if (getcolor()==BLACK) setcolor(GRAY33);
-      draw_glyph(g, Rectangle(x, y, arrow_size, item_h()));
-      x += arrow_size;
-    }
-  } else {
-    x += inset;
-  }
-
+		g += ELL;
+			}
+			// if (getcolor()==BLACK) setcolor(GRAY33);
+			if (displaylines_) draw_glyph(g, Rectangle(x, y, arrow_size, item_h()));
+			x += arrow_size;
+		}
+	} else {
+	x += inset;
+	}
   // Shift first column width, so labels after 1. column are lined up correctly.
   int saved_colw = 0;
   int *cols = (int *)column_widths_p;
@@ -861,8 +860,10 @@ void Browser::layout() {
 
   int headerh = 0;
   if (header_) {
-    header_[0]->layout();
-    headerh = header_[0]->h();
+    for (int i=0; i<nHeader; ++i) {
+      if (headerh < header_[i]->h())
+        headerh = header_[i]->h();
+    }
     interior.move_y(headerh);
   }
 
@@ -1125,6 +1126,21 @@ bool Browser::make_item_visible(linepos where) {
 }
 
 /*! This is for use by the MultiBrowser subclass.
+  select or deselect an item in parameter, 
+  optionally execute a callback (calls set_item_selected()).
+  This method changes item position in the tree.
+*/
+bool  Browser::select(Widget* e, int v, int do_callback) {
+	if (!item()) goto_top();
+    Widget* i = item();
+	Widget *c;
+	while  (item()!=e) {
+		c=next_visible();
+		if (c==i || (!c && (c=goto_top())==i)) return false;
+	}
+	return set_item_selected(v ? true: false, do_callback);
+}
+/*! This is for use by the MultiBrowser subclass.
   Turn the fltk::SELECTED flag on or off in the current item (use
   goto_index() to set the current item before calling this).
 
@@ -1134,9 +1150,11 @@ bool Browser::make_item_visible(linepos where) {
   If do_callback has some bits that are also in when() then the
   callback is done for each item that changes selected state.
 */
+
 bool Browser::set_item_selected(bool value, int do_callback) {
+  if(!item()) return false;
+
   if (multi()) {
-    //if (value) set_focus();
     if (value) {
       if (item()->selected()) return false;
       item()->set_selected();
@@ -1194,15 +1212,18 @@ bool Browser::select_only_this(int do_callback) {
     bool ret = false;
     // Turn off all other items and set damage:
     if (goto_top()) do {
-      if (set_item_selected(at_mark(FOCUS),do_callback)) ret = true;
+      if (!at_mark(FOCUS))
+        if (set_item_selected(false,do_callback)) ret = true;
     } while (next_visible());
     // Turn off closed items:
     nodamage = true;
     if (goto_top()) do {
-      if (set_item_selected(at_mark(FOCUS),do_callback)) ret = true;
+      if (!at_mark(FOCUS))
+        if (set_item_selected(false,do_callback)) ret = true;
     } while (next());
     nodamage = false;
     goto_mark(FOCUS);
+    if (set_item_selected(true,do_callback)) ret = true;
     return ret;
   } else {
     if (!set_focus()) return false;
@@ -1657,7 +1678,7 @@ RETURN:
 
 void Browser::column_click_cb_(Widget *ww, void *d) {
   Browser *w = (Browser*)(ww->parent());
-  w->selected_column_ = *(int*)&d;
+  w->selected_column_ = int(long(d));
   w->do_callback();
   w->selected_column_ = NO_COLUMN_SELECTED;
 }
@@ -1724,8 +1745,11 @@ public:
   } // handle() method
 
   void layout() {
-    setfont(labelfont(),labelsize());
-    h(int(getascent()+getdescent()+leading()+2));
+    if (h() == 0) {
+      int wide, high;
+      measure_label(wide, high);
+      h(high + leading() + 3);
+    }
     Button::layout();
   }
 }; // BButton class
@@ -1829,6 +1853,23 @@ bool Browser::display(int line, bool value) {
   Make the indexed item visible and scroll to put it at the bottom of
   the browser. */
 
+/** 
+ * Accessor (get) method which returns TRUE if lines should be displayed, or FALSE
+ * otwherwize.
+ */
+bool Browser::display_lines() const {
+  return displaylines_;
+}
+
+/**
+ * Accessor (set) method which is used to set the value of the "displaylines_"
+ * member. If you set display to FALSE it will mean that you do not want
+ * lines of the tree to be displayed.
+ */
+void Browser::display_lines(bool display) {
+  displaylines_ = display;
+}
+
 ////////////////////////////////////////////////////////////////
 // Constructor
 
@@ -1872,6 +1913,7 @@ Browser::Browser(int X,int Y,int W,int H,const char* L)
   nHeader = 0; header_ = 0;
   leaf_symbol_ = 0;
   group_symbol_ = 0;
+  displaylines_ = true;
   OPEN.unset();
   Group::current(parent());
 }
@@ -1926,5 +1968,5 @@ Browser::~Browser() {
 */
 
 //
-// End of "$Id: Browser.cxx 5708 2007-02-23 00:52:14Z spitzak $".
+// End of "$Id: Browser.cxx 6148 2008-07-17 19:37:04Z TobiasFar $".
 //

@@ -1,5 +1,5 @@
 //
-// "$Id: run.cxx 5741 2007-03-12 18:20:39Z spitzak $"
+// "$Id: run.cxx 6481 2008-10-22 06:52:35Z spitzak $"
 //
 // MacOS specific code for the Fast Light Tool Kit (FLTK).
 //
@@ -45,6 +45,7 @@
 #include <fltk/ItemGroup.h>
 #include <fltk/Style.h>
 #include <fltk/utf.h>
+#include <fltk/Cursor.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -65,17 +66,22 @@ using namespace fltk;
 #if USE_CAIRO
 # include <cairo.h>
 # include <cairo-quartz.h>
-  FL_API cairo_t * fltk::cc=0;
+  FL_API cairo_t * fltk::cr=0;
 #endif
 
 #if USE_CAIRO
 namespace fltk {
     cairo_surface_t * cairo_create_surface(fltk::Window* w) {
-      return cairo_quartz_surface_create ((CGContext*) w->backbuffer(), 
-					  w->w(),w->h(), true);
+      return cairo_quartz_surface_create_for_cg_context((CGContext*) w->backbuffer(), 
+                                                        w->w(), w->h());
     }
 }
 #endif
+
+// these pointers are set by the lock() function:
+static void nothing() {}
+void (*fl_lock_function)() = nothing;
+void (*fl_unlock_function)() = nothing;
 
 ////////////////////////////////////////////////////////////////
 // interface to select call:
@@ -166,6 +172,59 @@ void fltk::remove_fd(int n, int events) {
 enum { kEventClassFLTK = 'fltk' };
 enum { kEventFLTKBreakLoop = 1, kEventFLTKDataReady };
 
+// Run select() and do the callbacks:
+static int run_select(double time_to_wait, bool in_thread, bool callbacks) {
+  // Thread safe local copy
+  pthread_mutex_lock(&select_mutex);
+  int maxfd = ::maxfd;
+  fd_set r = fdsets[0];
+  fd_set w = fdsets[1];
+  fd_set x = fdsets[2];
+  pthread_mutex_unlock(&select_mutex);
+  // TACK ON FD'S FOR 'CANCEL PIPE'
+  if (in_thread) {
+    FD_SET(G_pipe[0], &r);
+    if ( G_pipe[0] > maxfd ) maxfd = G_pipe[0];
+  }
+  DEBUGMSG("Calling select\n");
+  int ret;
+  if (time_to_wait < 2147483.648f) {
+    timeval t;
+    t.tv_sec = int(time_to_wait);
+    t.tv_usec = int(1000000 * (time_to_wait-t.tv_sec));
+    ret = ::select(maxfd+1, &r, &w, &x, &t);
+  } else {
+    ret = ::select(maxfd+1, &r, &w, &x, 0);
+  }
+  if (ret > 0) {
+    DEBUGMSG("Select returned non-zero\n");
+    if (!callbacks) return ret;
+    for (int i=0; i<nfds; i++) {
+      //fprintf(stderr, "CHECKING FD %d OF %d (%d)\n", i, nfds, fd[i].fd);
+      int f = fd[i].fd;
+      short revents = 0;
+      if (FD_ISSET(f, &r)) revents |= POLLIN;
+      if (FD_ISSET(f, &w)) revents |= POLLOUT;
+      if (FD_ISSET(f, &x)) revents |= POLLERR;
+      if (fd[i].events & revents) {
+        DEBUGMSG("DOING CALLBACK: ");
+        fl_lock_function();
+        fd[i].cb(f, fd[i].arg);
+        fl_unlock_function();
+        DEBUGMSG("DONE\n");
+      }
+    }
+    // see if we need to copy fd_sets again:
+    if (in_thread && FD_ISSET(G_pipe[0], &r)) {
+      DEBUGMSG("reading from G_pipe\n");
+      char buf[1]; read(G_pipe[0],buf,1);
+    }
+    return ret;
+  } else {
+    return 0;
+  }
+}
+
 // select_thread
 //    Separate thread, watches for changes in user's file descriptors.
 //    Sends a 'data ready event' to the main thread if any change.
@@ -174,53 +233,16 @@ enum { kEventFLTKBreakLoop = 1, kEventFLTKDataReady };
 // on every event to stop it.
 static void *select_thread_proc(void *userdata)
 {
-  EventQueueRef eventqueue = (EventQueueRef)userdata;
-
   while (1) {
-    // Thread safe local copy
-    pthread_mutex_lock(&select_mutex);
-    int maxfd = ::maxfd;
-    fd_set r = fdsets[0];
-    fd_set w = fdsets[1];
-    fd_set x = fdsets[2];
-    pthread_mutex_unlock(&select_mutex);
-    // TACK ON FD'S FOR 'CANCEL PIPE'
-    FD_SET(G_pipe[0], &r);
-    if ( G_pipe[0] > maxfd ) maxfd = G_pipe[0];
-
-    DEBUGMSG("Calling select\n");
-    //    timeval t = { 1000, 0 };	// 1000 seconds;
-    int ret = ::select(maxfd+1, &r, &w, &x, 0 /*&t*/);
-    //pthread_testcancel();	// OSX 10.0.4 and under: need to do this
-                          // so parent can cancel us :(
-    if (ret > 0) {
-      DEBUGMSG("Select returned non-zero\n");
-      for (int i=0; i<nfds; i++) {
-	//fprintf(stderr, "CHECKING FD %d OF %d (%d)\n", i, nfds, fd[i].fd);
-	int f = fd[i].fd;
-	short revents = 0;
-	if (FD_ISSET(f, &r)) revents |= POLLIN;
-	if (FD_ISSET(f, &w)) revents |= POLLOUT;
-	if (FD_ISSET(f, &x)) revents |= POLLERR;
-	if (fd[i].events & revents) {
-	  DEBUGMSG("DOING CALLBACK: ");
-	  fltk::lock();
-	  fd[i].cb(f, fd[i].arg);
-	  fltk::unlock();
-	  DEBUGMSG("DONE\n");
-	}
-      }
-      // see if we need to copy fd_sets again:
-      if (FD_ISSET(G_pipe[0], &r)) {
-	DEBUGMSG("reading from G_pipe\n");
-	char buf[1]; read(G_pipe[0],buf,1);
-      }
+    if (run_select(1e20, true, true)) {
       // wake up the main thread with a message:
       EventRef drEvent;
       CreateEvent( 0, kEventClassFLTK, kEventFLTKDataReady,
- 		   0, kEventAttributeUserEvent, &drEvent);
-      PostEventToQueue(eventqueue, drEvent, kEventPriorityStandard);
+                   0, kEventAttributeUserEvent, &drEvent);
+      PostEventToQueue(GetCurrentEventQueue(), drEvent, kEventPriorityStandard);
     }
+    //pthread_testcancel();	// OSX 10.0.4 and under: need to do this
+                          // so parent can cancel us :(
   }
 }
 
@@ -230,7 +252,6 @@ static void HandleDataReady()
 {
 #if 0
   fl_lock_function();
-  in_main_thread_ = true;
   timeval t = { 0, 0 };		// quick check
   fd_set r = fdsets[0];
   fd_set w = fdsets[1];
@@ -251,15 +272,9 @@ static void HandleDataReady()
       }
     }
   }
-  in_main_thread_ = false;
   fl_unlock_function();
 #endif
 }
-
-// these pointers are set by the lock() function:
-static void nothing() {}
-void (*fl_lock_function)() = nothing;
-void (*fl_unlock_function)() = nothing;
 
 ////////////////////////////////////////////////////////////////
 
@@ -364,9 +379,7 @@ static pascal OSStatus carbonDispatchHandler( EventHandlerCallRef nextHandler, E
       case kEventCommandProcess:
         GetEventParameter( event, kEventParamDirectObject, typeHICommand, NULL, sizeof(HICommand), NULL, &cmd );
 	fl_lock_function();
-	in_main_thread_ = true;
         ret = HandleMenu( &cmd );
-	in_main_thread_ = false;
 	fl_unlock_function();
         break;
     }
@@ -394,10 +407,19 @@ static pascal OSStatus carbonDispatchHandler( EventHandlerCallRef nextHandler, E
  * do the callbacks for the events and sockets. Returns non-zero if
  * anything happened during the time period.
  */
-//+++ verify port to FLTK2
 static inline int fl_wait(double time) 
 {
-  OSStatus ret;
+  if (!CreatedWindow::first && !select_thread) {
+    // If there are no windows, avoid calling event handler stuff. This
+    // allows the program to work on a headless render farm or when
+    // ssh'd in without admin privledges.
+    // Also similar to how the X11 version works when DISPLAY is not set.
+    fl_unlock_function();
+    int ret = run_select(time, false, true);
+    fl_lock_function();
+    return ret;  
+  }
+
   static EventTargetRef target = 0;
   if ( !target ) {
     target = GetEventDispatcherTarget();
@@ -420,6 +442,7 @@ static inline int fl_wait(double time)
         { kEventClassMouse, kEventMouseDragged },
         { kEventClassFLTK, kEventFLTKBreakLoop },
         { kEventClassFLTK, kEventFLTKDataReady } };
+    OSStatus ret;
     ret = InstallEventHandler( target, dispatchHandler,
 			       GetEventTypeCount(dispatchEvents),
 			       dispatchEvents, 0, 0L );
@@ -442,7 +465,6 @@ static inline int fl_wait(double time)
 		   (void*)GetCurrentEventQueue());
   }
 
-  in_main_thread_ = false;
   fl_unlock_function();
 
   EventRef event;
@@ -474,7 +496,6 @@ static inline int fl_wait(double time)
     time = 0.0; // just peek for pending events
   }
   fl_lock_function();
-  in_main_thread_ = true;
 
   // we send LEAVE only if the mouse did not enter some other window:
   // I'm not sure if this is needed or if it works...
@@ -494,6 +515,9 @@ static inline int fl_wait(double time)
  * ready() is just like wait(0.0) except no callbacks are done.
  */
 static inline int fl_ready() {
+  if (!CreatedWindow::first && !select_thread) {
+    return run_select(0.0, false, false);
+  }
   EventRef event;
   return !ReceiveNextEvent(0, NULL, 0.0, false, &event);
 }
@@ -555,7 +579,6 @@ static pascal OSStatus carbonWindowHandler( EventHandlerCallRef nextHandler, Eve
   OSStatus ret = noErr;
   Window *window = (Window*)userData;
   fl_lock_function();
-  in_main_thread_ = true;
 
   switch ( kind )
   {
@@ -602,7 +625,10 @@ static pascal OSStatus carbonWindowHandler( EventHandlerCallRef nextHandler, Eve
     ret = eventNotHandledErr; // without this it blocks until mouse moves?
     break;
   case kEventWindowDeactivated:
-    if ( window == xfocus ) fix_xfocus(0);
+    if ( window == xfocus ) {
+      handle(LEAVE, 0); // temporary fix until we get real enter/leave events
+      fix_xfocus(0);
+    }
     ret = eventNotHandledErr;
     break;
   case kEventWindowClose:
@@ -612,7 +638,6 @@ static pascal OSStatus carbonWindowHandler( EventHandlerCallRef nextHandler, Eve
     ret = eventNotHandledErr;
     break;
   }
-  in_main_thread_ = false;
   fl_unlock_function();
   return ret;
 }
@@ -634,7 +659,6 @@ static pascal OSStatus carbonMousewheelHandler( EventHandlerCallRef nextHandler,
                      NULL, sizeof(long), NULL, &delta );
   OSStatus ret = noErr;
   fl_lock_function();
-  in_main_thread_ = true;
   if ( axis == kEventMouseWheelAxisX ) {
     e_dx = -delta;
     e_dy = 0;
@@ -646,7 +670,6 @@ static pascal OSStatus carbonMousewheelHandler( EventHandlerCallRef nextHandler,
   } else {
     ret = eventNotHandledErr;
   }
-  in_main_thread_ = false;
   fl_unlock_function();
   return ret;
 }
@@ -688,7 +711,6 @@ static UInt32 recent_keycode = 0;
 static pascal OSStatus carbonMouseHandler( EventHandlerCallRef nextHandler, EventRef event, void *userData )
 {
   fl_lock_function();
-  in_main_thread_ = true;
 
   os_event = event;
   Window *window = (Window*)userData;
@@ -710,18 +732,15 @@ static pascal OSStatus carbonMouseHandler( EventHandlerCallRef nextHandler, Even
     fix_xfocus(window);
     if ( FindWindow( pos, 0 ) != inContent ) {
       // let the OS handle clicks in the title bar
-      in_main_thread_ = false;
       fl_unlock_function();
       return CallNextEventHandler( nextHandler, event );
     }
     if ( !IsWindowActive( fltk::xid(window) ) ) {
       // let the OS handle the activation,
       // but continue to get a click-through effect
-      in_main_thread_ = false;
       fl_unlock_function();
       CallNextEventHandler( nextHandler, event );
       fl_lock_function();
-      in_main_thread_ = true;
     }
     os_capture = fltk::xid(window); // make all mouse events go to this window
     px = pos.h; py = pos.v;
@@ -753,7 +772,6 @@ static pascal OSStatus carbonMouseHandler( EventHandlerCallRef nextHandler, Even
     break;
   }
 
-  in_main_thread_ = false;
   fl_unlock_function();
   return noErr;
 }
@@ -842,7 +860,6 @@ pascal OSStatus carbonKeyboardHandler( EventHandlerCallRef nextHandler, EventRef
   unsigned short sym;
 
   fl_lock_function();
-  in_main_thread_ = true;
   if (!xfocus) fix_xfocus((Window*)userData);
 
   switch ( GetEventKind( event ) )
@@ -909,7 +926,6 @@ pascal OSStatus carbonKeyboardHandler( EventHandlerCallRef nextHandler, EventRef
     break; }
   }
   bool r = (sendEvent && handle(sendEvent, xfocus));
-  in_main_thread_ = false;
   fl_unlock_function();
   if (r) return noErr;
   return CallNextEventHandler( nextHandler, event );
@@ -954,7 +970,6 @@ void fltk::open_display() {
     //AppendResMenu( GetMenuHandle( 1 ), 'DRVR' );
     //DrawMenuBar();
 
-#if 1
     // bring the application into foreground without a 'CARB' resource
     Boolean same_psn;
     ProcessSerialNumber cur_psn, front_psn;
@@ -979,23 +994,29 @@ void fltk::open_display() {
       }
 
       if ( !bundle ) {
+	OSErr err = 1;
 #ifdef MAC_OS_X_VERSION_10_3
         // newer supported API
-        if( !TransformProcessType( &cur_psn, kProcessTransformToForegroundApplication ) )
+	if (TransformProcessType != NULL)
+	  err = TransformProcessType( &cur_psn, kProcessTransformToForegroundApplication );
 #else
         // undocumented API
-        if( !CPSEnableForegroundOperation( &cur_psn, 0x03, 0x3C, 0x2C, 0x1103 ) )
+        if (CPSEnableForegroundOperation != NULL)
+	  err = CPSEnableForegroundOperation( &cur_psn, 0x03, 0x3C, 0x2C, 0x1103 );
 #endif
-          SetFrontProcess( &cur_psn );
+	if (err == noErr)
+	  SetFrontProcess( &cur_psn );
       }
     }
-#endif
   }
 }
 
 ////////////////////////////////////////////////////////////////
 
-static bool reload_info = true;
+// this should be turned on by changes to monitor layout, nyi.
+// Apparently CGDisplayReconfigurationCallBack is what you need
+static bool reload_list = true; 
+static bool reload_all = true;
 
 /* Return a "monitor" that surrounds all the monitors.
     If you have a single monitor, this returns a monitor structure that
@@ -1005,25 +1026,24 @@ static bool reload_info = true;
 //+++ verify port to FLTK2
 const Monitor& Monitor::all() {
   static Monitor monitor;
-  if (reload_info) {
-    reload_info = false;
-    BitMap r;
-    GetQDGlobalsScreenBits(&r);
-    monitor.set(r.bounds.left, r.bounds.top,
-                r.bounds.right - r.bounds.left,
-                r.bounds.bottom - r.bounds.top);
-    //++ there is a wonderful call in Carbon that will return exactly 
-    //++ this information...
-    monitor.work.set(r.bounds.left, r.bounds.top+22,
-                     r.bounds.right - r.bounds.left,
-                     r.bounds.bottom - r.bounds.top - 22);
-    //++ I don't know if this scale info is available...
-    monitor.depth_ = 32;
-    monitor.dpi_x_ = 100;
-    monitor.dpi_y_ = 100;
+  if (reload_list || reload_all) {
+    const Monitor* list;
+    int count = Monitor::list(&list);
+    reload_all = false;
+    monitor = list[0];
+    for (int i=1; i < count; i++) {
+      monitor.merge(list[i]);
+      // always keep the menubar off the first window out of work area!
+      int oldy = monitor.work.y();
+      monitor.work.merge(list[i].work);
+      monitor.work.set_y(oldy);
+    }
   }
   return monitor;
 }
+
+static Monitor* monitors = 0;
+static int num_monitors = 0;
 
 /* Return an array of all Monitors.
     p is set to point to a static array of Monitor structures describing
@@ -1031,16 +1051,40 @@ const Monitor& Monitor::all() {
     return the same array, but if a signal comes in indicating a change
     it will probably delete the old array and return a new one.
 */
-//+++ verify port to FLTK2
 int Monitor::list(const Monitor** p) {
-  *p = &all();
-  return 1;
+  if (reload_list) {
+    reload_list = false;
+    reload_all = true;
+    const unsigned int Max = 10;
+    CGDirectDisplayID list[Max];
+    CGDisplayCount count = 0;
+    /*CGDisplayErr err =*/ CGGetActiveDisplayList(Max, list, &count);
+    // maybe do something if count < 1?
+    num_monitors = count;
+    delete[] monitors;
+    monitors = new Monitor[count];
+    for (unsigned int d = 0; d < count; ++d) {
+      CGRect bounds = CGDisplayBounds(list[d]);
+      monitors[d].set(bounds.origin.x,
+                      bounds.origin.y,
+                      bounds.size.width,
+                      bounds.size.height);
+      GDHandle gdhandle; DMGetGDeviceByDisplayID((DisplayIDType)(list[d]),&gdhandle,false);
+      Rect work; GetAvailableWindowPositioningBounds(gdhandle, &work);
+      monitors[d].work.set(work.left, work.top, work.right-work.left, work.bottom-work.top);
+      monitors[d].depth_ = CGDisplayBitsPerPixel(list[d]);
+      CGSize size = CGDisplayScreenSize(list[d]); //display size in mm
+      monitors[d].dpi_x_ = bounds.size.width*25.4f/size.width;
+      monitors[d].dpi_y_ = bounds.size.height*25.4f/size.height;
+    }
+  }
+  *p = monitors;
+  return num_monitors;
 }
 
 /* Return a pointer to a Monitor structure describing the monitor
     that contains or is closest to the given x,y, position.
 */
-//+++ verify port to FLTK2
 const Monitor& Monitor::find(int x, int y) {
   const Monitor* monitors;
   int count = list(&monitors);
@@ -1086,6 +1130,13 @@ void fltk::get_mouse(int &x, int &y)
   LocalToGlobal( &loc );
   x = loc.h;
   y = loc.v;
+}
+
+bool fltk::warp_mouse(int x, int y) {
+  CGPoint new_pos;
+  new_pos.x = x;
+  new_pos.y = y;
+  return CGWarpMouseCursorPosition(new_pos) == 0;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1176,12 +1227,24 @@ void fltk::open_callback(void (*cb)(const char *)) {
 
 ////////////////////////////////////////////////////////////////
 
-Window *dnd_target_window = 0;
 #include <fltk/draw.h>
+
+static void show_drag(bool v, Widget* target, DragReference dragRef) {
+  if (v) {
+    target->cursor(CURSOR_HAND);
+    //ShowDragHilite( dragRef );
+  } else {
+    target->cursor(CURSOR_DEFAULT);
+    //HideDragHilight( dragRef );
+  }
+  fltk::flush(); // make any fltk drawing get done
+}
+
 /*
  * Drag'n'drop tracking handler
  */
-//+++ verify port to FLTK2
+static DragReference current_drag;
+
 static pascal OSErr dndTrackingHandler( DragTrackingMessage msg, WindowPtr w, void *userData, DragReference dragRef )
 {
   Window *target = (Window*)userData;
@@ -1197,13 +1260,8 @@ static pascal OSErr dndTrackingHandler( DragTrackingMessage msg, WindowPtr w, vo
     e_y_root = py = mp.v;
     e_x = px - target->x();
     e_y = py - target->y();
-    dnd_target_window = target;
-#if 0
-    if ( handle( DND_ENTER, target ) )
-      cursor( CURSOR_HAND ); //ShowDragHilite( ); // modify the mouse cursor?!
-    else
-      cursor( CURSOR_DEFAULT ); //HideDragHilite( dragRef );
-#endif
+    show_drag( handle( DND_ENTER, target ), target, dragRef);
+    current_drag = dragRef;
     return noErr;
   case kDragTrackingInWindow:
     GetDragMouse( dragRef, &mp, 0 );
@@ -1213,22 +1271,12 @@ static pascal OSErr dndTrackingHandler( DragTrackingMessage msg, WindowPtr w, vo
     e_y_root = py = mp.v;
     e_x = px - target->x();
     e_y = py - target->y();
-    dnd_target_window = target;
-#if 0
-    if ( handle( DND_DRAG, target ) )
-      cursor( CURSOR_HAND ); //ShowDragHilite( ); // modify the mouse cursor?!
-    else
-      cursor( CURSOR_DEFAULT ); //HideDragHilite( dragRef );
-#endif
+    show_drag ( handle( DND_DRAG, target ), target, dragRef);
     return noErr;
-    break;
   case kDragTrackingLeaveWindow:
-    // HideDragHilite()
-    //    cursor( CURSOR_DEFAULT ); //HideDragHilite( dragRef );
-    if ( dnd_target_window )
-    {
-      handle( DND_LEAVE, dnd_target_window );
-      dnd_target_window = 0;
+    if (current_drag) { // ignore if release was done
+      handle( DND_LEAVE, target );
+      show_drag( false, target, dragRef );
     }
     return noErr;
   }
@@ -1245,15 +1293,20 @@ static pascal OSErr dndReceiveHandler( WindowPtr w, void *userData, DragReferenc
   Point mp;
   OSErr ret;
   
-  Window *target = dnd_target_window = (Window*)userData;
+  Window *target = (Window*)userData;
   GetDragMouse( dragRef, &mp, 0 );
   e_x_root = mp.h;
   e_y_root = mp.v;
   e_x = e_x_root - target->x();
   e_y = e_y_root - target->y();
-  if ( !handle( DND_RELEASE, target ) )
+
+  ret = handle( DND_RELEASE, target );
+  Widget* droptarget = belowmouse();
+  show_drag( false, target, dragRef );
+  current_drag = 0;
+  if (!ret || !droptarget)
     return userCanceledErr;
-    
+
   // get the ASCII text
   UInt16 i, nItem;
   ItemReference itemRef;
@@ -1308,10 +1361,9 @@ static pascal OSErr dndReceiveHandler( WindowPtr w, void *userData, DragReferenc
   dst[-1] = 0;
 //  if ( e_text[e_length-1]==0 ) e_length--; // modify, if trailing 0 is part of string
   e_length = dst - e_text - 1;
-  target->handle(PASTE);
+  droptarget->handle(PASTE);
   free(buffer);
   
-  dnd_target_window = 0L;
   return noErr;
 }
 
@@ -1328,18 +1380,20 @@ void Window::borders( fltk::Rectangle *r ) const {
 	   (outside.right-outside.left)-(inside.right-inside.left),
 	   (outside.bottom-outside.top)-(inside.bottom-inside.top));
   } else if (child_of() && !contains(modal())) {
-    r->set(0,-16,0,16);
+    r->set(0,-22,0,22);
   } else {
     r->set(0,-22,0,22);
   }
 }
 
-/*
- * Resizes the actual system window in response to a resize() call from
- * the program.
- */
-//+++ verify port to FLTK2
 void Window::layout() {
+  // Unlike X11 and Win32, we do need to propagate xy changes to child windows
+  /*if (layout_damage() & ~LAYOUT_XY)*/ Group::layout();
+  // Fix the window:
+  system_layout();
+}
+
+void Window::system_layout() {
   if (parent()) {
     // child windows are done entirely by us
     if (i) for (Widget* p = parent(); ; p = p->parent())
@@ -1359,7 +1413,6 @@ void Window::layout() {
     SetWindowBounds(i->xid, kWindowContentRgn, &rect);
   }
   if (i) i->need_new_subRegion = true;
-  Group::layout();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1371,6 +1424,17 @@ void Window::layout() {
 //+++ verify port to FLTK2
 void Window::create()
 {
+  static WindowGroupRef floatingWindowGroup;
+  static WindowGroupRef mainWindowGroup;
+
+  if ( !floatingWindowGroup ) {
+    CreateWindowGroup( 0, &floatingWindowGroup );
+    CreateWindowGroup( 0, &mainWindowGroup );
+    SetWindowGroupParent( floatingWindowGroup, GetWindowGroupOfClass( kDocumentWindowClass ) );
+    SetWindowGroupParent( mainWindowGroup, floatingWindowGroup );
+    ChangeWindowGroupAttributes( floatingWindowGroup, kWindowGroupAttrSelectAsLayer | kWindowGroupAttrSharedActivation, 0);
+  }
+
   // Create structure to hold the rectangle, initialize the parts that
   // are the same for outer and child windows:
   CreatedWindow* x = new CreatedWindow;
@@ -1407,6 +1471,7 @@ void Window::create()
   } else {
     // create a desktop window
     int winclass, winattr, where;
+    WindowGroupRef winGroup = NULL;
     if (!border() || override()) {
       winclass = kHelpWindowClass;
       if (contains(modal()) || override()) {
@@ -1424,18 +1489,17 @@ void Window::create()
 	          kWindowCloseBoxAttribute;
 	where = kWindowAlertPositionOnParentWindowScreen;
       } else if (child_of()) {
-	// Major kludge: this is to have the regular look, but stay
-	// above the document windows
-	//SetWindowClass(x->xid, kFloatingWindowClass );
-	winclass = kFloatingWindowClass;
+	winclass = kDocumentWindowClass;
 	winattr = kWindowStandardHandlerAttribute |
-	          kWindowCloseBoxAttribute;
+	          kWindowCloseBoxAttribute | kWindowCollapseBoxAttribute;
 	where = kWindowCenterOnParentWindowScreen;
+        winGroup = floatingWindowGroup;
       } else {
 	winclass = kDocumentWindowClass;
 	winattr = kWindowStandardHandlerAttribute |
 	  kWindowCloseBoxAttribute | kWindowCollapseBoxAttribute;
 	where = kWindowCascadeOnParentWindowScreen;
+        winGroup = mainWindowGroup;
       }
       if (minw != maxw || minh != maxh)
 	winattr |= kWindowFullZoomAttribute |
@@ -1462,6 +1526,8 @@ void Window::create()
     if (child_of() && !contains(modal())) {
       SetWindowActivationScope(x->xid, kWindowActivationScopeAll);
     }
+    if ( winGroup )
+      SetWindowGroup( x->xid, winGroup );
 
     label(label(), iconlabel());
 
@@ -1473,8 +1539,7 @@ void Window::create()
       this->resize(r.left, r.top, r.right-r.left, r.bottom-r.top);
     } else if (border() && !override()) {
       // stop it from putting title bar under the menubar:
-      Rect r; GetWindowBounds(x->xid, kWindowStructureRgn, &r);
-      if (r.top < 22) {y(y()+22-r.top); MoveWindow(x->xid, 0, y(), true);}
+      ConstrainWindowToScreen( x->xid, kWindowStructureRgn, kWindowConstrainAllowPartial, NULL, NULL );
     }
 
     x->wait_for_expose = false;//true;
@@ -1548,9 +1613,16 @@ void Window::label(const char *name, const char * iname) {
   iconlabel_ = iname;
   if (i && !parent()) {
     if (!name) name = "";
+#if 0
+    // this probably works, it was in a bug report
+    CFStringRef mlabel = CFStringCreateWithCString(NULL, name, kCFStringEncodingUTF8);
+    SetWindowTitleWithCFString(fl_xid(this), mlabel);
+    CFRelease(mlabel);
+#else
     Str255 pTitle;
     pTitle[0] = strlen(name); memcpy(pTitle+1, name, pTitle[0]);
     SetWTitle(xid(this), pTitle);
+#endif
     // if (!iname) iname = filename_name(name);
     // should do something with iname here, it should label the dock icon
   }
@@ -1651,12 +1723,12 @@ void fltk::fill_quartz_context() {
   static CGAffineTransform font_mx = { 1, 0, 0, -1, 0, 0 };
   CGContextSetTextMatrix(quartz_gc, font_mx);
 #if USE_CAIRO
-  if (cc) {
-    cairo_destroy(cc);
+  if (cr) {
+    cairo_destroy(cr);
   }
   cairo_surface_t* s = 
-    cairo_quartz_surface_create(quartz_gc,hgt,wgt, true);
-  cc = cairo_create(s);
+    cairo_quartz_surface_create_for_cg_context(quartz_gc, hgt, wgt);
+  cr = cairo_create(s);
   cairo_surface_destroy(s);
 #endif
   if (current_font_) setfont(current_font_, current_size_);
@@ -1859,6 +1931,6 @@ WindowPtr fltk::xid(const Window*w) {
 }
 
 //
-// End of "$Id: run.cxx 5741 2007-03-12 18:20:39Z spitzak $".
+// End of "$Id: run.cxx 6481 2008-10-22 06:52:35Z spitzak $".
 //
 

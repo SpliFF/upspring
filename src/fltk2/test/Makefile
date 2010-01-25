@@ -1,5 +1,5 @@
 #
-# "$Id: Makefile 5717 2007-02-25 11:33:37Z cwarrens $"
+# "$Id: Makefile 6793 2009-06-22 18:01:01Z yuri $"
 #
 # Test/example program makefile for the Fast Light Tool Kit (FLTK).
 #
@@ -45,7 +45,7 @@ include ../makeinclude
 CPPFILES = \
 	CubeMain.cxx \
 	CubeView.cxx \
-        ansiwidget.cxx \
+	ansiwidget.cxx \
 	arc.cxx \
 	ask.cxx \
 	bitmap.cxx \
@@ -75,6 +75,7 @@ CPPFILES = \
 	helloask.cxx \
 	iconize.cxx \
 	image.cxx \
+	image_transform.cxx \
 	input.cxx \
 	keyboard.cxx \
 	label.cxx \
@@ -82,6 +83,7 @@ CPPFILES = \
 	mandelbrot.cxx \
 	menu.cxx \
 	message.cxx \
+	monitors.cxx \
 	navigation.cxx \
 	output.cxx \
 	overlay.cxx \
@@ -122,6 +124,7 @@ TARGETS = \
 	boxtype$(EXEEXT) \
 	browser$(EXEEXT) \
 	cairo$(EXEEXT) \
+	callbacks$(EXEEXT) \
 	checkers$(EXEEXT) \
 	clock$(EXEEXT) \
 	button$(EXEEXT) \
@@ -144,16 +147,17 @@ TARGETS = \
 	gl_overlay$(EXEEXT) \
 	hello$(EXEEXT) \
 	image$(EXEEXT) \
+	image_transform$(EXEEXT) \
 	inactive$(EXEEXT) \
 	input$(EXEEXT) \
 	keyboard$(EXEEXT) \
 	label$(EXEEXT) \
 	line_style$(EXEEXT) \
 	list_visuals$(EXEEXT) \
-	logslider$(EXEEXT) \
 	mandelbrot$(EXEEXT) \
 	menu$(EXEEXT) \
 	message$(EXEEXT) \
+	monitors$(EXEEXT) \
 	navigation$(EXEEXT) \
 	output$(EXEEXT) \
 	pack$(EXEEXT) \
@@ -166,7 +170,8 @@ TARGETS = \
 	scroll$(EXEEXT) \
 	shape$(EXEEXT) \
 	sizes$(EXEEXT) \
-	slider$(EXEEXT) \
+	subwindow$(EXEEXT) \
+	symbols$(EXEEXT) \
 	threads$(EXEEXT) \
 	tabs$(EXEEXT) \
 	tile$(EXEEXT) \
@@ -176,12 +181,6 @@ TARGETS = \
 	valuators$(EXEEXT) \
 	list$(EXEEXT) \
 	wizard$(EXEEXT)
-
-# other programs that are minimally changed from fltk1.1:
-TARGETS += \
-	symbols$(EXEEXT) \
-	mandelbrot$(EXEEXT) \
-	scroll$(EXEEXT)
 
 #
 # Make everything...
@@ -213,6 +212,8 @@ depend:
 # Include automatically generated dependencies...
 #
 
+makedepend:
+	touch makedepend
 include makedepend
 
 
@@ -247,6 +248,11 @@ cube$(EXEEXT): cube.o ../lib/$(LIBPREFIX)fltk2_gl$(LIBSUFFIX)
 	$(CXX) -I.. $(CXXFLAGS) $< $(LINKFLTKGL) $(GLDLIBS) -o $@
 	$(POSTBUILD) $@ ../fltk/mac.r
 
+cursor$(EXEEXT): cursor.o
+	echo Linking $@...
+	$(CXX) -I.. $(CXXFLAGS) $< $(LINKFLTKIMG) $(LDLIBS) -o $@
+	$(POSTBUILD) $@ ../fltk/mac.r
+
 fullscreen$(EXEEXT): fullscreen.o ../lib/$(LIBPREFIX)fltk2_gl$(LIBSUFFIX)
 	echo Linking $@...
 	$(CXX) -I.. $(CXXFLAGS) $< $(LINKFLTKGL) $(GLDLIBS) -o $@
@@ -265,11 +271,6 @@ glpuzzle$(EXEEXT): glpuzzle.o ../lib/$(LIBPREFIX)fltk2_glut$(LIBSUFFIX)  ../lib/
 gl_overlay$(EXEEXT): gl_overlay.o ../lib/$(LIBPREFIX)fltk2_gl$(LIBSUFFIX)
 	echo Linking $@...
 	$(CXX) -I.. $(CXXFLAGS) $< $(LINKFLTKGL) $(GLDLIBS) -o $@
-	$(POSTBUILD) $@ ../fltk/mac.r
-
-keyboard$(EXEEXT): keyboard.o keyboard_ui.o
-	echo Linking $@...
-	$(CXX) -I.. $(CXXFLAGS) $< $(LINKFLTK) $(LDLIBS) -o $@
 	$(POSTBUILD) $@ ../fltk/mac.r
 
 mandelbrot$(EXEEXT): mandelbrot.o mandelbrot_ui.o
@@ -302,6 +303,6 @@ uninstall:
 
 
 #
-# End of "$Id: Makefile 5717 2007-02-25 11:33:37Z cwarrens $".
+# End of "$Id: Makefile 6793 2009-06-22 18:01:01Z yuri $".
 #
 # DO NOT DELETE

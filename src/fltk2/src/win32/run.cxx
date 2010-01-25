@@ -1,5 +1,5 @@
 //
-// "$Id: run.cxx 5709 2007-02-23 01:03:47Z spitzak $"
+// "$Id: run.cxx 6247 2008-09-14 22:52:55Z spitzak $"
 //
 // _WIN32-specific code for the Fast Light Tool Kit (FLTK).
 // This file is #included by Fl.cxx
@@ -46,7 +46,7 @@
 #if USE_CAIRO
 # include <cairo.h>
 # include <cairo-win32.h>
-  FL_API cairo_t * fltk::cc=0;
+  FL_API cairo_t * fltk::cr=0;
 #endif
 
 ////////////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ using namespace fltk;
 #define USE_IMM 1
 
 #if USE_IMM
-# if __MINGW32__
+# if defined(__MINGW32__) || defined(__CYGWIN__)
 #   include <imm.h>
 # endif
 #endif
@@ -424,14 +424,12 @@ static inline int fl_wait(double time_to_wait) {
 #endif // USE_ASYNC_SELECT
 
   if (!fl_ready()) {
-    in_main_thread_ = false;
     fl_unlock_function();
     int t_msec =
       time_to_wait < 2147483.647 ? int(time_to_wait*1000+.5) : 0x7fffffff;
     // int ret_val =
       MsgWaitForMultipleObjects(0, NULL, false, t_msec, QS_ALLINPUT);
     fl_lock_function();
-    in_main_thread_ = true;
   }
 
   // Execute all pending messages:
@@ -674,6 +672,10 @@ void fltk::get_mouse(int &x, int &y) {
   GetCursorPos(&p);
   x = p.x;
   y = p.y;
+}
+
+bool fltk::warp_mouse(int x, int y) {
+	return SetCursorPos(x, y) ? true : false;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1441,14 +1443,11 @@ extern HPALETTE fl_select_palette(HDC dc); // in color_win32.C
 static inline bool fl_select_palette(HDC) {return false;}
 #endif
 
-static Window* resize_from_system;
-//  static Window* in_wm_paint;
-//  static PAINTSTRUCT paint;
-
 extern void fl_prune_deferred_calls(HWND);
 HWND ignore_size_change_window;
 
 #define MakeWaitReturn() __PostMessage(hWnd, WM_MAKEWAITRETURN, 0, 0)
+static CreatedWindow * sCreatedWindowPending = 0; // this hack keeps tracks of the CreatedWindow instance during its creation before we know its xid ...
 
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -1465,7 +1464,11 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
   //msg.lPrivate = ???
 
   Window *window = find(hWnd);
-
+  // Don't have any window/xid yet during reentrant window creation ? hack it !
+  if (!window && sCreatedWindowPending) {
+      window=sCreatedWindowPending->window;
+      sCreatedWindowPending->xid = hWnd;
+      }
   switch (uMsg) {
 
   case WM_SYNCPAINT :
@@ -1519,7 +1522,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     if (!window) break;
     CreatedWindow *i = CreatedWindow::find(window);
     i->wait_for_expose = false;
-#if 1
     // Merge the region into whatever is accumulated by fltk. I do this
     // by invalidating the fltk region and reading the resulting region
     // back:
@@ -1537,32 +1539,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     // and this minimizes the chances that will mess it up:
     MakeWaitReturn();
     //flush();
-#else
-    // This version was an attempt to fool fltk into doing what Windows
-    // wants, which is to draw immediately in response to the WM_PAINT
-    // event. This did not work as well as the above simpler version,
-    // and also appeared to be no faster.
-    // Since we can't merge or otherwise change the clip region, we
-    // must first get rid of any other damage before doing the drawing:
-    if (window->damage() || i->region) {
-      window->flush();
-      window->set_damage(0);
-      if (i->region) {XDestroyRegion(i->region); i->region = 0;}
-    }
-    // Now get the damage region, so fltk has some idea what area it
-    // needs to draw:
-    i->region = CreateRectRgn(0,0,0,0);
-    GetUpdateRgn(hWnd, i->region, 0);
-    // Now draw it using Windows' HDC and clip region:
-    BeginPaint(i->xid, &paint);
-    in_wm_paint = window; // makes it use the hdc from the paint struct
-    window->flush();
-    window->set_damage(0);
-    if (i->region) {XDestroyRegion(i->region); i->region = 0;}
-    EndPaint(i->xid, &paint);
-    in_wm_paint = 0;
-#endif
-    } break;
+    break;}
 
   case WM_LBUTTONDOWN:	mouse_event(window, 0, 1, wParam, lParam); return 0;
   case WM_LBUTTONDBLCLK:mouse_event(window, 1, 1, wParam, lParam); return 0;
@@ -1688,15 +1665,11 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     if (!window) break;
     if (wParam) { // Map event
       if (window->parent()) break; // ignore child windows
+      // figure out where OS put automatically-placed windows:
       if (window->x()==USEDEFAULT || window->y()==USEDEFAULT) {
-	// figure out where OS really put window
 	POINT wul = { 0, 0 }; ClientToScreen(xid(window), &wul);
-	// tell Window about it
 	window->x(wul.x);
 	window->y(wul.y);
-	//RECT wr; GetClientRect(xid(window), &wr);
-	//if (window->resize(wul.x, wul.y, wr.right, wr.bottom))
-	//   resize_from_system = window;
       }
       MakeWaitReturn();
     } else { // Unmap event
@@ -1716,21 +1689,18 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
   case WM_WINDOWPOSCHANGING:
     {
       if (!window || window->parent()) break; // ignore child windows
+      // fltk does not think making a window iconic is a size change, but
+      // Windows does. This makes it ignore changes when the window is
+      // made iconic, and the "ignore_size_change_window" is used to
+      // ignore changes when it is de-iconized.
       if ( window->iconic() ) break;
       fltk::Rectangle r; window->borders(&r);
       WINDOWPOS *pos = (WINDOWPOS*)lParam;
       if (hWnd == ignore_size_change_window) {
 	ignore_size_change_window = 0;
-	if (window->x()==USEDEFAULT)
-	  window->x(pos->x-r.x());
-	else
-	  pos->x = window->x()+r.x();
-	if (window->y()==USEDEFAULT)
-	  window->y(pos->y-r.y());
-	else
-	  pos->y = window->y()+r.y();
-	pos->cx = window->w()+r.w();
-	pos->cy = window->h()+r.h();
+        // Record the automatic position:
+	if (window->x()==USEDEFAULT) window->x(pos->x-r.x());
+	if (window->y()==USEDEFAULT) window->y(pos->y-r.y());
       } else {
 	fltk::Rectangle newRect;
 	if ( pos->flags & SWP_NOMOVE ) {
@@ -1758,43 +1728,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
       }
     }
     break;
-
-#if 0
-    // This was here before the WM_WINDOWPOSCHANGING case took care of
-    // it all.
-  case WM_MOVE:
-    if (!window || window->parent()) break; // ignore child windows
-# if 1
-    if (window->resize((signed short)LOWORD(lParam),
-		       (signed short)HIWORD(lParam),
-		       window->w(), window->h()))
-      resize_from_system = window;
-# else
-    // Faster version that does not bother with calling resize as the
-    // user drags the window around. This was what most Win32 versions
-    // of fltk did. This breaks programs that want to track the current
-    // position to figure out what corner is being resized when layout
-    // is called.
-    window->x((signed short)LOWORD(lParam));
-    window->y((signed short)HIWORD(lParam));
-# endif
-    MakeWaitReturn();
-    break;
-
-  case WM_SIZE:
-    if (window && !window->parent()) {
-      if (wParam == SIZE_MINIMIZED || wParam == SIZE_MAXHIDE) { // iconize
-	CreatedWindow::find(window)->wait_for_expose = true;
-      } else { // resize, deiconize
-	// supposedly a Paint event will come in turn off iconize indicator
-	if (window->resize(window->x(), window->y(),
-			   LOWORD(lParam), HIWORD(lParam)))
-	  resize_from_system = window;
-      }
-    }
-    MakeWaitReturn();
-    break;
-#endif
 
   case WM_SETCURSOR:
     if (window && LOWORD(lParam) == HTCLIENT) {
@@ -1832,13 +1765,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
   case WM_DISPLAYCHANGE:
   case WM_SETTINGCHANGE:
     reload_info = true;
-#if USE_MULTIMONITOR
-    if ( monitors != &allMonitors ) {
+    if ( monitors != &allMonitors )
       delete[] monitors;
-    }
-#else
-    if (num_monitors > 1 && monitors != &allMonitors) delete[] monitors;
-#endif
     monitors = 0;
     num_monitors = 0;
   case WM_SYSCOLORCHANGE:
@@ -1945,6 +1873,14 @@ void Window::borders( fltk::Rectangle *r ) const
 ////////////////////////////////////////////////////////////////
 
 void Window::layout() {
+  // If only the xy position changed, then win32 did everything for us, so don't
+  // call the Group layout.
+  if (layout_damage() & ~LAYOUT_XY) Group::layout();
+  // Fix the window:
+  system_layout();
+}
+
+void Window::system_layout() {
   UINT flags;
   if (layout_damage() & LAYOUT_WH) {
     free_backbuffer();
@@ -1954,11 +1890,7 @@ void Window::layout() {
   } else {
     flags = 0;
   }
-  if (layout_damage() & ~LAYOUT_XY) Group::layout();
-  else layout_damage(0);
-  if (this == resize_from_system) {
-    resize_from_system = 0;
-  } else if (i && flags) {
+  if (i && flags) {
     fltk::Rectangle r(*this);
     borders(&r);
     r.x(r.x()+x());
@@ -2135,6 +2067,8 @@ void CreatedWindow::create(Window* window) {
   if (name && *name) utf8towc(name, strlen(name), ucs_name, 1024);
   else ucs_name[0] = 0;
 
+  // CreateWindowEx enters WndProc by sending many important msgs like WM_GETMINMAXINFO *before* the window handle (xid here) is set in the instance..
+  sCreatedWindowPending=x; // start of hack
   x->xid = __CreateWindowExW(styleEx,
 			     L"fltk", ucs_name, style,
 			     xp, yp, wp, hp,
@@ -2143,6 +2077,8 @@ void CreatedWindow::create(Window* window) {
 			     xdisplay,
 			     NULL // creation parameters
 			     );
+
+  sCreatedWindowPending=0; // end of hack
 
   x->dc = GetDC(x->xid);
   SetTextAlign(x->dc, TA_BASELINE|TA_LEFT);
@@ -2232,14 +2168,6 @@ void CreatedWindow::set_minmax(LPMINMAXINFO minmax)
   if (window->maxh) {
     minmax->ptMaxTrackSize.y =
       minmax->ptMaxSize.y = window->maxh + r.h();
-  } else {
-    // Is there a reason we don't just leave the Windows default max height?
-    // fabien: i think it is related to a minmax bug STR we had fixed many months ago :
-    //   the bug was about happening when moving  the taskbar ...
-    minmax->ptMaxTrackSize.y =
-	minmax->ptMaxSize.y = fltk::Monitor::all().h()-r.h();
-    // fltk::Monitor::all().work.h()-r.h() would leave space for taskbar
-    // but apparently Windows does this anyway
   }
 }
 
@@ -2289,9 +2217,9 @@ HDC fltk::dc;
 static void cairo_invalidate_context() {
   // invalidate cairo context so that it will be resynchronized
   // on next first real draw()
-    if (fltk::cc) {
-	cairo_destroy (cc); // delete previous context pointing on old hdc
-	fltk::cc = 0; // don't create now, wait for draw()
+    if (fltk::cr) {
+	cairo_destroy (fltk::cr); // delete previous context pointing on old hdc
+	fltk::cr = 0; // don't create now, wait for draw()
     }
     return;
 }
@@ -2625,5 +2553,5 @@ int WINAPI ansi_MessageBoxW(HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT u
 }; /* extern "C" */
 
 //
-// End of "$Id: run.cxx 5709 2007-02-23 01:03:47Z spitzak $".
+// End of "$Id: run.cxx 6247 2008-09-14 22:52:55Z spitzak $".
 //

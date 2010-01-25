@@ -1,5 +1,5 @@
 //
-// "$Id: fltk_theme.cxx 5456 2006-09-19 02:41:42Z spitzak $"
+// "$Id: fltk_theme.cxx 6025 2008-02-04 01:26:46Z dejan $"
 //
 // Copyright 2004 Bill Spitzak and others.
 //
@@ -147,8 +147,8 @@ extern "C" bool fltk_theme() {
     NONCLIENTMETRICSW ncm;
     int sncm = sizeof(ncm);
     ncm.cbSize = sncm;
-    SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sncm, &ncm, SPIF_SENDCHANGE);
-
+    if (false == SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sncm, &ncm, SPIF_SENDCHANGE))
+      return false;
     Font* font; float size;
     wchar_t *name;
     const int BUFLEN = 1024;
@@ -197,7 +197,8 @@ extern "C" bool fltk_theme() {
     NONCLIENTMETRICSA ncm;
     int sncm = sizeof(ncm);
     ncm.cbSize = sncm;
-    SystemParametersInfoA(SPI_GETNONCLIENTMETRICS, sncm, &ncm, SPIF_SENDCHANGE);
+    if (false == SystemParametersInfoA(SPI_GETNONCLIENTMETRICS, sncm, &ncm, SPIF_SENDCHANGE))
+      return false;
 
     Font* font; float size;
     char *name;
@@ -249,5 +250,5 @@ extern "C" bool fltk_theme() {
 }
 
 //
-// End of "$Id: fltk_theme.cxx 5456 2006-09-19 02:41:42Z spitzak $".
+// End of "$Id: fltk_theme.cxx 6025 2008-02-04 01:26:46Z dejan $".
 //

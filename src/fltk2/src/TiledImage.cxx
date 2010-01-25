@@ -1,4 +1,4 @@
-// "$Id: TiledImage.cxx 5465 2006-09-19 03:21:56Z spitzak $"
+// "$Id: TiledImage.cxx 5810 2007-05-11 22:44:12Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -81,10 +81,6 @@ void TiledImage::_draw(const Rectangle& r) const
   pop_clip();
 }
 
-void TiledImage::inset(Rectangle& r) const {
-  if (image_) image_->inset(r);
-}
-
 //
-// End of "$Id: TiledImage.cxx 5465 2006-09-19 03:21:56Z spitzak $".
+// End of "$Id: TiledImage.cxx 5810 2007-05-11 22:44:12Z spitzak $".
 //

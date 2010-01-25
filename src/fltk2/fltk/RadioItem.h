@@ -1,4 +1,4 @@
-// "$Id: RadioItem.h 5461 2006-09-19 02:49:30Z spitzak $"
+// "$Id: RadioItem.h 5924 2007-07-13 13:25:31Z sanel.z $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -28,7 +28,7 @@
 namespace fltk {
 
 /** This widget makes a radio item in a popup or pulldown Menu.
-    It's behavior in a Browser or other group is undefined. */
+    It's behavior in a Browser or MultiBrowser is that it changes its status on multiple clicks (e.g. double click). */
 class RadioItem : public Item {
 public:
   RadioItem(const char* label = 0) : Item(label) {type(RADIO);}

@@ -1,5 +1,5 @@
 //
-// "$Id: TextBuffer.cxx 5432 2006-09-16 02:03:04Z spitzak $"
+// "$Id: TextBuffer.cxx 6915 2009-10-05 13:06:33Z AlbrechtS $"
 //
 // Copyright 2001-2006 by Bill Spitzak and others.
 // Original code Copyright Mark Edel.  Permission to distribute under
@@ -160,13 +160,13 @@ TextBuffer::~TextBuffer() {
 const char *TextBuffer::text() {
   if (!gapstart_ && length_) {
     buf_[length_+gapend_] = 0;
-    return buf_+gapstart_;
+    return buf_+gapend_;
   }
   if (gapstart_ < gapend_) {
     memmove(&buf_[gapstart_], &buf_[gapend_], length_-gapstart_);
     gapstart_ = gapend_ = length_;
   }
-  buf_[length_] = 0; // add null terminator, assumme length < buffer size!
+  buf_[length_] = 0; // add null terminator, assume length < buffer size!
   return buf_;
 }
 
@@ -174,6 +174,8 @@ const char *TextBuffer::text() {
  * Replace the entire contents of the text buffer
  */
 void TextBuffer::text(const char *t) {
+  if(!t) return;
+
   call_predelete_callbacks(0, length_);
 
   /* Save information for redisplay, and get rid of the old buffer */
@@ -2435,6 +2437,6 @@ void TextSelection::update(int pos, int ndeleted, int ninserted) {
 
 
 //
-// End of "$Id: TextBuffer.cxx 5432 2006-09-16 02:03:04Z spitzak $".
+// End of "$Id: TextBuffer.cxx 6915 2009-10-05 13:06:33Z AlbrechtS $".
 //
 

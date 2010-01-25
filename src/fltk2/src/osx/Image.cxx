@@ -87,8 +87,6 @@ struct fltk::Picture {
 
 };
 
-unsigned long Image::memused_;
-
 int Image::buffer_width() const {
   if (picture) return picture->w;
   return w();
@@ -106,6 +104,16 @@ int Image::buffer_linedelta() const {
 
 int Image::buffer_depth() const {
   return depth();
+}
+
+void Image::set_forceARGB32() {
+  flags |= FORCEARGB32;
+  // NYI!!!
+}
+
+void Image::clear_forceARGB32() {
+  flags &= ~FORCEARGB32;
+  // NYI!!!
 }
 
 fltk::PixelType Image::buffer_pixeltype() const {
@@ -190,11 +198,6 @@ void Image::fetch_if_needed() const {
     Image* thisimage = const_cast<Image*>(this);
     thisimage->fetch();
     thisimage->flags |= FETCHED;
-    // make errors have non-zero size:
-    if (w_ < 0 || h_ < 0) {
-      thisimage->destroy();
-      thisimage->w_ = thisimage->h_ = 12;
-    }
   }
 }
 
@@ -223,7 +226,7 @@ void Image::setimage(const uchar* source, PixelType p, int w, int h, int ld)
   } else {
     destroy();
     picture = new Picture(p, w, h, ld, source);
-    flags = FETCHED;
+    flags |= FETCHED;
   }
 }
 

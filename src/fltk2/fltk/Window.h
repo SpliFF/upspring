@@ -1,4 +1,4 @@
-// "$Id: Window.h 5600 2007-01-13 00:04:55Z spitzak $"
+// "$Id: Window.h 6150 2008-08-04 22:53:30Z spitzak $"
 //
 // Window widget. This must be the outermost group. You can also put
 // them inside other widgets to use the system's window hierarchy.
@@ -34,6 +34,8 @@ const int USEDEFAULT = ((int)0x80000000); // same as Win32 value
 
 class CreatedWindow;
 class Monitor;
+
+// implementations of methods of Window are in different files in src/
 
 class FL_API Window : public Group {
 public:
@@ -88,9 +90,12 @@ public:
   bool exec(const Window* parent = 0, bool grab = false);
   void make_exec_return(bool);
   void show_inside(const Window* parent);
+  virtual void destroy();
+
   void iconize();
   bool iconic() const;
-  virtual void destroy();
+
+  void maximize();
 
   void fullscreen();
   void fullscreen(const Monitor&);
@@ -100,6 +105,7 @@ public:
 
   virtual int handle(int);
   virtual void layout();
+  void system_layout();
   virtual void flush();
   virtual void draw();
 
@@ -148,5 +154,5 @@ private:
 #endif
 
 //
-// End of "$Id: Window.h 5600 2007-01-13 00:04:55Z spitzak $".
+// End of "$Id: Window.h 6150 2008-08-04 22:53:30Z spitzak $".
 //

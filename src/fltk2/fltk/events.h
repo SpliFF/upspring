@@ -1,5 +1,5 @@
 //
-// "$Id: events.h 5448 2006-09-19 01:14:07Z spitzak $"
+// "$Id: events.h 6514 2008-11-10 21:10:13Z spitzak $"
 //
 // Event types and data. A Widget::handle() method needs this.
 //
@@ -28,6 +28,9 @@
 #include "FL_API.h"
 
 namespace fltk {
+
+/// \name fltk/events.h
+//@{
 
 /*! Numbers passed to Widget::handle() and returned by event(). */
 enum {
@@ -180,10 +183,12 @@ enum {
   ANY_BUTTON	= 0x7f000000, /*!< Any mouse button (up to 8) */
 #if defined(__APPLE__)
   ACCELERATOR	= CTRL,
+  OPTION	= ALT,
   COMMAND	= META
 #else
-  ACCELERATOR	= ALT,	/*!< Same as ALT on Windows/Linux, same as CTRL on OS/X */
-  COMMAND	= CTRL	/*!< Same as CTRL on Windows/Linux, same as META on OS/X */
+  ACCELERATOR	= ALT, //!< ALT on Windows/Linux, CTRL on OS/X, use for menu accelerators
+  COMMAND	= CTRL,	//!< CTRL on Windows/Linux, META on OS/X, use for menu shortcuts
+  OPTION	= ALT|META //!< ALT|META on Windows/Linux, just ALT on OS/X, use as a drag modifier
 #endif
 };
 
@@ -270,19 +275,21 @@ FL_API bool compose(int &del);
 inline void compose_reset()		{compose_state = 0;}
 
 // shortcuts:
-/*! Structure created by Widget::add_shortcut() and returned by list_shortcuts(). */
-struct ShortcutAssignment {Widget* widget; unsigned key;};
-FL_API const ShortcutAssignment* list_shortcuts(unsigned key, unsigned& count);
-FL_API const ShortcutAssignment* list_shortcuts(const Widget*,unsigned& count);
-FL_API const ShortcutAssignment* list_shortcuts(unsigned& count);
-FL_API const ShortcutAssignment* list_matching_shortcuts(unsigned& count);
 FL_API bool try_shortcut();
 FL_API const char* key_name(unsigned key);
 FL_API unsigned key(const char* name);
 
+class FL_API ShortcutFunctor {
+ public:
+  virtual bool handle(const Widget*, unsigned key) = 0;
+};
+FL_API unsigned foreachShortcut(const Widget*, ShortcutFunctor&);
+inline unsigned foreachShortcut(ShortcutFunctor& f) { return foreachShortcut(0,f); }
+
 // get current information, not info from last event:
 FL_API bool get_key_state(unsigned);
 FL_API void get_mouse(int &,int &);
+FL_API bool warp_mouse(int, int);
 
 // event destinations:
 FL_API bool handle(int, Window*);
@@ -312,10 +319,12 @@ inline bool exit_modal_flag()		{return exit_modal_;}
 // for debugging purpose : 
 const char  *event_name(int event); /// see STR #508
 
+//@}
+
 }
 
 #endif
 
 //
-// $Id: events.h 5448 2006-09-19 01:14:07Z spitzak $
+// $Id: events.h 6514 2008-11-10 21:10:13Z spitzak $
 //

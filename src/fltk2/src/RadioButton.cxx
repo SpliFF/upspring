@@ -1,5 +1,5 @@
 //
-// "$Id: RadioButton.cxx 5433 2006-09-16 03:00:02Z spitzak $"
+// "$Id: RadioButton.cxx 5918 2007-06-26 18:49:21Z spitzak $"
 //
 // Radio button widget for the Fast Light Tool Kit (FLTK).
 //
@@ -52,13 +52,17 @@ public:
   void _draw(const Rectangle& R) const {
     // Use the white rather than the gray color:
     Box* box = drawstyle()->box();
+    if (drawflags()&PUSHED) setbgcolor(GRAY50);
     box->draw(R);
-    if (drawflags(STATE|PUSHED)) {
+    if (drawflags(STATE)) {
       Rectangle r(R);
       box->inset(r);
       // use the selection color only if they directly set it:
-      if (drawstyle()->selection_color_)
-	setcolor(inactive(drawstyle()->selection_color_, drawflags()));
+      Color c = drawstyle()->selection_color_;
+      if (c) {
+        if (drawflags()&INACTIVE_R) c = inactive(c);
+        setcolor(c);
+      }
       r.inset((r.h()+1)/6);
       addchord(r, 0, 360);
       fillpath();

@@ -1,5 +1,5 @@
 //
-// "$Id: Group.cxx 5600 2007-01-13 00:04:55Z spitzak $"
+// "$Id: Group.cxx 6507 2008-11-09 22:05:48Z spitzak $"
 //
 // Group widget for the Fast Light Tool Kit (FLTK).
 //
@@ -94,6 +94,8 @@ Group::Group(int X,int Y,int W,int H,const char *l,bool begin)
   type(GROUP_TYPE);
   style(::group_style);
   align(ALIGN_TOP);
+  initial_w = w();
+  initial_h = h();
   if (begin) this->begin();
 }
 
@@ -105,7 +107,6 @@ void Group::clear() {
     Widget*const* a = array_;
     Widget*const* e = a+children_;
     // clear everything now, in case fix_focus recursively calls us:
-    array_ = 0;
     children_ = 0;
     focus_index_ = -1;
     if (resizable_) resizable_ = this;
@@ -115,8 +116,9 @@ void Group::clear() {
       o->parent(0); // stops it from calling remove()
       delete o;
     }
-    delete[] const_cast<Widget**>( a );
   }
+  delete[] const_cast<Widget**>( array_ );
+  array_ = 0;
 }
 
 /*! Calls clear(), and thus <i>deletes all child widgets</i> */
@@ -204,10 +206,15 @@ void Group::add(Widget &o) {
 void Group::remove(int index) {
   if (index >= children_) return;
   Widget* o = array_[index];
+  // we must redraw the enclosing group that has an opaque box:
+  if (o->visible_r())
+    for (Widget *p = this; p; p = p->parent())
+      if (p->box() != NO_BOX || !p->parent()) {p->redraw(); break;}
   o->parent(0);
   children_--;
   for (int i=index; i < children_; ++i) array_[i] = array_[i+1];
   init_sizes();
+  redraw();
 }
 
 /*! \fn void Group::remove(Widget& widget)
@@ -344,6 +351,7 @@ int Group::handle(int event) {
   case RELEASE:
   case LEAVE:
   case DND_LEAVE:
+  case DND_RELEASE:
     // Ignore these. We handle them if the belowmouse of pushed widget
     // has been set to this. Subclasses may do something with these.
     // Definately do not pass them to child widgets!
@@ -351,7 +359,7 @@ int Group::handle(int event) {
 
   case KEY: {
     // keyboard navigation
-    if (numchildren < 2) break;
+    if (numchildren < 1) break;
     int key = navigation_key();
     if (!key) break;
     int previous = focus_index_;
@@ -448,42 +456,19 @@ int Group::handle(int event) {
 
     The group remembers the initial size of itself and all it's children,
     so that the layout can be restored even if the group is resized so
-    that some children go to zero or negative sizes. Normally these
-    sizes are calculated the first time layout() is called, though you
-    can do so by calling sizes() directly.
+    that some children go to zero or negative sizes.
 
-    Though this makes sense it often results in unexpected behavior
-    when a program wants to rearrange the child widgets or change the
-    size of a group to surround a new arrangement of child widgets. The
-    widgets tend to snap back to a previous size.
-
-    Calling init_sizes() "resets" the sizes array to the current group
-    and children positions.  Actually it just deletes the sizes array,
-    and it is not recreated until the next time layout is called. Call
-    this if you manually adjust the sizes of the children, or attempt
-    to change the size of the group without wanting the children to scale.
+    This can produce unwanted behavior if you try to rearrange the
+    child widgets yourself, as the next resize will put them right back
+    where they were initially. Call this to make it forget all the
+    saved sizes and reinitialize them during the next layout().
 
     This is automatically done when any child is added or removed.  */
 void Group::init_sizes() {
+  initial_w = w();
+  initial_h = h();
   delete[] sizes_; sizes_ = 0;
   relayout();
-}
-
-/** This non-virtual override is for programs that set up a group's
-    layout and then call resize() on it to set the correct size before
-    it is displayed. What it does is remember the current sizes (the
-    thing the init_sizes() method makes it forget) before calling the
-    normal widget resize().
-
-    This is a non-virtual override because in normal use fltk will call
-    layout() anyway before any use of the widget, and Group's layout()
-    initializes the sizes. This is only for programs that use resize()
-    directly.
-*/
-bool Group::resize(int x, int y, int w, int h) {
-  if (!sizes_ && resizable() && children_ && (w != this->w() || h != this->h()))
-    layout(); // this is needed to recursively get inner groups...
-  return Widget::resize(x,y,w,h);
 }
 
 /** Returns array of initial sizes of the widget and it's children.
@@ -504,9 +489,9 @@ int* Group::sizes() {
     int* p = sizes_ = new int[4*(children_+2)];
     // first thing in sizes array is the group's size:
     p[0] = x();
-    p[1] = w();
+    p[1] = initial_w;
     p[2] = y();
-    p[3] = h();
+    p[3] = initial_h;
     // next is the resizable's size:
     p[4] = 0; // init to the group's size
     p[5] = p[1];
@@ -537,6 +522,10 @@ int* Group::sizes() {
 
 void Group::layout() {
   int layout_damage = this->layout_damage();
+  if (!sizes_) {
+    if (!(layout_damage&LAYOUT_W)) initial_w = w();
+    if (!(layout_damage&LAYOUT_H)) initial_h = h();
+  }
   if (resizable() && layout_damage&(LAYOUT_WH|LAYOUT_DAMAGE))
     layout_damage |= LAYOUT_WH;
   else
@@ -803,5 +792,5 @@ void Group::fix_old_positions() {
 }
 
 //
-// End of "$Id: Group.cxx 5600 2007-01-13 00:04:55Z spitzak $".
+// End of "$Id: Group.cxx 6507 2008-11-09 22:05:48Z spitzak $".
 //

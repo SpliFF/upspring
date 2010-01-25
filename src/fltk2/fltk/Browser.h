@@ -1,4 +1,4 @@
-// "$Id: Browser.h 5516 2006-10-10 10:27:04Z fabien $"
+// "$Id: Browser.h 6077 2008-03-21 00:14:56Z fabien $"
 //
 // Copyright 2006 by Bill Spitzak and others.
 //
@@ -115,6 +115,7 @@ public:
   bool set_focus();
   void set_mark(Mark& dest) const {dest = HERE;}
   void set_mark_to_focus(Mark& dest) const {dest = FOCUS;}
+  bool select(Widget*e, int val, int do_callback=0);
   bool set_item_selected(bool value = true, int do_callback = 0);
   bool select_only_this(int do_callback = 0);
   bool deselect(int do_callback = 0);
@@ -155,6 +156,9 @@ public:
   bool displayed(int line);
   bool display(int line, bool value = true);
 
+  bool display_lines() const;
+  void display_lines(bool display);
+
   int load(const char *filename);
  
   int multi() const {return type()&IS_MULTI;}
@@ -168,6 +172,7 @@ protected:
   void handle_callback(int doit); // defines how cb are handled in the browser
 
 private:
+  bool displaylines_;
   bool indented_;
   const int *column_widths_; // original column widths
   int *column_widths_i;      // original column widths after user interaction
@@ -205,5 +210,5 @@ private:
 #endif
 
 //
-// End of "$Id: Browser.h 5516 2006-10-10 10:27:04Z fabien $".
+// End of "$Id: Browser.h 6077 2008-03-21 00:14:56Z fabien $".
 //

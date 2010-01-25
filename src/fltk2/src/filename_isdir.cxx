@@ -1,4 +1,4 @@
-// "$Id: filename_isdir.cxx 5119 2006-05-14 11:04:01Z fabien $"
+// "$Id: filename_isdir.cxx 6038 2008-02-21 00:43:54Z fabien $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -25,7 +25,6 @@
 
 #include <config.h>
 #include <fltk/filename.h>
-#include <fltk/utf.h>
 #include <fltk/string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -46,9 +45,6 @@ static bool fill_stat(const char *name) {
   if (last_statname && strcmp(last_statname, name)==0) return last_result;
   delete[] const_cast<char *>( last_statname ); // otherwize VC++ will scream
   last_statname = newstring(name);
-  char namebuf[PATH_MAX];
-  utf8tomb(name, strlen(name), namebuf, PATH_MAX);
-  name = namebuf;
 #if defined(_WIN32) || defined(__EMX__)
   // _WIN32 apparently thinks A: is not a directory, but A:/ is!
   char buffer[4];
@@ -76,9 +72,9 @@ bool fltk::filename_isdir(const char* name) {
 }
 
 /** Returns the size of the file in bytes. Returns zero if it does not exist.*/
-double fltk::filename_size(const char* name) {
-  if (!fill_stat(name)) return 0.0;
-  return (double)last_stat.st_size;
+FL_FILESIZE_T fltk::filename_size(const char* name) {
+  if (!fill_stat(name)) return 0;
+  return (FL_FILESIZE_T)last_stat.st_size;
 }
 
 /**
@@ -94,5 +90,5 @@ long int fltk::filename_mtime(const char *name) {
 }
 
 //
-// End of "$Id: filename_isdir.cxx 5119 2006-05-14 11:04:01Z fabien $".
+// End of "$Id: filename_isdir.cxx 6038 2008-02-21 00:43:54Z fabien $".
 //

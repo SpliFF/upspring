@@ -1,5 +1,5 @@
 //
-// "$Id: MenuBar.cxx 5433 2006-09-16 03:00:02Z spitzak $"
+// "$Id: MenuBar.cxx 5916 2007-06-19 17:50:14Z spitzak $"
 //
 // Menu bar widget for the Fast Light Tool Kit (FLTK).
 //
@@ -22,6 +22,17 @@
 //
 // Please report all bugs and problems to "fltk-bugs@fltk.org".
 //
+
+/*! \class fltk::MenuBar
+
+Subclass of fltk::Menu. The top level menu items are visible and drawn
+in a horizontal row. Put this at the top edge of your window and you
+get a typical menubar.
+
+You can call popup() on this same widget in response to a right-click
+in your work area and you will get the exact same menu as a vertical
+pop up menu.
+*/
 
 #include <fltk/MenuBar.h>
 #include <fltk/events.h>
@@ -88,7 +99,7 @@ J1:
     // Test against the shortcut() of any item in any submenu:
     if (handle_shortcut()) return 1;
     // Check against the &x of top-level items:
-    if (event_state(ACCELERATOR)) {
+    if (shortcut() && event_state(ACCELERATOR)) {
       for (i = 0; i < children; i++) {
 	Widget* w = child(i);
 	if (w->active() && w->test_label_shortcut()) {
@@ -229,5 +240,5 @@ MenuBar::MenuBar(int x,int y,int w,int h,const char *l)
 }
 
 //
-// End of "$Id: MenuBar.cxx 5433 2006-09-16 03:00:02Z spitzak $".
+// End of "$Id: MenuBar.cxx 5916 2007-06-19 17:50:14Z spitzak $".
 //

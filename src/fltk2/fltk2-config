@@ -53,7 +53,7 @@ else
   fi
 fi
 
-prefix=/usr/local/
+prefix=/usr/local
 exec_prefix=${prefix}
 exec_prefix_set=no
 bindir=${exec_prefix}/bin
@@ -71,8 +71,8 @@ POSTBUILD=":"
 # flags for C++ compiler:
 CFLAGS=""
 CXXFLAGS="-I/usr/include/freetype2  -Wno-non-virtual-dtor"
-LDFLAGS=" "
-LDLIBS="  -lX11 -lXi -lXinerama -lXft -lpthread -lm  -lXext  -lsupc++"
+LDFLAGS=" -L/usr/lib64 "
+LDLIBS=" -L/usr/lib64  -lX11 -lXi -lXinerama -lXcursor -lXft -lpthread -lm  -lXext  -lsupc++"
 
 # libraries to link with:
 LIBNAME="@LIBNAME@"

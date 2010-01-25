@@ -55,10 +55,11 @@ header files directly.
 
 #   include <X11/Xatom.h>
 
-#   if USE_XFT
+#   if USE_XFT && !MAKEDEPEND
 #    include <X11/Xft/Xft.h>
 #   else
      typedef struct _XftDraw XftDraw;
+     typedef struct _XftFont XftFont;
 #   endif
 
 #   include <X11/extensions/XInput.h>
@@ -79,6 +80,9 @@ header files directly.
 extern FL_API Region	XRectangleRegion(int x, int y, int w, int h);
 
 namespace fltk {
+
+/// \name fltk/x11.h
+//@{
 
 ////////////////////////////////////////////////////////////////
 // constant info about the X server connection:
@@ -126,8 +130,8 @@ extern FL_API Region	clip_region();
 extern FL_API void	draw_into(XWindow, int w, int h);
 extern FL_API void	stop_drawing(XWindow);
 
-#  define HFONT XFontStruct*
-extern FL_API HFONT	xfont();
+extern FL_API XFontStruct* xfont();
+extern FL_API XftFont*  xftfont();
 
 ////////////////////////////////////////////////////////////////
 // only include this if <fltk/Window.h> was included:
@@ -167,6 +171,8 @@ inline XWindow xid(const Window*w) {return CreatedWindow::find(w)->xid;}
 Window* find(XWindow xid);
 
 #  endif // Window_h
+
+//@}
 
 } // namespace fltk
 

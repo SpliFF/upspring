@@ -1,5 +1,5 @@
 //
-// "$Id: FluidType.cxx 5493 2006-09-28 03:31:05Z spitzak $"
+// "$Id: FluidType.cxx 6100 2008-04-13 20:29:52Z fabien $"
 //
 // Widget type code for the Fast Light Tool Kit (FLTK).
 //
@@ -83,6 +83,8 @@ extern fltk::Browser *widget_browser;
 
 extern void deselect();
 
+extern int compile_only; 
+
 static void Widget_Browser_callback(fltk::Widget * w,void *) {
     if (fltk::event()==fltk::PUSH )  {
 	if ( ( (fltk::Browser*) w)->item()==0) 
@@ -94,7 +96,9 @@ static void Widget_Browser_callback(fltk::Widget * w,void *) {
     if(fltk::event()!=fltk::RELEASE) refresh_browser_views();
 }
 
+
 void refresh_browser_views() {
+  if (compile_only) return;
     widget_browser->redraw();
     if (!status_bar) return;
     int cnt = FluidType::selected_count();
@@ -645,5 +649,5 @@ void FluidType::copy_properties() {
 }
 
 //
-// End of "$Id: FluidType.cxx 5493 2006-09-28 03:31:05Z spitzak $".
+// End of "$Id: FluidType.cxx 6100 2008-04-13 20:29:52Z fabien $".
 //

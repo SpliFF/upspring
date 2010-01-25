@@ -1,4 +1,4 @@
-// "$Id: Menu.cxx 5708 2007-02-23 00:52:14Z spitzak $"
+// "$Id: Menu.cxx 5941 2007-10-04 16:58:13Z spitzak $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -23,6 +23,7 @@
 #include <fltk/Menu.h>
 #include <fltk/damage.h>
 #include <fltk/Item.h> // for TOGGLE, RADIO
+
 #define checkmark(item) (item->type()>=Item::TOGGLE && item->type()<=Item::RADIO)
 
 using namespace fltk;
@@ -157,14 +158,14 @@ Widget* List::child(const Menu* menu, const int* indexes,int level) {
   you can copy the values to permanent storage, and perhaps change
   other displays of the selection.
 
-  Currently only the fltk::STATE and fltk::SELECTED flags are ever changed.
+  Currently only the fltk::OPENED and fltk::SELECTED flags are ever changed.
 
   Here is a sample implementation, where Node is a data type that you
   have defined:
 \code
 void My_List::flags_changed(const fltk::Menu*, fltk::Widget* widget) {
   Node* node = (Node*)(widget->user_data());
-  node->open = widget->flag(fltk::STATE);
+  node->open = widget->flag(fltk::OPENED);
   node->selected = widget->flag(fltk::SELECTED);
 }
 \endcode
@@ -313,8 +314,6 @@ Widget* Menu::child(int n) const {
   callback. This does not produce any visible change for the user.
 */
 
-FL_API bool fl_dont_execute; // hack for fluid
-
 /*!
   Calls do_callback(). First it sets item() to the given widget, so
   the callback code can see it.
@@ -323,10 +322,14 @@ FL_API bool fl_dont_execute; // hack for fluid
   on the menu item. However the default callback for Menu widget does
   item()->do_callback() so by default the callback for each menu item
   is done.
+
+  Callbacks for items can be disabled, so item()->when(WHEN_NEVER) will
+  disable it for named item, but calling when(WHEN_NEVER) with menu instance
+  will disable callbacks for all menu items (but not for the menu itself).
 */
 void Menu::execute(Widget* widget) {
   item(widget);
-  if (fl_dont_execute) return;
+  if(when() == WHEN_NEVER || item()->when() == WHEN_NEVER) return;
   if (widget) do_callback();
 }
 
@@ -459,6 +462,9 @@ int Menu::handle_shortcut() {
     if (!item->active()) continue;
     if (item->test_shortcut(false)) {
       value(i);
+      if (checkmark(item))
+        item->invert_flag(STATE);
+
       execute(item);
       return 1;
     }
@@ -466,8 +472,11 @@ int Menu::handle_shortcut() {
       item = shortcut_search((Group*)item);
       if (item) {
 	value(i);
-	execute(item);
-	return 1;
+        if (checkmark(item))
+          item->invert_flag(STATE);
+
+        execute(item);
+        return 1;
       }
     }
   }
@@ -479,5 +488,5 @@ int Menu::handle_shortcut() {
 */
 
 //
-// End of "$Id: Menu.cxx 5708 2007-02-23 00:52:14Z spitzak $"
+// End of "$Id: Menu.cxx 5941 2007-10-04 16:58:13Z spitzak $"
 //

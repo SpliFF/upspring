@@ -1,4 +1,4 @@
-// "$Id: ScrollGroup.cxx 5709 2007-02-23 01:03:47Z spitzak $"
+// "$Id: ScrollGroup.cxx 6140 2008-06-17 19:03:01Z TobiasFar $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -184,7 +184,7 @@ void ScrollGroup::layout() {
   int layout_damage = this->layout_damage();
 
   // handle movement in xy without wasting time:
-  if (!(layout_damage&(LAYOUT_WH|LAYOUT_DAMAGE))) {
+  if (!(layout_damage&(LAYOUT_WH|LAYOUT_DAMAGE|LAYOUT_CHILD))) {
     Group::layout();
     return;
   }
@@ -356,7 +356,7 @@ ScrollGroup::ScrollGroup(int X,int Y,int W,int H,const char* L,bool begin)
     scrollbar(nogroup(X)+W-SLIDER_WIDTH,Y,SLIDER_WIDTH,H-SLIDER_WIDTH),
     hscrollbar(X,Y+H-SLIDER_WIDTH,W-SLIDER_WIDTH,SLIDER_WIDTH)
 {
-  type(BOTH);
+  type(BOTH | GROUP_TYPE);
   xposition_ = 0;
   yposition_ = 0;
   scrolldx = scrolldy = layoutdx = layoutdy = 0;
@@ -532,5 +532,5 @@ int ScrollGroup::handle(int event) {
 }
 
 //
-// End of "$Id: ScrollGroup.cxx 5709 2007-02-23 01:03:47Z spitzak $".
+// End of "$Id: ScrollGroup.cxx 6140 2008-06-17 19:03:01Z TobiasFar $".
 //

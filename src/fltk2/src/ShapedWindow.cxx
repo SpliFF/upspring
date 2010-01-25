@@ -1,5 +1,5 @@
 //
-// "$Id: ShapedWindow.cxx 5581 2007-01-05 03:04:04Z spitzak $"
+// "$Id: ShapedWindow.cxx 5973 2007-11-14 17:06:21Z dejan $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -37,6 +37,10 @@ be much better off using an fltk::MenuWindow. This is a normal window
 but with no border and no pixels are changed unless you draw into
 them. Thus you can get arbitrary shapes by the simple expediency of
 not drawing where it should be "transparent".
+
+The window borders and caption created by the window system are turned
+off by default for a ShapedWindow object .  They can be re-enabled by
+calling void Window::border(bool set).
 
 */
 
@@ -89,6 +93,7 @@ void ShapedWindow::draw() {
     HRGN region = bitmap2region(mask);
     SetWindowRgn(xid(this), region, TRUE);
 #elif defined(__APPLE__)
+	mask = 0; // hopefully will shut up compiler
     // not yet implemented for Apple
 #else
 #endif
@@ -213,5 +218,5 @@ static HRGN bitmap2region(xbmImage* bitmap) {
 #endif
 
 //
-// End of "$Id: ShapedWindow.cxx 5581 2007-01-05 03:04:04Z spitzak $"
+// End of "$Id: ShapedWindow.cxx 5973 2007-11-14 17:06:21Z dejan $"
 //

@@ -1,4 +1,4 @@
-// "$Id: PackedGroup.cxx 5575 2007-01-02 17:31:40Z spitzak $"
+// "$Id: PackedGroup.cxx 5970 2007-11-13 23:05:48Z dejan $"
 //
 // Copyright 1998-2006 by Bill Spitzak and others.
 //
@@ -67,6 +67,7 @@ PackedGroup::PackedGroup(int x,int y,int w,int h,const char *l,bool begin)
 : Group(x, y, w, h, l, begin) {
   resizable(0);
   spacing_ = 0;
+  margin(0);
 }
 
 void PackedGroup::layout() {
@@ -86,6 +87,12 @@ void PackedGroup::layout() {
     // This is the rectangle to lay out the remaining widgets in:
     Rectangle r(w(),h());
     box()->inset(r);
+
+    // Apply margins
+    r.set_x(r.x()+margin_left_);
+    r.set_r(r.r()-margin_right_);
+    r.set_y(r.y()+margin_top_);
+    r.set_b(r.b()-margin_bottom_);
 
     bool saw_horizontal = false;
     bool saw_vertical = false;
@@ -155,5 +162,5 @@ void PackedGroup::layout() {
 }
 
 //
-// End of "$Id: PackedGroup.cxx 5575 2007-01-02 17:31:40Z spitzak $".
+// End of "$Id: PackedGroup.cxx 5970 2007-11-13 23:05:48Z dejan $".
 //
