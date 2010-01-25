@@ -54,10 +54,6 @@ const char* FileChooserPattern=
 	"Total Annihilation model (3DO)\0 3do\0"
 	"3D Studio (3DS)\0 3ds\0"
 	"Wavefront OBJ\0obj\0"
-	"Object package OPK\0opk\0"
-#ifdef USE_IK
-	"Common 3D MdlObject (C3O)\0c3o\0"
-#endif
 	;
 
 // ------------------------------------------------------------------------------------------------
@@ -1215,7 +1211,7 @@ void EditorUI::SerializeConfig (CfgList& cfg, bool store)
 
 void EditorUI::menuMappingImportUV() {
 	static std::string fn;
-	if (FileOpenDlg("Select model to copy UV co�dinates from:", FileChooserPattern, fn))
+	if (FileOpenDlg("Select model to copy UV coordinates from:", FileChooserPattern, fn))
 	{
 		IProgressCtl progctl;
 
@@ -1403,17 +1399,12 @@ int main (int argc, char *argv[])
 		editor.Show(true);
 		editor.LoadToolWindowSettings();
 
-//		luaBinder.Init();
+		// Initialise Lua
 		lua_State *L = lua_open();
 		luaL_openlibs(L);
 		luaopen_upspring(L);
 
 		editor.luaState = L;
-
-		if (luaL_dostring(L, "require(\"jit.opt\").start()") != 0) {
-			const char *err = lua_tostring(L, -1);
-			fltk::message("Unable to start Lua JIT: %s", err);
-		}
 		
 		if (luaL_dofile(L, "scripts/init.lua") != 0) {
 			const char *err = lua_tostring(L, -1);
