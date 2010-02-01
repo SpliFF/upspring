@@ -53,7 +53,7 @@ static Lib3dsMesh *ConvertObjTo3DS (MdlObject *obj)
 	return mesh;
 }
 
-bool Save3DSObject(const char *fn, MdlObject *obj, IProgressCtl& progctl)
+bool Save3DSObject(const char *fn, MdlObject *obj, IProgressCtl& /*progctl*/)
 {
 	MdlObject *cl = obj->Clone ();
 	IterateObjects (cl, removeTransform);
@@ -149,7 +149,7 @@ static MdlObject *Convert3DSToObj (Lib3dsMesh *mesh)
 	return obj;
 }
 
-MdlObject *Load3DSObject(const char *fn, IProgressCtl& progctl)
+MdlObject *Load3DSObject(const char *fn, IProgressCtl& /*progctl*/)
 {
 	Lib3dsFile *file = lib3ds_file_load(fn);
 	if (!file)

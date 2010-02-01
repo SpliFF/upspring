@@ -11,7 +11,7 @@
 #include "Texture.h"
 
 #pragma pack(push, 4)
-#include "s3o.h"
+#include "S3O.h"
 #pragma pack(pop)
 
 #define S3O_ID "Spring unit"
@@ -21,22 +21,23 @@ static void MirrorX(MdlObject *o)
 	PolyMesh* pm = o->GetPolyMesh();
 	if (pm)
 	{
-		for (int a=0;a<pm->verts.size();a++) {
+		for (unsigned int a=0;a<pm->verts.size();a++) {
 			pm->verts[a].pos.x *= -1.0f;
 			pm->verts[a].normal.x *= -1.0f;
 		}
 
-		for (int a=0;a<pm->poly.size();a++)
+		for (unsigned int a=0;a<pm->poly.size();a++)
 			pm->poly[a]->Flip();
 	}
 
 	o->position.x *= -1.0f;
-	for (int a=0;a<o->childs.size();a++)
+	for (unsigned int a=0;a<o->childs.size();a++)
 		MirrorX(o->childs[a]);
 }
 
 static MdlObject *S3O_LoadObject (FILE *f, ulong offset)
 {
+	size_t read_result;
 	int oldofs = ftell(f);
 	MdlObject *obj = new MdlObject;
 	PolyMesh* pm;
@@ -45,7 +46,8 @@ static MdlObject *S3O_LoadObject (FILE *f, ulong offset)
 	// Read piece header
 	S3OPiece piece;
 	fseek (f, offset, SEEK_SET);
-	fread (&piece, sizeof(S3OPiece), 1, f);
+	read_result = fread (&piece, sizeof(S3OPiece), 1, f);
+	if (read_result != 1) throw std::runtime_error ("Couldn't read piece header.");
 
 	// Read name
 	obj->name = ReadString (piece.name, f);
@@ -53,9 +55,10 @@ static MdlObject *S3O_LoadObject (FILE *f, ulong offset)
 
 	// Read child objects
 	fseek (f, piece.childs, SEEK_SET);
-	for (int a=0;a<piece.numChilds;a++) {
+	for (unsigned int a=0;a<piece.numChilds;a++) {
 		ulong chOffset;
-		fread (&chOffset, sizeof(ulong), 1, f);
+		read_result = fread (&chOffset, sizeof(ulong), 1, f);
+		if (read_result != 1) throw std::runtime_error ("Couldn't read child object.");
 		MdlObject *child = S3O_LoadObject (f, chOffset);
 		if (child) {
 			child->parent = obj;
@@ -66,9 +69,10 @@ static MdlObject *S3O_LoadObject (FILE *f, ulong offset)
 	// Read vertices
 	pm->verts.resize (piece.numVertices);
 	fseek (f, piece.vertices, SEEK_SET);
-	for (int a=0;a<piece.numVertices;a++) {
+	for (unsigned int a=0;a<piece.numVertices;a++) {
 		S3OVertex sv;
-		fread (&sv, sizeof(S3OVertex), 1, f);
+		read_result = fread (&sv, sizeof(S3OVertex), 1, f);
+		if (read_result != 1) throw std::runtime_error ("Couldn't read vertex.");
 		pm->verts [a].normal.set (sv.xnormal, sv.ynormal, sv.znormal);
 		pm->verts [a].pos.set (sv.xpos, sv.ypos, sv.zpos);
 		pm->verts [a].tc[0] = Vector2(sv.texu, sv.texv);
@@ -78,12 +82,13 @@ static MdlObject *S3O_LoadObject (FILE *f, ulong offset)
 	fseek (f, piece.vertexTable, SEEK_SET);
 	switch (piece.primitiveType) { 
 		case 0: { // triangles
-			for (int i=0;i<piece.vertexTableSize;i+=3) {
+			for (unsigned int i=0;i<piece.vertexTableSize;i+=3) {
 				ulong index;
                 Poly *pl = new Poly;
 				pl->verts.resize(3);
 				for (int a=0;a<3;a++) {
-					fread (&index,4,1,f);
+					read_result = fread (&index,4,1,f);
+					if (read_result != 1) throw std::runtime_error ("Couldn't read primitive.");
 					pl->verts [a] = index;
 				}
 				pm->poly.push_back (pl);
@@ -91,14 +96,15 @@ static MdlObject *S3O_LoadObject (FILE *f, ulong offset)
 			break;}
 		case 1: { // tristrips
 			ulong *data=new ulong[piece.vertexTableSize];
-			fread (data,4,piece.vertexTableSize, f);
-			for (int i=0;i<piece.vertexTableSize;) {
+			read_result = fread (data,4,piece.vertexTableSize, f);
+			if (read_result != piece.vertexTableSize) throw std::runtime_error ("Couldn't read tristrip.");
+			for (unsigned int i=0;i<piece.vertexTableSize;) {
 				// find out how long this strip is
-				int first=i;
+				unsigned int first=i;
 				while (i<piece.vertexTableSize && data[i]!=-1) 
 					i++;
 				// create triangles from it
-				for (int a=2;a<i-first;a++) {
+				for (unsigned int a=2;a<i-first;a++) {
 					Poly *pl = new Poly;
 					pl->verts.resize(3);
 					for (int x=0;x<3;x++)
@@ -109,12 +115,13 @@ static MdlObject *S3O_LoadObject (FILE *f, ulong offset)
 			delete[] data;
 			break;}
 		case 2: { // quads
-			for (int i=0;i<piece.vertexTableSize;i+=4) {
+			for (unsigned int i=0;i<piece.vertexTableSize;i+=4) {
 				ulong index;
                 Poly *pl = new Poly;
 				pl->verts.resize(4);
 				for (int a=0;a<4;a++) {
-					fread (&index,4,1,f);
+					read_result = fread (&index,4,1,f);
+					if (read_result != 1) throw std::runtime_error ("Couldn't read quad.");
 					pl->verts [a] = index;
 				}
 				pm->poly.push_back (pl);
@@ -129,13 +136,17 @@ static MdlObject *S3O_LoadObject (FILE *f, ulong offset)
 }
 
 
-bool Model::LoadS3O(const char *filename, IProgressCtl& progctl) {
+bool Model::LoadS3O(const char *filename, IProgressCtl& /*progctl*/) {
 	S3OHeader header;
+	size_t read_result;
 	FILE *file = fopen (filename, "rb");
 	if (!file)
 		return false;
 
-	fread (&header, sizeof(S3OHeader), 1, file);
+	read_result = fread (&header, sizeof(S3OHeader), 1, file);
+	if (read_result != (size_t)1) throw std::runtime_error ("Couldn't read S3O header.");
+
+	logger.Trace (NL_Error,"Wrong version. Only version 1 is supported");
 
 	if (memcmp (header.magic, S3O_ID, 12)) {
 		logger.Trace (NL_Error, "S3O model %s has wrong identification", filename);
@@ -181,7 +192,8 @@ bool Model::LoadS3O(const char *filename, IProgressCtl& progctl) {
 static void S3O_WritePrimitives(S3OPiece *p, FILE *f, PolyMesh* pm)
 {
 	bool allQuads=true;
-	int a=0;
+	size_t write_result;
+	unsigned int a=0;
 	for (;a<pm->poly.size();a++) {
 		if (pm->poly[a]->verts.size()!=4)
 			allQuads=false;
@@ -189,22 +201,25 @@ static void S3O_WritePrimitives(S3OPiece *p, FILE *f, PolyMesh* pm)
 
 	p->vertexTable = ftell(f);
 	if (allQuads) {
-		for (int a=0;a<pm->poly.size();a++) {
+		for (unsigned int a=0;a<pm->poly.size();a++) {
 			Poly *pl = pm->poly[a];
 			for (int b=0;b<4;b++) {
 				uint i=pl->verts[b];
-				fwrite (&i, 4,1,f);
+				write_result = fwrite (&i, 4,1,f);
+				if (write_result != (size_t)1) throw std::runtime_error ("Couldn't write poly.");
 			}
 		}
 		p->vertexTableSize = 4 * (uint)pm->poly.size();
 		p->primitiveType=2;
 	} else {
 		vector<Triangle> tris = pm->MakeTris ();
-		for (int a=0;a<tris.size();a++)
+		for (unsigned int a=0;a<tris.size();a++)
 		{
 			for (int b=0;b<3;b++) {
 				uint i=tris[a].vrt[b];
-				fwrite (&i,4,1,f);
+				write_result = fwrite (&i,4,1,f);
+				if (write_result != (size_t)1) throw std::runtime_error ("Couldn't write tri.");
+
 			}
 		}
 		p->vertexTableSize = 3 * (uint)tris.size();
@@ -216,6 +231,7 @@ static void S3O_SaveObject (FILE *f, MdlObject *obj)
 {
 	int startpos = ftell(f);
 	S3OPiece piece;
+	size_t write_result;
 	memset(&piece, 0, sizeof(piece));
 
 	fseek (f, sizeof(S3OPiece), SEEK_CUR);
@@ -235,7 +251,7 @@ static void S3O_SaveObject (FILE *f, MdlObject *obj)
 
 		piece.numVertices = (uint) pm->verts.size();
 		piece.vertices = ftell(f);
-		for (int a=0;a<pm->verts.size();a++)
+		for (unsigned int a=0;a<pm->verts.size();a++)
 		{
 			Vertex *myVert=&pm->verts[a];
 			S3OVertex v;
@@ -247,25 +263,28 @@ static void S3O_SaveObject (FILE *f, MdlObject *obj)
 			v.xpos=myVert->pos.x;
 			v.ypos=myVert->pos.y;
 			v.zpos=myVert->pos.z;
-			fwrite(&v,sizeof(S3OVertex),1,f);
+			write_result = fwrite(&v,sizeof(S3OVertex),1,f);
+			if (write_result != (size_t)1) throw std::runtime_error ("Couldn't write vertex.");
 		}
 		delete pm;
 	}
 
 	piece.numChilds = (uint)obj->childs.size();
 	ulong *childpos=new ulong[piece.numChilds];
-	for (int a=0;a<obj->childs.size();a++)
+	for (unsigned int a=0;a<obj->childs.size();a++)
 	{
 		childpos[a] = ftell(f);
 		S3O_SaveObject (f,obj->childs[a]);
 	}
 	piece.childs=ftell(f);
-	fwrite (childpos,4,piece.numChilds,f);
+	write_result = fwrite (childpos,4,piece.numChilds,f);
+	if (write_result != (size_t)(piece.numChilds)) throw std::runtime_error ("Couldn't write child.");
 	delete[] childpos;
 
 	int endpos=ftell(f);
 	fseek (f,startpos,SEEK_SET);
-	fwrite (&piece,sizeof(S3OPiece),1,f);
+	write_result = fwrite (&piece,sizeof(S3OPiece),1,f);
+	if (write_result != (size_t)1) throw std::runtime_error ("Couldn't write piece.");
 	fseek (f,endpos,SEEK_SET);
 }
 
@@ -277,8 +296,9 @@ static inline void ApplyOrientationAndScaling (MdlObject *o)
 }
 
 
-bool Model::SaveS3O(const char *filename, IProgressCtl& progctl) {
+bool Model::SaveS3O(const char *filename, IProgressCtl& /*progctl*/) {
 	S3OHeader header;
+	size_t write_result;
 	memset (&header,0,sizeof(S3OHeader));
 	memcpy (header.magic, S3O_ID, 12);
 
@@ -319,7 +339,8 @@ bool Model::SaveS3O(const char *filename, IProgressCtl& progctl) {
 	header.midz = mid.z;
 
 	fseek (f, 0, SEEK_SET);
-	fwrite (&header, sizeof(S3OHeader), 1, f);
+	write_result = fwrite (&header, sizeof(S3OHeader), 1, f);
+	if (write_result != (size_t)1) throw std::runtime_error ("Couldn't write S3O header.");
 	fclose (f);
 
 	return true;

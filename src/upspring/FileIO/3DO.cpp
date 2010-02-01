@@ -106,14 +106,16 @@ static MdlObject* load_object(int ofs, FILE *f, MdlObject *parent, int r=0)
 {
 	MdlObject *n = new MdlObject;
 	TA_Object obj;
+	size_t read_result;
 	int org=ftell(f);
 
 	fseek(f,ofs,SEEK_SET);
-	fread(&obj, sizeof(TA_Object),1,f);
+	read_result = fread(&obj, sizeof(TA_Object),1,f);
+	if (read_result != (size_t)1) throw std::runtime_error ("Couldn't read 3DO header.");
 
 	if(obj.VersionSignature != 1)
 	{
-		logger.Trace (NL_Error,"Wrong version. Only version 1 is supported");;
+		logger.Trace (NL_Error,"Wrong version. Only version 1 is supported");
 		return 0;
 	}
 
@@ -125,7 +127,8 @@ static MdlObject* load_object(int ofs, FILE *f, MdlObject *parent, int r=0)
 	fseek (f,obj.OffsetToVertexArray, SEEK_SET);
 	for(int a=0;a<obj.NumberOfVertexes;a++)
 	{
-		fread(ipos, sizeof(long),3,f);
+		read_result = fread(ipos, sizeof(long),3,f);
+		if (read_result != (size_t)3) throw std::runtime_error ("Couldn't read vertexes.");
 		for (int b=0;b<3;b++)
 			pm->verts[a].pos.v[b] = FROM_TA(ipos[b]);
 	}
@@ -135,7 +138,8 @@ static MdlObject* load_object(int ofs, FILE *f, MdlObject *parent, int r=0)
 
 	fseek (f, obj.OffsetToPrimitiveArray, SEEK_SET);
 	if (obj.NumberOfPrimitives > 0)
-		fread (&tapl[0], sizeof(TA_Polygon), obj.NumberOfPrimitives, f);
+		read_result = fread (&tapl[0], sizeof(TA_Polygon), obj.NumberOfPrimitives, f);
+		if (read_result != (size_t)(obj.NumberOfPrimitives)) throw std::runtime_error ("Couldn't read primitives.");
 	for (int a=0;a<obj.NumberOfPrimitives;a++)
 	{
 		fseek (f, tapl[a].VertOfs,SEEK_SET);
@@ -146,7 +150,8 @@ static MdlObject* load_object(int ofs, FILE *f, MdlObject *parent, int r=0)
 		for (int b=0;b<tapl[a].VertNum;b++)
 		{
 			short vindex;
-			fread (&vindex, sizeof(short), 1, f);
+			read_result = fread (&vindex, sizeof(short), 1, f);
+			if (read_result != (size_t)1) throw std::runtime_error ("Couldn't read vertex.");
 			p->verts[b] = vindex;
 		}
 
@@ -196,7 +201,7 @@ static MdlObject* load_object(int ofs, FILE *f, MdlObject *parent, int r=0)
 }
 
 
-bool Model::Load3DO(const char *filename, IProgressCtl& progctl)
+bool Model::Load3DO(const char *filename, IProgressCtl& /*progctl*/)
 {
 	FILE *f=0;
 
@@ -223,6 +228,7 @@ static void save_object(FILE *f, MdlObject *parent, std::vector<MdlObject*>::ite
 	TA_Object n;
 	MdlObject *obj = *cur++;
 	PolyMesh* pm = obj->ToPolyMesh();
+	size_t write_result;
 	if (!pm) pm=new PolyMesh;
 
 	memset (&n, 0, sizeof(TA_Object));
@@ -241,12 +247,13 @@ static void save_object(FILE *f, MdlObject *parent, std::vector<MdlObject*>::ite
 	WriteZStr (f, obj->name);
 
 	n.OffsetToVertexArray = ftell(f);
-	for (int a=0;a<pm->verts.size();a++)
+	for (unsigned int a=0;a<pm->verts.size();a++)
 	{
 		long v[3];
 		Vector3 *p = &pm->verts[a].pos;
 		for (int i=0;i<3;i++) v[i] = TO_TA(p->v[i]);
-		fwrite (v, sizeof(long), 3, f);
+		write_result = fwrite (v, sizeof(long), 3, f);
+		if (write_result != (size_t)3) throw std::runtime_error ("Couldn't write vertex.");
 	}
 
 	n.OffsetToPrimitiveArray = ftell(f);
@@ -254,7 +261,7 @@ static void save_object(FILE *f, MdlObject *parent, std::vector<MdlObject*>::ite
 	fseek (f, sizeof(TA_Polygon) * pm->poly.size(), SEEK_CUR);
 	memset (tapl,0,sizeof(TA_Polygon)*pm->poly.size());
 
-	for (int a=0;a<pm->poly.size();a++)
+	for (unsigned int a=0;a<pm->poly.size();a++)
 	{
 		Poly *pl = pm->poly [a];
 
@@ -266,11 +273,12 @@ static void save_object(FILE *f, MdlObject *parent, std::vector<MdlObject*>::ite
 		tapl[a].TexnameOfs = ftell(f);
 		WriteZStr (f,pl->texname);
 		tapl[a].VertOfs = ftell(f);
-		for (int b=0;b<pl->verts.size();b++)
+		for (unsigned int b=0;b<pl->verts.size();b++)
 		{
 			unsigned short v;
 			v = pl->verts[b];
-			fwrite (&v, sizeof(short), 1, f);
+			write_result = fwrite (&v, sizeof(short), 1, f);
+			if (write_result != (size_t)1) throw std::runtime_error ("Couldn't write vertex.");
 		}
 		tapl[a].VertNum = pl->verts.size();
 		tapl[a].Unknown_1 = 0;
@@ -280,7 +288,8 @@ static void save_object(FILE *f, MdlObject *parent, std::vector<MdlObject*>::ite
 	
 	int old = ftell(f);
 	fseek (f, n.OffsetToPrimitiveArray, SEEK_SET);
-	fwrite (tapl, sizeof(TA_Polygon), pm->poly.size(),f);
+	write_result = fwrite (tapl, sizeof(TA_Polygon), pm->poly.size(),f);
+	if (write_result != (size_t)(pm->poly.size())) throw std::runtime_error ("Couldn't write polygon.");
 	fseek (f, old, SEEK_SET);
 
 	delete pm;
@@ -299,7 +308,8 @@ static void save_object(FILE *f, MdlObject *parent, std::vector<MdlObject*>::ite
 
 	old=ftell(f);
 	fseek (f, header, SEEK_SET);
-	fwrite (&n, sizeof(TA_Object), 1, f);
+	write_result = fwrite (&n, sizeof(TA_Object), 1, f);
+	if (write_result != (size_t)1) throw std::runtime_error ("Couldn't write 3DO header.");
 	fseek (f,old, SEEK_SET);
 }
 
@@ -310,10 +320,11 @@ static inline void ApplyOrientationAndScaling (MdlObject *o)
 }
 
 
-bool Model::Save3DO(const char *fn, IProgressCtl& progctl) {
+bool Model::Save3DO(const char *fn, IProgressCtl& /*progctl*/) {
 	FILE *f = fopen(fn, "wb");
 
 	if (!f)
+		throw std::runtime_error ("Couldn't open 3DO file for writing.");
 		return false;
 
 	MdlObject *cl = root->Clone();

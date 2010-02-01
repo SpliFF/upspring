@@ -1,5 +1,5 @@
 CC     = g++
-CFLAGS = -Wall -Wextra -g -DUSE_IK -O2
+CFLAGS = -fno-strict-aliasing -Wno-deprecated -Wall -g -DUSE_IK -O2
 LFLAGS = \
 	-lX11 -lXft -lXinerama -lXcursor \
 	-l3ds -lboost_regex -llua \
@@ -41,11 +41,8 @@ CREG_OBS = \
 FILEIO_OBS = \
 	$(FILEIO_OBJ_DIR)/3DO.o          \
 	$(FILEIO_OBJ_DIR)/3DS.o          \
-	$(FILEIO_OBJ_DIR)/c3o.o          \
-	$(FILEIO_OBJ_DIR)/MD5.o          \
-	$(FILEIO_OBJ_DIR)/OgreModel.o    \
 	$(FILEIO_OBJ_DIR)/S3O.o          \
-	$(FILEIO_OBJ_DIR)/WavefrontOBJ.o
+	$(FILEIO_OBJ_DIR)/OBJ.o
 
 FLCHOOSER_OBS = \
 	$(FLCHOOSER_OBJ_DIR)/common.o $(FLCHOOSER_OBJ_DIR)/Fl_Native_File_Chooser.o
