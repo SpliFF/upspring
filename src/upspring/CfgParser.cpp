@@ -92,7 +92,7 @@ CfgValue* CfgValue::ParseValue (InputBuffer& buf)
 		return 0;
 	}
 
-	for (int a=0;a<classes.size();a++)
+	for (unsigned int a=0;a<classes.size();a++)
 	{
 		if (classes[a]->Identify (buf))
 		{

@@ -133,7 +133,7 @@ struct StructAnimController : public AnimController
 	int GetSize () { return class_->binder->size; }
 	void Copy (void *src, void *dst) { memcpy (dst, src, class_->binder->size); }
 	void LinearInterp (void *a, void *b, float x, void *out) {
-		for (int m = 0; m < class_->members.size(); m ++)
+		for (unsigned int m = 0; m < class_->members.size(); m ++)
 		{
 			int offset = class_->members[m]->offset;
 			subctl->LinearInterp ((char*)a + offset, (char*)b + offset, x, (char*)out + offset);
@@ -150,7 +150,7 @@ struct StructAnimController : public AnimController
 AnimController *AnimController::GetStructController (AnimController *subctl, creg::Class *class_)
 {
 	static vector <StructAnimController> ctls;
-	for (int a=0;a<ctls.size();a++) {
+	for (unsigned int a=0;a<ctls.size();a++) {
 		if (ctls[a].class_ == class_ && ctls[a].subctl == subctl)
 			return &ctls[a];
 	}
@@ -290,7 +290,7 @@ void AnimationInfo::Serialize (creg::ISerializer& s)
 		uint size;
 		s.Serialize (&size,4);
 
-		for (int a=0;a<size;a++) {
+		for (unsigned int a=0;a<size;a++) {
 			AnimProperty prop;
 			s.SerializeObjectInstance (&prop, AnimProperty::StaticClass());
 

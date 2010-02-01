@@ -104,7 +104,7 @@ template<> struct DeduceType < std::string > {
 
 // GetType allows to use parameter type deduction to get the template argument for DeduceType
 template<typename T>
-IType* GetType (T& var) {
+IType* GetType (T& /*var*/) {
 	DeduceType<T> deduce;
 	return deduce.Get();
 }

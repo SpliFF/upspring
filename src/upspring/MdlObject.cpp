@@ -140,7 +140,7 @@ MdlObject::~MdlObject()
 { 
 	delete geometry;
 
-	for(int a=0;a<childs.size();a++)
+	for(uint a=0;a<childs.size();a++)
 		if (childs[a]) delete childs[a];
 	childs.clear();
 
@@ -186,7 +186,7 @@ void MdlObject::AddChild(MdlObject *o)
 
 bool MdlObject::IsEmpty ()
 {
-	for (int a=0;a<childs.size();a++)
+	for (uint a=0;a<childs.size();a++)
 		if (!childs[a]->IsEmpty())
 			return false;
 
@@ -196,11 +196,11 @@ bool MdlObject::IsEmpty ()
 
 void MdlObject::Dump (int r)
 {
-	for (int a=0;a<r;a++)
+	for (uint a=0;a<r;a++)
 		logger.Print ("  ");
 	logger.Trace (NL_Debug, "MdlObject \'%s\'\n", name.c_str());
 
-	for (int a=0;a<childs.size();a++)
+	for (uint a=0;a<childs.size();a++)
 		childs[a]->Dump(r+1);
 }
 
@@ -271,7 +271,7 @@ void MdlObject::Load3DOTextures (TextureHandler *th)
 		bTexturesLoaded=true;
 	}
 
-	for (int a=0;a<childs.size();a++)
+	for (uint a=0;a<childs.size();a++)
 		childs[a]->Load3DOTextures (th);
 }
 
@@ -308,7 +308,7 @@ void MdlObject::ApplyParentSpaceTransform(const Matrix& psTransform)
 	TransformVertices(result);
 
 	// transform childs objects
-	for (int a=0;a<childs.size();a++)
+	for (uint a=0;a<childs.size();a++)
 		childs[a]->ApplyParentSpaceTransform(result);
 }
 
@@ -332,7 +332,7 @@ void MdlObject::ApplyTransform (bool removeRotation, bool removeScaling, bool re
 			mirrorMatrix.scale(mirror);
 
 			TransformVertices(mirrorMatrix);
-			for (int a=0;a<childs.size();a++)
+			for (uint a=0;a<childs.size();a++)
 				childs[a]->ApplyParentSpaceTransform(mirrorMatrix);
 
 			if (flip)
@@ -365,7 +365,7 @@ void MdlObject::NormalizeNormals ()
 	for (VertexIterator v(this);!v.End();v.Next())
 		v->normal.normalize();
 
-	for (int a=0;a<childs.size();a++)
+	for (uint a=0;a<childs.size();a++)
 		childs[a]->NormalizeNormals ();
 
 	InvalidateRenderData();
@@ -400,7 +400,7 @@ MdlObject* MdlObject::Clone()
 	if (geometry)
 		cp->geometry = geometry->Clone();
 
-	for (int a=0;a<childs.size();a++) {
+	for (uint a=0;a<childs.size();a++) {
 		MdlObject *ch = childs[a]->Clone();
 		cp->childs.push_back(ch);
 		ch->parent = cp;
@@ -479,7 +479,7 @@ vector<MdlObject*> MdlObject::GetChildObjects()
 void MdlObject::FullMerge ()
 {
 	vector <MdlObject *> ch=childs;
-	for (int a=0;a<ch.size();a++) {
+	for (uint a=0;a<ch.size();a++) {
 		ch[a]->FullMerge ();
 		MergeChild (ch[a]);
 	}
@@ -494,7 +494,7 @@ void MdlObject::MergeChild (MdlObject *ch)
 		pm->MoveGeometry(GetOrCreatePolyMesh());
 
 	// move the childs
-	for (int a=0;a<ch->childs.size();a++) ch->childs[a]->parent = this;
+	for (uint a=0;a<ch->childs.size();a++) ch->childs[a]->parent = this;
 	childs.insert (childs.end(), ch->childs.begin(),ch->childs.end());
 	ch->childs.clear();
 
@@ -528,7 +528,7 @@ void MdlObject::UpdateAnimation(float time)
 {
 	animInfo.Evaluate(this, time);
 
-	for (int a = 0; a < childs.size(); a++)
+	for (uint a = 0; a < childs.size(); a++)
 		childs[a]->UpdateAnimation(time);
 }
 

@@ -59,7 +59,7 @@ public:
   Scrollbar scrollbar;
   Scrollbar hscrollbar;
 
-  void enable_drag_scroll( bool enable ) { enable_drag_scroll_ = true; }
+  void enable_drag_scroll( bool /*enable*/ ) { enable_drag_scroll_ = true; }
 
   virtual int handle(int);
   virtual void layout();

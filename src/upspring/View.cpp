@@ -70,7 +70,7 @@ void ViewWindow::SetRasterMatrix ()
 
 void ViewWindow::draw ()
 {
-	bool use_solid = false;
+	//bool use_solid = false; // unused
 
 	if(!valid ())
 		InitGL ();
@@ -215,7 +215,7 @@ void ViewWindow::Select(float sx, float sy, int w, int h, bool box) {
 
 		uint *pBuf = buffer;
 		ViewSelector *best = 0;
-		float bestscore;
+		float bestscore = 0.;
 		bool bRedraw = false;
 		for (a = 0; a < hits; a++) {
 			uint num = pBuf [0];
@@ -896,7 +896,7 @@ void EditorViewWindow::ShowViewModifyMenu (int cx,int cy)
 	const int d=ViewMergeDistance;
 	EditorViewWindow *candidate = 0;
 
-	for (int a=0;a<views.size();a++) 
+	for (uint a=0;a<views.size();a++)
 	{
 		EditorViewWindow *nb = views[a];
 		if (nb == this) continue;

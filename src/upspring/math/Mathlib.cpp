@@ -1163,7 +1163,7 @@ void Quaternion::apply(float x, float y, float z, float *xout, float *yout, floa
 
 
 
-void Quaternion::apply(Vector3 *in, Vector3 *out) const
+void Quaternion::apply(Vector3* /*in*/, Vector3 *out) const
 {
    Quaternion v;
    Quaternion i;
@@ -1299,6 +1299,7 @@ void math_test()
 	Vector3 r(0.0f, 0.0f, M_PI/2);
 	Matrix slow = get_YXZRotationMatrix(r);
 	Matrix fast;
+	int sysresult;
 	fast.eulerZXY(r);
 
 	logger.Print("Slow: \n"); PrintMatrix(slow);
@@ -1332,6 +1333,6 @@ void math_test()
 		logger.Print("Equal\n");
 
 
-	system("pause");
+	sysresult = system("pause");
 }
 

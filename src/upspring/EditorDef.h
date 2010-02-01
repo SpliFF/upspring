@@ -171,7 +171,7 @@ InputIterator element_at(InputIterator first, InputIterator last, int index) {
 
 #define SET_WIDGET_VALUE(w, v) (w)->set_flag(fltk::STATE, v)
 
-static const char* ImageFileExt=
+static const char ImageFileExt[] =
 "All image files\0bmp,tga,pcx,jpg,png,dds,pnm,raw,tif,sgi\0";
 
 #endif

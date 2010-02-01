@@ -178,13 +178,13 @@ void ModelDrawer::RenderPolygon (MdlObject *o, Poly*pl, IView *v, int mapping, b
 		glBegin(GL_POLYGON);
 		if(pl->verts.size()==4 || pl->verts.size()==3){
 			const float tc[] = {  0.0f,1.0f,  1.0f, 1.0f,   1.0f,0.0f, 0.0f,0.0f};
-			for (int a=0;a<pl->verts.size();a++) {
+			for (uint a=0;a<pl->verts.size();a++) {
 				glTexCoord2f (tc[a*2],tc[a*2+1]);
 				glNormal3fv ((float*)&pm->verts[pl->verts[a]].normal);
 				glVertex3fv ((float*)&pm->verts[pl->verts[a]].pos);
 			}
 		} else {
-			for (int a=0;a<pl->verts.size();a++) {
+			for (uint a=0;a<pl->verts.size();a++) {
 				int i = pl->verts [a];
 				glNormal3fv ((float*)&pm->verts[i].normal);
 				glVertex3fv ((float*)&pm->verts[i].pos);
@@ -199,7 +199,7 @@ void ModelDrawer::RenderPolygon (MdlObject *o, Poly*pl, IView *v, int mapping, b
 	}
 	else {
 		glBegin (GL_POLYGON);
-		for (int a=0;a<pl->verts.size();a++) {
+		for (uint a=0;a<pl->verts.size();a++) {
 			int i = pl->verts [a];
 			glTexCoord2fv ((float*)&pm->verts[i].tc[0]);
 			glNormal3fv ((float*)&pm->verts[i].normal);
@@ -243,7 +243,7 @@ void ModelDrawer::RenderObject (MdlObject *o, IView *v, int mapping)
 		// render polygons
 	PolyMesh *pm = o->GetPolyMesh();
 	if (pm) {
-		for (int a=0;a<pm->poly.size();a++)
+		for (uint a=0;a<pm->poly.size();a++)
 			RenderPolygon (o, pm->poly[a], v,mapping, polySelect);
 	} else if (o->geometry)
 		o->geometry->Draw(this, model, o);
@@ -264,14 +264,14 @@ void ModelDrawer::RenderObject (MdlObject *o, IView *v, int mapping)
 			glNewList(rd->drawList, GL_COMPILE_AND_EXECUTE);
 
 			// render polygons
-			for (int a=0;a<o->poly.size();a++)
+			for (uint a=0;a<o->poly.size();a++)
 				RenderPolygon (o, o->poly[a], v,mapping, polySelect);
 
 			glEndList ();
 		}
 	}*/
 
-	for (int a=0;a<o->childs.size();a++)
+	for (uint a=0;a<o->childs.size();a++)
 		RenderObject (o->childs[a], v, mapping);
 
 	glPopMatrix ();
@@ -511,7 +511,7 @@ void ModelDrawer::RenderSmoothPolygon(PolyMesh *pm, Poly *pl)
 		glEnd();
 	}
 
-	for (int a=0;a<pl->verts.size();a++)
+	for (uint a=0;a<pl->verts.size();a++)
 	{/*
 		Vertex& next = o->verts[pl->verts[(a+1 >= pl->verts.size()) ? 0 : a+1]];
 		Vertex& prev = o->verts[pl->verts[(a-1 < 0) ? pl->verts.size()-1 : a-1]];
@@ -580,7 +580,7 @@ void ModelDrawer::RenderHelperGeom(MdlObject *o, IView *v)
 	if (v->GetConfig(CFG_VRTNORMALS)!=0.0f)
 	{
 		if (o->isSelected && pm) {
-			for (int a=0;a<pm->poly.size();a++)
+			for (uint a=0;a<pm->poly.size();a++)
 	//	if (o->poly[a]->isSelected) 
 				RenderPolygonVertexNormals(pm,pm->poly[a]);
 		}
@@ -588,7 +588,7 @@ void ModelDrawer::RenderHelperGeom(MdlObject *o, IView *v)
 
 	if (v->GetConfig(CFG_MESHSMOOTH)!=0.0f)
 	{
-		for (int a=0;a<pm->poly.size();a++)
+		for (uint a=0;a<pm->poly.size();a++)
 			if (pm->poly[a]->isSelected) 
 				RenderSmoothPolygon(pm, pm->poly[a]);
 	}
@@ -626,7 +626,7 @@ void ModelDrawer::RenderSelection_ (MdlObject *o, IView *view)
 			glEnd ();
 		}
 	}
-	for (int a=0;a<o->childs.size();a++)
+	for (uint a=0;a<o->childs.size();a++)
 		RenderSelection_ (o->childs[a], view);
 
 	glPopMatrix ();

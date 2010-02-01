@@ -444,7 +444,7 @@ configure:7197: $? = 0
 configure:7214: result: yes
 configure:7235: checking for strlcat
 configure:7291: gcc -o conftest    conftest.c  >&5
-/tmp/ccePS1sH.o: In function `main':
+/tmp/ccm4Wen3.o: In function `main':
 conftest.c:(.text+0xa): undefined reference to `strlcat'
 collect2: ld returned 1 exit status
 configure:7297: $? = 1
@@ -524,7 +524,7 @@ configure: failed program was:
 configure:7314: result: no
 configure:7323: checking for strlcpy
 configure:7379: gcc -o conftest    conftest.c  >&5
-/tmp/ccCi5xeT.o: In function `main':
+/tmp/ccUjBuyf.o: In function `main':
 conftest.c:(.text+0xa): undefined reference to `strlcpy'
 collect2: ld returned 1 exit status
 configure:7385: $? = 1
@@ -605,7 +605,7 @@ configure:7402: result: no
 configure:7412: checking for library containing pow
 configure:7453: gcc -o conftest    conftest.c  >&5
 conftest.c:42: warning: conflicting types for built-in function 'pow'
-/tmp/ccSZyTO6.o: In function `main':
+/tmp/ccodewdr.o: In function `main':
 conftest.c:(.text+0xa): undefined reference to `pow'
 collect2: ld returned 1 exit status
 configure:7459: $? = 1
@@ -1087,6 +1087,7 @@ config.status:647: creating fltk.list
 config.status:778: WARNING:  fltk.list.in seems to ignore the --datarootdir setting
 config.status:647: creating fltk2-config
 config.status:647: creating config.h
+config.status:905: config.h is unchanged
 
 ## ---------------- ##
 ## Cache variables. ##

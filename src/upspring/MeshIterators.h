@@ -12,7 +12,7 @@ public:
 	}
 
 	Poly* Get() { return mesh ? mesh->poly [pos] : 0; }
-	bool End() { return !mesh || pos >= mesh->poly.size(); }
+	bool End() { return !mesh || (uint)pos >= mesh->poly.size(); }
 	Poly* operator->() { return Get(); }
 	Poly* operator*() { return Get(); }
 	void Next() { pos++; }
@@ -56,7 +56,7 @@ public:
 		pos = 0;
 	}
 
-	bool End() { return !mesh || pos >= mesh->verts.size(); }
+	bool End() { return !mesh || (uint)pos >= mesh->verts.size(); }
 	void Next() { pos ++; }
 	Vertex* Get() { return mesh ? &mesh->verts[pos] : 0; }
 

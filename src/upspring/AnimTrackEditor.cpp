@@ -56,7 +56,7 @@ void AnimTrackEditorUI::cmdAutoFitView()
 
 	for (list<AnimTrackEditorUI::AnimObject>::iterator oi = objects.begin(); oi != objects.end(); ++oi)
 	{
-		for (int p = 0; p < oi->props.size(); p ++) {
+		for (unsigned int p = 0; p < oi->props.size(); p ++) {
 			if (!oi->props [p].display) continue;
 
 			float step = (trackView->maxTime-trackView->minTime)/trackView->w();
@@ -84,7 +84,7 @@ void AnimTrackEditorUI::cmdAutoFitTime()
 	bool keys=false;
 	for (list<AnimTrackEditorUI::AnimObject>::iterator oi = objects.begin(); oi != objects.end(); ++oi)
 	{
-		for (int p = 0; p < oi->props.size(); p ++) {
+		for (unsigned int p = 0; p < oi->props.size(); p ++) {
 			if (!oi->props [p].display) continue;
 
 			AnimProperty *prop = oi->props[p].prop;
@@ -189,7 +189,7 @@ void AnimTrackEditorUI::UpdateKeySel ()
 {
 	for (list<AnimTrackEditorUI::AnimObject>::iterator oi = objects.begin(); oi != objects.end(); ++oi)
 	{
-		for (int i = 0; i < oi->props.size(); i++) {
+		for (unsigned int i = 0; i < oi->props.size(); i++) {
 			Property *p = &oi->props[i];
 			if (!p->display) continue;
 
@@ -210,7 +210,7 @@ float AnimTrackEditorUI::Property::EvaluateY (float time, int& lastkey)
 {
 	static vector<char> valbuf;
 
-	int neededBufSize = prop->controller->GetSize();
+	unsigned int neededBufSize = prop->controller->GetSize();
 	if (neededBufSize > valbuf.size())
 		valbuf.resize(neededBufSize);
 
@@ -344,7 +344,7 @@ void AnimKeyTrackView::draw()
 	float step = (maxTime-minTime)/w();
 	for (list<AnimTrackEditorUI::AnimObject>::iterator oi = trackUI->objects.begin(); oi != trackUI->objects.end(); ++oi)
 	{
-		for (int i = 0; i < oi->props.size();i ++) {
+		for (unsigned int i = 0; i < oi->props.size();i ++) {
 			AnimTrackEditorUI::Property *p = &oi->props[i];
 			if (!p->display) continue;
 
@@ -387,7 +387,7 @@ void AnimKeyTrackView::SelectKeys (int mx, int my)
 
 	for (list<AnimTrackEditorUI::AnimObject>::iterator oi = trackUI->objects.begin(); oi != trackUI->objects.end(); ++oi)
 	{
-		for (int i = 0; i < oi->props.size();i ++) {
+		for (unsigned int i = 0; i < oi->props.size();i ++) {
 			AnimTrackEditorUI::Property *p = &oi->props[i];
 			if (!p->display) continue;
 

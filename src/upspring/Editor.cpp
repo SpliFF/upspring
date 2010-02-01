@@ -49,6 +49,11 @@ const char* TextureGroupConfig="data/texgroups.cfg";
 
 string applicationPath;
 
+/*
+ * 	"All Supported (*.{bmp,gif,jpg,png})"
+	"All Files (*)\0"
+ */
+
 const char* FileChooserPattern=
 	"Spring model (S3O)\0s3o\0"
 	"Total Annihilation model (3DO)\0 3do\0"
@@ -111,7 +116,7 @@ vector<EditorViewWindow *> EditorUI::EditorCB::GetViews ()
 
 void EditorUI::EditorCB::MergeView (EditorViewWindow *own, EditorViewWindow *other)
 {
-	int w = other->w ();
+	//int w = other->w ();
 	if (own->x () > other->x()) own->set_x(other->x());
 	if (own->y () > other->y()) own->set_y(other->y());
 	if (own->r () < other->r()) own->set_r(other->r());
@@ -288,11 +293,11 @@ void EditorUI::uiSetRenderMethod(RenderMethod rm)
 static void CollectTextures(MdlObject *o, set<Texture*>& textures) {
 	PolyMesh* pm = o->GetPolyMesh();
 	if (pm) {
-		for (int a=0;a<pm->poly.size();a++) {
+		for (unsigned int a=0;a<pm->poly.size();a++) {
 			if (pm->poly[a]->texture) textures.insert(pm->poly[a]->texture.Get());
 		}
 	}
-	for (int a=0;a<o->childs.size();a++)
+	for (unsigned int a=0;a<o->childs.size();a++)
 		CollectTextures(o->childs[a],textures);
 }
 
@@ -364,13 +369,13 @@ void EditorUI::uiDeleteSelection()
 {
 	if (currentTool->needsPolySelect ()) {
 		vector <MdlObject *> objects=model->GetObjectList ();
-		for (int a=0;a<objects.size();a++) {
+		for (unsigned int a=0;a<objects.size();a++) {
 			PolyMesh *pm = objects[a]->GetPolyMesh();
 
 			if (pm)
 			{
 				vector <Poly *> polygons;
-				for (int b=0;b<pm->poly.size();b++) {
+				for (unsigned int b=0;b<pm->poly.size();b++) {
 					Poly *pl = pm->poly[b];
 					if (!pl->isSelected) polygons.push_back (pl);
 					else delete pl;
@@ -382,12 +387,12 @@ void EditorUI::uiDeleteSelection()
 	} else {
 		vector <MdlObject *> objects=model->GetSelectedObjects ();
 		vector <MdlObject *> filtered;
-		for (int a=0;a<objects.size();a++) {
+		for (unsigned int a=0;a<objects.size();a++) {
 			if (objects[a]->HasSelectedParent ())
 				continue;
 			filtered.push_back(objects[a]);
 		}
-		for (int a=0;a<filtered.size();a++)
+		for (unsigned int a=0;a<filtered.size();a++)
 			model->DeleteObject (filtered[a]);
 
 		BACKUP_POINT("Deleted selected objects");
@@ -399,7 +404,7 @@ void EditorUI::uiApplyTransform()
 {
 	// apply the transformation of each object onto itself, and remove the orientation+offset
 	vector<MdlObject*>sel = model->GetSelectedObjects();
-	for (int a=0;a<sel.size();a++)
+	for (unsigned int a=0;a<sel.size();a++)
 	{
 		MdlObject *o=sel[a];
 		o->ApplyTransform(true,true,true);
@@ -418,7 +423,7 @@ void EditorUI::uiUniformScale()
 
 		float scale=atof(scalestr);
 
-		for (int a=0;a<sel.size();a++) {
+		for (unsigned int a=0;a<sel.size();a++) {
 			if (sel[a]->HasSelectedParent ())
 				continue;
 
@@ -439,7 +444,7 @@ void EditorUI::uiRotate3DOTex ()
 			PolyMesh* pm = (*o)->GetPolyMesh();
 
 			if(pm) 
-				for (int a=0;a<pm->poly.size();a++) {
+				for (unsigned int a=0;a<pm->poly.size();a++) {
 					Poly *pl = pm->poly[a];
 					if (pl->isSelected)
 						pl->RotateVerts();
@@ -535,7 +540,7 @@ void EditorUI::uiCalculateRadius ()
 void EditorUI::menuObjectApproxOffset()
 {
 	vector<MdlObject*> sel = model->GetSelectedObjects();
-	for (int a=0;a<sel.size();a++) 
+	for (unsigned int a=0;a<sel.size();a++)
 		sel[a]->ApproximateOffset ();
 	BACKUP_POINT("Offset approximation of selected objects");
 	Update();
@@ -562,11 +567,11 @@ void EditorUI::SelectionUpdated()
 	if (sel.size () == 1) {
 		MdlObject *f = sel.front();
 		PolyMesh *pm = f->GetPolyMesh();
-		sprintf (label, "MdlObject %s selected: position=(%4.1f,%4.1f,%4.1f) scale=(%3.2f,%3.2f,%3.2f) polycount=%d vertexcount=%d", f->name.c_str(),
+		sprintf (label, "MdlObject %s selected: position=(%4.1f,%4.1f,%4.1f) scale=(%3.2f,%3.2f,%3.2f) polycount=%lu vertexcount=%lu", f->name.c_str(),
 			f->position.x, f->position.y, f->position.z, f->scale.x, f->scale.y, f->scale.z, pm? pm->poly.size():0, pm?pm->verts.size():0);
 	} else if(sel.size() > 1) {
 		int plcount = 0, vcount = 0;
-		for (int a=0;a<sel.size();a++) {
+		for (unsigned int a=0;a<sel.size();a++) {
 			PolyMesh *pm = sel[a]->GetPolyMesh();
 			if (pm) {
 				plcount += pm->poly.size();
@@ -600,7 +605,7 @@ void EditorUI::Update ()
 	};
 	if (sel.size()==1) {
 		MdlObject *s=sel.front();
-		for (int a=0;a<sizeof(inputs)/sizeof(fltk::Input*);a++) inputs[a]->activate();
+		for (unsigned int a=0;a<sizeof(inputs)/sizeof(fltk::Input*);a++) inputs[a]->activate();
 		inputPosX->value(s->position.x);
 		inputPosY->value(s->position.y);
 		inputPosZ->value(s->position.z);
@@ -612,7 +617,7 @@ void EditorUI::Update ()
 		inputRotY->value(euler.y / DegreesToRadians);
 		inputRotZ->value(euler.z / DegreesToRadians);
 	} else {
-		for (int a=0;a<sizeof(inputs)/sizeof(fltk::Input*);a++) inputs[a]->deactivate();
+		for (unsigned int a=0;a<sizeof(inputs)/sizeof(fltk::Input*);a++) inputs[a]->deactivate();
 	}
 	// model inputs
 	inputRadius->value(model->radius);
@@ -673,7 +678,7 @@ void EditorUI::SetModel (Model *mdl)
 	inputTexture1->value(0);
 	inputTexture2->value(0);
 
-	for (int a=0;a<mdl->texBindings.size();a++) 
+	for (unsigned int a=0;a<mdl->texBindings.size();a++)
 		SetModelTexture (a, mdl->texBindings[a].texture.Get());
 
 	Update ();
@@ -725,9 +730,9 @@ void EditorUI::BrowseForTexture(int textureIndex)
 
 void EditorUI::ReloadTexture (int index)
 {
-	fltk::FileInput *input = index ? inputTexture2 : inputTexture1;
+	//fltk::FileInput *input = index ? inputTexture2 : inputTexture1;
 
-	if (model->texBindings.size () <= index)
+	if (model->texBindings.size () <= (uint)index)
 		model->texBindings.resize (index+1);
 
 	TextureBinding& tb = model->texBindings[index];
@@ -772,7 +777,7 @@ void EditorUI::UpdateTextureGroups()
 {
 	textureGroupMenu->clear();
 
-	for (int a=0;a<textureGroupHandler->groups.size();a++) {
+	for (unsigned int a=0;a<textureGroupHandler->groups.size();a++) {
 		TextureGroup *tg = textureGroupHandler->groups[a];
 		textureGroupMenu->add (tg->name.c_str(),0,0,tg);
 	}
@@ -786,7 +791,7 @@ void EditorUI::SelectTextureGroup (fltk::Widget *w,void *d)
 
 TextureGroup* EditorUI::GetCurrentTexGroup()
 {
-	assert (textureGroupHandler->groups.size()==textureGroupMenu->children());
+	assert (textureGroupHandler->groups.size()==(uint)textureGroupMenu->children());
 	if (textureGroupHandler->groups.empty()) 
 		return 0;
 
@@ -887,7 +892,7 @@ void EditorUI::menuObjectMerge()
 {
 	vector <MdlObject*> sel = model->GetSelectedObjects ();
 
-	for (int a=0;a<sel.size();a++) {
+	for (unsigned int a=0;a<sel.size();a++) {
 		MdlObject *parent = sel [a]->parent;
 		if (parent) parent->MergeChild (sel[a]);
 	}
@@ -898,7 +903,7 @@ void EditorUI::menuObjectMerge()
 void EditorUI::menuObjectFlipPolygons()
 {
 	vector <MdlObject*> sel=model->GetSelectedObjects();
-	for (int a=0;a<sel.size();a++) {
+	for (unsigned int a=0;a<sel.size();a++) {
 		for (PolyIterator pi(sel[a]); !pi.End(); pi.Next()) 
 			pi->Flip();
 		
@@ -911,7 +916,7 @@ void EditorUI::menuObjectFlipPolygons()
 void EditorUI::menuObjectRecalcNormals()
 {
 	vector <MdlObject*> sel=model->GetSelectedObjects();
-	for (int a=0;a<sel.size();a++) {
+	for (unsigned int a=0;a<sel.size();a++) {
 		PolyMesh *pm = sel[a]->GetPolyMesh();
 		if (pm) pm->CalculateNormals();
 
@@ -924,7 +929,7 @@ void EditorUI::menuObjectRecalcNormals()
 void EditorUI::menuObjectResetScaleRot()
 {
 	vector<MdlObject*> sel=model->GetSelectedObjects();
-	for (int a=0;a<sel.size();a++) 	{
+	for (unsigned int a=0;a<sel.size();a++) 	{
         sel[a]->rotation=Rotator();
 		sel[a]->scale.set(1,1,1);
 	}
@@ -935,7 +940,7 @@ void EditorUI::menuObjectResetScaleRot()
 void EditorUI::menuObjectResetTransform()
 {
 	vector<MdlObject*> sel=model->GetSelectedObjects();
-	for (int a=0;a<sel.size();a++) 	{
+	for (unsigned int a=0;a<sel.size();a++) 	{
         sel[a]->position=Vector3();
         sel[a]->rotation=Rotator();
 		sel[a]->scale.set(1,1,1);
@@ -947,7 +952,7 @@ void EditorUI::menuObjectResetTransform()
 void EditorUI::menuObjectResetPos()
 {
 	vector<MdlObject*> sel=model->GetSelectedObjects();
-	for (int a=0;a<sel.size();a++) 
+	for (unsigned int a=0;a<sel.size();a++)
         sel[a]->position=Vector3();
 	BACKUP_POINT("Reset position of selected objects");
 	Update();
@@ -962,7 +967,7 @@ void EditorUI::menuObjectShowAnimWindows()
 void EditorUI::menuObjectGenCSurf()
 {
 	vector<MdlObject*> sel=model->GetSelectedObjects();
-	for (int a=0;a<sel.size();a++) {
+	for (unsigned int a=0;a<sel.size();a++) {
 		delete sel[a]->csurfobj;
 
 		sel[a]->csurfobj = new csurf::Object;
@@ -1386,6 +1391,7 @@ int main (int argc, char *argv[])
 #endif
 
 //	math_test();
+	fltk::message( "path: %s", applicationPath.c_str() );
 
 	// Initialize the class system
 	creg::System::InitializeClasses ();

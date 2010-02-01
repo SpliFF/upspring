@@ -164,7 +164,7 @@ static void ChopAnimationInfo (MdlObject *o, float time)
 	for (vector<AnimProperty*>::iterator pi = o->animInfo.properties.begin(); pi != o->animInfo.properties.end(); ++pi)
 		(*pi)->ChopAnimation (time);
 
-	for (int a=0;a<o->childs.size();a++)
+	for (uint a=0;a<o->childs.size();a++)
 		ChopAnimationInfo (o->childs [a], time);
 }
 
@@ -196,7 +196,7 @@ void TimelineUI::Update()
 static void InsertKeysHelper (MdlObject *o, float time)
 {
 	o->animInfo.InsertKeyFrames (o, time);
-	for (int a=0;a<o->childs.size();a++)
+	for (uint a=0;a<o->childs.size();a++)
 		InsertKeysHelper (o->childs [a], time);
 }
 

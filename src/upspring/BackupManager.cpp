@@ -154,7 +154,7 @@ void BackupManager::SetNumBackups(int n)
 	numBackups = n;
 
 	size_t cs = backups.size();
-	while (cs-- > numBackups) {
+	while (cs-- > (size_t)numBackups) {
 		if (position == backups.begin())
 			position ++;
 		backups.pop_front();

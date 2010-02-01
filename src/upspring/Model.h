@@ -222,7 +222,7 @@ struct MdlObject {
 	{
 		PolyMesh *pm = GetPolyMesh();
 		if (pm) (pm->*f)();
-		for (int a=0;a<childs.size();a++)
+		for (uint a=0;a<childs.size();a++)
 			childs[a]->ApplyPolyMeshOperationR(f);
 	}
 
@@ -296,7 +296,7 @@ struct MdlObject {
 static inline void IterateObjects(MdlObject *obj, void (*fn)(MdlObject *obj))
 {
 	fn (obj);
-	for (int a=0;a<obj->childs.size();a++)
+	for (unsigned int a=0;a<obj->childs.size();a++)
 		IterateObjects (obj->childs[a], fn);
 }
 
@@ -393,8 +393,8 @@ struct Model {
 	MdlObject *root;
 
 private:
-	Model(const Model& c) {}
-	void operator=(const Model& c) {}
+	Model(const Model& /*c*/) {}
+	void operator=(const Model& /*c*/) {}
 };
 
 

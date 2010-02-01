@@ -48,10 +48,10 @@ public:
     /* Pager template methods definition */
 
     /*! this method must update the tab positions and width array, returns the selected tab    */
-    virtual int update_positions(TabGroup* g, int numchildren, int& selected, 
-	int& cumulated_width, int& available_width , int* tab_pos, int* tab_width) { return selected;}
+    virtual int update_positions(TabGroup* /*g*/, int /*numchildren*/, int& selected,
+	int& /*cumulated_width*/, int& /*available_width*/, int* /*tab_pos*/, int* /*tab_width*/) { return selected;}
     /*! draw the tabs for this custom pager, return false means no custom draw is made */
-    virtual bool draw_tabs(TabGroup* g, int selected, int* tab_pos, int* tab_width) { return false;}
+    virtual bool draw_tabs(TabGroup* /*g*/, int /*selected*/, int* /*tab_pos*/, int* /*tab_width*/) { return false;}
     /*! determine and return the index of the child group at the corresponding pos */
     virtual int which(TabGroup* g, int m_x,int m_y)=0;
     /*! virtual copy from a prototype */

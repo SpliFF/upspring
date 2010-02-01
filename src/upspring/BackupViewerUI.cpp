@@ -48,7 +48,7 @@ void BackupViewerUI::Update()
 			name = "<" + name + ">";
 			selindex=index;
 		}
-		fltk::Widget *w = bufferView->add(name.c_str(), 0, BufferViewerCallback, (void*)index);
+		bufferView->add(name.c_str(), 0, BufferViewerCallback, (void*)index);
 	}
 	bufferView->select( (int)selindex);
 	bufferView->redraw();

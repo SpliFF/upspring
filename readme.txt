@@ -1,3 +1,8 @@
+January 31, 2010 [SpliFF]
+	Replaced LuaJIT with Lua as its platform support (esp 64-bit) is limited
+	Upgraded lib3ds and fltk2 to fix build issues on x86_64
+	Resource loading from ZIP (data.ups) seems broken. Changed to flat files.
+
 March 28, 2009 [Kloot]
 	quick compilation guide:
 		src/fltk2          configure && make && make install

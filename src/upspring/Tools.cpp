@@ -41,7 +41,7 @@ CopyBuffer::~CopyBuffer ()
 
 void CopyBuffer::Clear ()
 {
-	for (int a=0;a<buffer.size();a++)
+	for (uint a=0;a<buffer.size();a++)
 		delete buffer[a];
 	buffer.clear();
 }
@@ -51,7 +51,7 @@ void CopyBuffer::Copy (Model *mdl)
 	Clear ();
 
 	vector<MdlObject*> sel = mdl->GetSelectedObjects();
-	for (int a=0;a<sel.size();a++) {
+	for (uint a=0;a<sel.size();a++) {
 		if (sel[a]->HasSelectedParent ()) 
 			continue; // the parent will be copied anyway
 
@@ -85,7 +85,7 @@ void CopyBuffer::Cut (Model *mdl)
 
 void CopyBuffer::Paste (Model *mdl, MdlObject *where)
 {
-	for (int a=0;a<buffer.size();a++) {
+	for (uint a=0;a<buffer.size();a++) {
 		if (where) {
 			MdlObject *obj = buffer [a]->Clone();
 			where->childs.push_back (obj);
@@ -109,7 +109,7 @@ void CopyBuffer::Paste (Model *mdl, MdlObject *where)
 void ModifyObjects(MdlObject *obj, Vector3 d, void (*fn)(MdlObject *obj, Vector3 d))
 {
 	fn (obj, d);
-	for (int a=0;a<obj->childs.size();a++)
+	for (uint a=0;a<obj->childs.size();a++)
 		ModifyObjects (obj->childs[a], d,fn);
 }
 
@@ -447,7 +447,7 @@ struct ETextureTool : Tool
 				}
 			}
 		}
-		for (int a=0;a<o->childs.size();a++)
+		for (uint a=0;a<o->childs.size();a++)
 			applyTexture(o->childs[a],tex);
 	}
 
@@ -506,7 +506,7 @@ struct EPolyColorTool : Tool
 				pi->texname.clear();
 				pi->texture=0;
 			 }
-		for (int a=0;a<o->childs.size();a++)
+		for (uint a=0;a<o->childs.size();a++)
 			applyColor (o->childs[a], color);
 	}
 
@@ -607,7 +607,7 @@ Tools::Tools ()
 	toggleCurvedPoly = &ToggleCurvedPolyTool;
 
 	Tool* _tools[]={camera,move,rotate,scale,texmap,color,flip,originMove,rotateTex,toggleCurvedPoly,0};
-	for (int a=0;_tools[a];a++)
+	for (uint a=0;_tools[a];a++)
 		tools.push_back(_tools[a]);
 }
 
@@ -618,13 +618,13 @@ Tool* Tools::GetDefaultTool()
 
 void Tools::Disable()
 {
-	for (int a=0;a<tools.size();a++)
+	for (uint a=0;a<tools.size();a++)
 		if (tools[a]->isToggle) tools[a]->toggle(false);
 }
 
 void Tools::SetEditor(IEditor *editor)
 {
-	for (int a=0;a<tools.size();a++)
+	for (uint a=0;a<tools.size();a++)
 		tools[a]->editor = editor;
 }
 
@@ -658,9 +658,9 @@ FltkImage* FltkImage::Load(const char *filebuf, int filelen)
 
 void Tools::LoadImages()
 {
-	FILE *f = fopen("data/data.ups", "rb");
+	FILE *f = fopen("data/buttons.ups", "rb");
 	if (!f) {
-		fltk::message("Failed to load data.ups");
+		fltk::message("Failed to load data/buttons.ups");
 	}
 	else
 	{
@@ -690,7 +690,7 @@ void Tools::LoadImages()
 
 				tools[a]->image = FltkImage::Load(buf, len);
 				if (!tools[a]->image) {
-					fltk::message("Failed to load texture %s\n", fn.c_str());
+					fltk::message("Failed to load texture %s from data/buttons.ups\n", fn.c_str());
 					delete[] buf;
 					continue;
 				}
@@ -699,7 +699,7 @@ void Tools::LoadImages()
 				tools[a]->button->image(tools[a]->image->img);
 				tools[a]->button->label("");
 			} else
-				fltk::message("Couldn't find %s", fn.c_str());
+				fltk::message("Couldn't find %s in data/buttons.ups", fn.c_str());
 		}
 		fclose(f);
 	}
