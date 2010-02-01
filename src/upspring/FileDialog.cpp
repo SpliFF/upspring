@@ -80,7 +80,7 @@ bool SelectDirectory(const char* msg, std::string& dir)
 bool FileOpenDlg(const char* msg, const char* pattern, std::string& fn)
 {
 	std::string convp = ConvertPattern(pattern);
-	fltk::use_system_file_chooser(true);
+	//fltk::use_system_file_chooser(true);
 
 	const char *newfile = fltk::file_chooser(msg, "*", fn.c_str());
 	if (newfile != NULL) {

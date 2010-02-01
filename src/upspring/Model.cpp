@@ -174,31 +174,25 @@ Model* Model::Load(const string& _fn, bool Optimize, IProgressCtl& progctl) {
 	Model *mdl = 0;
 
 	try {
-		if (!STRCASECMP(ext, ".opk"))
-			mdl = Model::LoadOPK(fn, progctl);
-		else {
-			bool r;
-			mdl = new Model;
+		bool r;
+		mdl = new Model;
 
-			if ( !STRCASECMP(ext, ".3do"))
-				r = mdl->Load3DO(fn, progctl);
-			else if( !STRCASECMP(ext, ".s3o"))
-				r = mdl->LoadS3O(fn, progctl);
-			else if(!STRCASECMP(ext, ".3ds"))
-				r = (mdl->root = Load3DSObject(fn, progctl)) != 0;
-			else if (!STRCASECMP(ext, ".obj"))
-				r = (mdl->root = LoadWavefrontObject(fn, progctl)) != 0;
-			else if (!STRCASECMP(ext, ".c3o"))
-				r = mdl->LoadC3O(fn, progctl);
-			else {
-				fltk::message ("Unknown extension %s\n", fltk::filename_ext(fn));
-				delete mdl;
-				return false;
-			}
-			if (!r) {
-				delete mdl;
-				mdl = 0;
-			}
+		if ( !STRCASECMP(ext, ".3do"))
+			r = mdl->Load3DO(fn, progctl);
+		else if( !STRCASECMP(ext, ".s3o"))
+			r = mdl->LoadS3O(fn, progctl);
+		else if(!STRCASECMP(ext, ".3ds"))
+			r = (mdl->root = Load3DSObject(fn, progctl)) != 0;
+		else if (!STRCASECMP(ext, ".obj"))
+			r = (mdl->root = LoadWavefrontObject(fn, progctl)) != 0;
+		else {
+			fltk::message ("Unknown extension %s\n", fltk::filename_ext(fn));
+			delete mdl;
+			return false;
+		}
+		if (!r) {
+			delete mdl;
+			mdl = 0;
 		}
 	}
 	catch (std::runtime_error err)
@@ -234,10 +228,6 @@ bool Model::Save(Model* mdl, const string& _fn, IProgressCtl& progctl)
 		r = Save3DSObject(fn, mdl->root,progctl);
 	else if( !STRCASECMP(ext, ".obj"))
 		r = SaveWavefrontObject(fn, mdl->root, progctl);
-	else if( !STRCASECMP(ext, ".c3o"))
-		r = mdl->SaveC3O(fn, progctl);
-	else if (!STRCASECMP(ext, ".opk"))
-		r = Model::SaveOPK(mdl, fn, progctl);
 	else
 		fltk::message ("Unknown extension %s\n", fltk::filename_ext(fn));
 	if (!r) {
