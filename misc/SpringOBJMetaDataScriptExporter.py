@@ -117,6 +117,7 @@ class SpringModel:
 		self.midPos[1] /= float(self.numPieces)
 		self.midPos[2] /= float(self.numPieces)
 
+	def SetRadiusAndHeight(self):
 		minPieceY =  10000
 		maxPieceY = -10000
 		maxRadius =      0
@@ -203,6 +204,7 @@ def SaveSpringOBJMetaDataScript(filename):
 		if (model.HasRootPiece()):
 			model.SetPieceLinks()
 			model.CalculateGlobalOffsets()
+			model.SetRadiusAndHeight()
 
 			try:
 				f = open(filename, "w")
