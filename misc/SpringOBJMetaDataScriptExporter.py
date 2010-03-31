@@ -86,6 +86,14 @@ class SpringModel:
 		self.numPieces = 0
 		self.rootPiece = None
 
+	def StripName(self):
+		## strip the path prefix from the name (if any)
+		i = self.name.rfind('/')
+		j = self.name.rfind('\\')
+
+		if (i >= 0 and j < 0): self.name = self.name[(i + 1): ]
+		if (j >= 0 and i < 0): self.name = self.name[(j + 1): ]
+
 	def IsEmpty(self):
 		return (len(self.pieces.keys()) == 0)
 	def HasRootPiece(self):
@@ -94,8 +102,8 @@ class SpringModel:
 	def AddPiece(self, name, piece):
 		self.pieces[name] = piece
 	def SetRootPiece(self, modelPiece):
-		assert(self.rootPiece == None)
-		self.rootPiece = modelPiece
+		if (self.rootPiece == None):
+			self.rootPiece = modelPiece
 
 	def SetPieceLinks(self):
 		for modelPieceName in self.pieces.keys():
@@ -151,7 +159,7 @@ def WriteModelPieceTree(modelPiece, depth):
 	for childPiece in modelPiece.GetChildPieces():
 		s += WriteModelPieceTree(childPiece, depth + 1)
 
-	s += "},\n"
+	s += "%s},\n" % (tabs)
 	return s
 
 def WriteMetaDataString(model):
@@ -174,7 +182,7 @@ def WriteMetaDataString(model):
 	s += "\tlocalpieceoffsets = %s, -- offsets in local space?\n" % "true"
 	s += "}\n"
 	s += "\n"
-	s += "return %s\n" % model.name
+	s += "return %s\n" % (model.name)
 
 	return s
 
@@ -187,6 +195,7 @@ def SaveSpringOBJMetaDataScript(filename):
 	scene = Blender.Scene.GetCurrent()
 	objects = scene.objects
 	model = SpringModel(filename[0: -4])
+	model.StripName()
 
 	## convert the Blender objects to "model pieces"
 	for obj in objects:
@@ -214,7 +223,7 @@ def SaveSpringOBJMetaDataScript(filename):
 
 				r = True
 			except IOError:
-				print "[SaveSpringOBJMetaDataScript] ERROR: cannot open \"%s\" for writing" % filename
+				print "[SaveSpringOBJMetaDataScript] ERROR: cannot open \"%s\" for writing" % (filename)
 		else:
 			print "[SaveSpringOBJMetaDataScript] ERROR: model does not have a root-piece"
 	else:
@@ -225,4 +234,4 @@ def SaveSpringOBJMetaDataScript(filename):
 
 
 
-Window.FileSelector(SaveSpringOBJMetaDataScript, "Spring OBJ meta-data script", "*.lua")
+Window.FileSelector(SaveSpringOBJMetaDataScript, "Export to Spring OBJ meta-data script", "*.lua")
