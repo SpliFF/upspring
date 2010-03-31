@@ -17,6 +17,24 @@ import Blender
 from Blender import Mesh, Object, Window
 import BPyMessages
 
+class SimpleLog:
+	def __init__(self, logName, verbose = True):
+		self.verbose = verbose
+		self.logFile = open(logName, 'w')
+		self.logBuff = ""
+
+	def __del__(self):
+		self.logFile.write(logBuff)
+		self.logFile.close()
+
+	def Flush(self):
+		self.logFile.write(logBuff)
+		self.logBuff = ""
+
+	def Write(self, s):
+		if (self.verbose):
+			self.logBuff += s
+
 
 
 class SpringModelPiece:
@@ -83,7 +101,6 @@ class SpringModel:
 		self.midPos = [0.0, 0.0, 0.0]
 		self.pieces = {}
 
-		self.numPieces = 0
 		self.rootPiece = None
 
 	def StripName(self):
@@ -94,8 +111,13 @@ class SpringModel:
 		if (i >= 0 and j < 0): self.name = self.name[(i + 1): ]
 		if (j >= 0 and i < 0): self.name = self.name[(j + 1): ]
 
+	def GetName(self):
+		return self.name
+
 	def IsEmpty(self):
 		return (len(self.pieces.keys()) == 0)
+	def GetPieceCount(self):
+		return len(self.pieces.keys())
 	def HasRootPiece(self):
 		return (self.rootPiece != None)
 
@@ -105,7 +127,7 @@ class SpringModel:
 		if (self.rootPiece == None):
 			self.rootPiece = modelPiece
 
-	def SetPieceLinks(self):
+	def SetPieceLinks(self, log):
 		for modelPieceName in self.pieces.keys():
 			modelPiece = self.pieces[modelPieceName]
 
@@ -115,17 +137,22 @@ class SpringModel:
 				parentPiece.AddChildPiece(modelPiece)
 				modelPiece.SetParentPiece(parentPiece)
 
-	def CalculateGlobalOffsets(self):
-		self.numPieces = len(self.pieces.keys())
+				cn = modelPiece.GetName()
+				pn = parentPiece.GetName()
+				log.Write("model-piece \"%s\" is a child of \"%s\" (parent has %d children)\n" % (cn, pn, len(parentPiece.GetChildPieces())))
+
+	def CalculateGlobalOffsets(self, log):
 		self.rootPiece.CalculateGlobalOffsets(self.midPos)
 
 		## take the geometric average over
 		## all global-space piece positions
-		self.midPos[0] /= float(self.numPieces)
-		self.midPos[1] /= float(self.numPieces)
-		self.midPos[2] /= float(self.numPieces)
+		self.midPos[0] /= float(self.GetPieceCount())
+		self.midPos[1] /= float(self.GetPieceCount())
+		self.midPos[2] /= float(self.GetPieceCount())
 
-	def SetRadiusAndHeight(self):
+		log.Write("model mid-position: <%.2f, %.2f, %.2f>\n" % (self.midPos[0], self.midPos[1], self.midPos[2]))
+
+	def SetRadiusAndHeight(self, log):
 		minPieceY =  10000
 		maxPieceY = -10000
 		maxRadius =      0
@@ -136,10 +163,13 @@ class SpringModel:
 			dx = modelPiece.GetGlobalOffsetX() - self.midPos[0]
 			dy = modelPiece.GetGlobalOffsetY() - self.midPos[1]
 			dz = modelPiece.GetGlobalOffsetZ() - self.midPos[2]
+			rr = ((dx * dx) + (dy * dy) + (dz * dz))
 
 			minPieceY = min(minPieceY, modelPiece.GetGlobalOffsetY())
 			maxPieceY = max(maxPieceY, modelPiece.GetGlobalOffsetY())
-			maxRadius = max(maxRadius, (((dx * dx) + (dy * dy) + (dz * dz)) ** 0.5))
+			maxRadius = max(maxRadius, (rr ** 0.5))
+
+			log.Write("mid-pos distance of piece \"%s\": %.2f, {min, max}Y: %.2f, %.2f\n" % ((rr ** 0.5), minPieceY, maxPieceY))
 
 		## set the radius to the max. distance from any piece to the mid-position
 		## set the height to the max. y-difference between two global piece-positions
@@ -176,7 +206,7 @@ def WriteMetaDataString(model):
 	s += "\ttex1 = \"%s.png\",\n" % (model.name)
 	s += "\ttex2 = \"%s.png\",\n" % (model.name)
 	s += "\n"
-	s += "\tnumpieces = %d, -- includes the root and empty pieces\n" % (model.numPieces)
+	s += "\tnumpieces = %d, -- includes the root and empty pieces\n" % (model.GetPieceCount())
 	s += "\n"
 	s += "\tglobalvertexoffsets = %s, -- vertices in global space?\n" % "false"
 	s += "\tlocalpieceoffsets = %s, -- offsets in local space?\n" % "true"
@@ -197,9 +227,13 @@ def SaveSpringOBJMetaDataScript(filename):
 	model = SpringModel(filename[0: -4])
 	model.StripName()
 
+	log = SimpleLog(filename[0: -4] + ".log")
+	log.Write("[SpringOBJMetaDataScriptExporter] export log for model \"%s\"\n\n" % (model.GetName()))
+
 	## convert the Blender objects to "model pieces"
 	for obj in objects:
-		if (obj.getType() != "Mesh"):
+		if ((obj.getType() != "Mesh") and (obj.getType() != "Empty")):
+			log.Write("skipping non-mesh object \"%s\"\n" % (obj.getName()))
 			continue
 
 		modelPiece = SpringModelPiece(obj)
@@ -208,12 +242,16 @@ def SaveSpringOBJMetaDataScript(filename):
 		if (modelPiece.IsRoot()):
 			model.SetRootPiece(modelPiece)
 
+		log.Write("processed object \"%s\" (has parent: %d)\n" % (obj.getName(), modelPiece.IsRoot()))
+
+	log.Write("model has %d pieces (has root-piece: %s)\n" % (model.GetPieceCount(), ((model.HasRootPiece() and "true") or "false")))
+
 	## generate the metadata
 	if (not model.IsEmpty()):
 		if (model.HasRootPiece()):
-			model.SetPieceLinks()
-			model.CalculateGlobalOffsets()
-			model.SetRadiusAndHeight()
+			model.SetPieceLinks(log)
+			model.CalculateGlobalOffsets(log)
+			model.SetRadiusAndHeight(log)
 
 			try:
 				f = open(filename, "w")
@@ -223,13 +261,16 @@ def SaveSpringOBJMetaDataScript(filename):
 
 				r = True
 			except IOError:
-				print "[SaveSpringOBJMetaDataScript] ERROR: cannot open \"%s\" for writing" % (filename)
+				log.Write("ERROR: cannot open file \"%s\" for writing" % (filename))
 		else:
-			print "[SaveSpringOBJMetaDataScript] ERROR: model does not have a root-piece"
+			log.Write("ERROR: model does not have a root-piece")
 	else:
-		print "[SaveSpringOBJMetaDataScript] ERROR: model does not have any pieces"
+		log.Write("ERROR: model does not have any pieces")
 
+	log.Flush()
 	Window.WaitCursor(0)
+
+	del log
 	return r
 
 
