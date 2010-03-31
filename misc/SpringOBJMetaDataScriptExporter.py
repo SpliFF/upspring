@@ -261,11 +261,11 @@ def SaveSpringOBJMetaDataScript(filename):
 
 				r = True
 			except IOError:
-				log.Write("ERROR: cannot open file \"%s\" for writing" % (filename))
+				log.Write("ERROR: cannot open file \"%s\" for writing\n" % (filename))
 		else:
-			log.Write("ERROR: model does not have a root-piece")
+			log.Write("ERROR: model does not have a root-piece\n")
 	else:
-		log.Write("ERROR: model does not have any pieces")
+		log.Write("ERROR: model does not have any pieces\n")
 
 	log.Flush()
 	Window.WaitCursor(0)
