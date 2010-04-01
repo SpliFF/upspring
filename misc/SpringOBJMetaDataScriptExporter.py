@@ -218,7 +218,7 @@ def WriteMetaDataString(model):
 
 def SaveSpringOBJMetaDataScript(filename):
 	if (os.path.exists(filename) and (not BPyMessages.Warning_SaveOver(filename))):
-		return
+		return False
 
 	r = False
 
