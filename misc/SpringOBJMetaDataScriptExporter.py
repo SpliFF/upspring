@@ -203,8 +203,8 @@ def WriteMetaDataString(model):
 	s += "\theight = %.2f,\n" % (model.height)
 	s += "\tmidpos = {%.2f, %.2f, %.2f},\n" % (model.midPos[0], model.midPos[1], model.midPos[2])
 	s += "\n"
-	s += "\ttex1 = \"%s.png\",\n" % (model.name)
-	s += "\ttex2 = \"%s.png\",\n" % (model.name)
+	s += "\ttex1 = \"%s1.png\",\n" % (model.name)
+	s += "\ttex2 = \"%s2.png\",\n" % (model.name)
 	s += "\n"
 	s += "\tnumpieces = %d, -- includes the root and empty pieces\n" % (model.GetPieceCount())
 	s += "\n"
