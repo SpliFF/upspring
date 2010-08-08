@@ -235,9 +235,15 @@ def SaveSpringOBJMetaDataScript(filename):
 
 	## convert the Blender objects to "model pieces"
 	for obj in objects:
-		if ((obj.getType() != "Mesh") and (obj.getType() != "Empty")):
-			log.Write("skipping non-mesh object \"%s\"\n" % (obj.getName()))
+		objType = obj.getType()
+
+		if ((objType != "Mesh") and (objType != "Empty")):
+			log.Write("skipping non-mesh object \"%s\" (type \"%s\")\n" % (obj.getName(), objType))
 			continue
+		elif (objType == "Mesh"):
+			## triangulate selected faces
+			mesh = obj.getData(mesh = True)
+			mesh.quadToTriangle()
 
 		modelPiece = SpringModelPiece(obj)
 		model.AddPiece(obj.getName(), modelPiece)
