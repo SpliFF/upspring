@@ -7,6 +7,8 @@ Group: 'Export'
 Tooltip: 'Generate Spring meta-data script for OBJ models'
 """
 
+## NOTE: not compatible with Blender 2.5
+
 __author__  = "Kloot"
 __license__ = "GPL v2"
 __version__ = "1.1 (August 8, 2010)"
@@ -173,7 +175,7 @@ class SpringModel:
 
 		## set the radius to the max. distance from any piece to the mid-position
 		## set the height to the max. y-difference between two global piece-positions
-		## FIXME: be smarter about this?
+		## FIXME: be smarter about this, ie. read vertices to determine radius and height?
 		self.radius = maxRadius
 		self.height = abs(maxPieceY - minPieceY)
 
@@ -222,6 +224,7 @@ def SaveSpringOBJMetaDataScript(filename):
 
 	r = False
 
+	## FIXME: export only selected objects?
 	scene = Blender.Scene.GetCurrent()
 	objects = scene.objects
 	model = SpringModel(filename[0: -4])
