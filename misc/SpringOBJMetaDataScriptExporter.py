@@ -24,11 +24,11 @@ class SimpleLog:
 		self.logBuff = ""
 
 	def __del__(self):
-		self.logFile.write(logBuff)
+		self.logFile.write(self.logBuff)
 		self.logFile.close()
 
 	def Flush(self):
-		self.logFile.write(logBuff)
+		self.logFile.write(self.logBuff)
 		self.logBuff = ""
 
 	def Write(self, s):
