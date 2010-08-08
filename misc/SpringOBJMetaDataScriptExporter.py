@@ -243,7 +243,7 @@ def SaveSpringOBJMetaDataScript(filename):
 			model.SetRootPiece(modelPiece)
 
 		offsetsStr = modelPiece.GetLocalOffsetsStr()
-		isRootStr = ((modelPiece.IsRoot() and "true") or "false")
+		isRootStr = ((modelPiece.IsRoot() and "false") or "true")
 
 		log.Write("processed object \"%s\" with offsets %s (has parent: %s)\n" % (obj.getName(), offsetsStr, isRootStr))
 
