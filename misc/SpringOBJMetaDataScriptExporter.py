@@ -169,7 +169,7 @@ class SpringModel:
 			maxPieceY = max(maxPieceY, modelPiece.GetGlobalOffsetY())
 			maxRadius = max(maxRadius, (rr ** 0.5))
 
-			log.Write("mid-pos distance of piece \"%s\": %.2f, {min, max}Y: %.2f, %.2f\n" % ((rr ** 0.5), minPieceY, maxPieceY))
+			log.Write("mid-pos distance of piece \"%s\": %.2f, {min, max}Y: %.2f, %.2f\n" % (modelPieceName, (rr ** 0.5), minPieceY, maxPieceY))
 
 		## set the radius to the max. distance from any piece to the mid-position
 		## set the height to the max. y-difference between two global piece-positions
