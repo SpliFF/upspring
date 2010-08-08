@@ -9,7 +9,7 @@ Tooltip: 'Generate Spring meta-data script for OBJ models'
 
 __author__  = "Kloot"
 __license__ = "GPL v2"
-__version__ = "1.0 (March 31, 2010)"
+__version__ = "1.1 (August 8, 2010)"
 
 import os
 import bpy
