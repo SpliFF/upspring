@@ -19,6 +19,13 @@ import Blender
 from Blender import Mesh, Object, Window
 import BPyMessages
 
+## Blender's coordinate-system is XZY, ie. rotated
+## 90 degrees clock-wise around the x-axis (facing
+## toward the origin) of Spring's XYZ system
+BLENDER_AXIS_X = 0
+BLENDER_AXIS_Y = 2
+BLENDER_AXIS_Z = 1
+
 class SimpleLog:
 	def __init__(self, logName, verbose = True):
 		self.verbose = verbose
@@ -52,10 +59,10 @@ class SpringModelPiece:
 
 		## by default, Blender stores an object
 		## position in local space if it has a
-		## parent
-		self.loffsetx = sceneObject.getLocation()[0]
-		self.loffsety = sceneObject.getLocation()[1]
-		self.loffsetz = sceneObject.getLocation()[2]
+		## parent (FIXME: verify this)
+		self.loffsetx = sceneObject.getLocation()[BLENDER_AXIS_X]
+		self.loffsety = sceneObject.getLocation()[BLENDER_AXIS_Y]
+		self.loffsetz = sceneObject.getLocation()[BLENDER_AXIS_Z]
 		## these are set later
 		self.goffsetx = 0.0
 		self.goffsety = 0.0
