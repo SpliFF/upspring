@@ -97,7 +97,7 @@ class SpringModelPiece:
 
 			self.loffsetx = objectPos[BLENDER_AXIS_X] - parentPos[BLENDER_AXIS_X]
 			self.loffsety = objectPos[BLENDER_AXIS_Y] - parentPos[BLENDER_AXIS_Y]
-			self.loffsetz = objectPos]BLENDER_AXIS_Z] - parentPos[BLENDER_AXIS_Z]
+			self.loffsetz = objectPos[BLENDER_AXIS_Z] - parentPos[BLENDER_AXIS_Z]
 		else:
 			self.loffsetx = 0.0
 			self.loffsety = 0.0
