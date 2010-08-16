@@ -11,7 +11,7 @@ Tooltip: 'Generate Spring meta-data script for OBJ models'
 
 __author__  = "Kloot"
 __license__ = "GPL v2"
-__version__ = "1.1 (August 8, 2010)"
+__version__ = "1.2 (August 16, 2010)"
 
 import os
 import bpy
@@ -19,12 +19,21 @@ import Blender
 from Blender import Mesh, Object, Window
 import BPyMessages
 
+
+
+## springrts.com/phpbb/viewtopic.php?t=22635
+## www.blender.org/forum/viewtopic.php?t=7214&view=next&sid=b0eadfddb6ef71bf5bfef06dfb75d8a0
+## www.blender.org/documentation/249PythonDoc/index.html
+## www.blender.org/documentation/250PythonDoc/index.html
+
 ## Blender's coordinate-system is XZY, ie. rotated
 ## 90 degrees clock-wise around the x-axis (facing
 ## toward the origin) of Spring's XYZ system
 BLENDER_AXIS_X = 0
 BLENDER_AXIS_Y = 2
 BLENDER_AXIS_Z = 1
+
+
 
 class SimpleLog:
 	def __init__(self, logName, verbose = True):
@@ -51,18 +60,25 @@ class SpringModelPiece:
 		self.name = sceneObject.getName()
 		## instance of type(SpringModelPiece)
 		self.parentPiece = None
-		## instance of type(BlenderObject)
-		self.parentPieceObj = sceneObject.getParent()
+		## instances of type(BlenderObject)
+		self.objectPieceBO = sceneObject
+		self.parentPieceBO = sceneObject.getParent()
 		## list of type(SpringModelPiece) instances
 		self.childPieces = []
-		self.isRoot = (self.parentPieceObj == None)
+		self.isRoot = (self.parentPieceBO == None)
 
 		## by default, Blender stores an object
 		## position in local space if it has a
-		## parent (FIXME: verify this)
-		self.loffsetx = sceneObject.getLocation()[BLENDER_AXIS_X]
-		self.loffsety = sceneObject.getLocation()[BLENDER_AXIS_Y]
-		self.loffsetz = sceneObject.getLocation()[BLENDER_AXIS_Z]
+		## parent
+		## NOTE: this is only true if the object
+		## was parented before it was translated,
+		## otherwise we cannot get the true local
+		## matrix directly
+		## self.loffsetx = sceneObject.getLocation()[BLENDER_AXIS_X]
+		## self.loffsety = sceneObject.getLocation()[BLENDER_AXIS_Y]
+		## self.loffsetz = sceneObject.getLocation()[BLENDER_AXIS_Z]
+		self.SetParentOffset()
+
 		## these are set later
 		self.goffsetx = 0.0
 		self.goffsety = 0.0
@@ -71,8 +87,24 @@ class SpringModelPiece:
 	def GetName(self): return self.name
 	def IsRoot(self): return self.isRoot
 
+	def SetParentOffset(self):
+		if (not self.isRoot):
+			parentMat = self.parentPieceBO.getMatrix("worldspace")
+			objectMat = self.objectPieceBO.getMatrix("worldspace")
+
+			parentPos = parentMat.translationPart()
+			objectPos = objectMat.translationPart()
+
+			self.loffsetx = objectPos[BLENDER_AXIS_X] - parentPos[BLENDER_AXIS_X]
+			self.loffsety = objectPos[BLENDER_AXIS_Y] - parentPos[BLENDER_AXIS_Y]
+			self.loffsetz = objectPos]BLENDER_AXIS_Z] - parentPos[BLENDER_AXIS_Z]
+		else:
+			self.loffsetx = 0.0
+			self.loffsety = 0.0
+			self.loffsetz = 0.0
+
 	def SetParentPiece(self, p): self.parentPiece = p
-	def GetParentPieceObj(self): return self.parentPieceObj
+	def GetparentPieceBO(self): return self.parentPieceBO
 	def GetChildPieces(self): return self.childPieces
 	def AddChildPiece(self, p): self.childPieces += [p]
 
@@ -141,8 +173,8 @@ class SpringModel:
 			modelPiece = self.pieces[modelPieceName]
 
 			if (not modelPiece.IsRoot()):
-				parentPieceObj = modelPiece.GetParentPieceObj()
-				parentPiece = self.pieces[parentPieceObj.getName()]
+				parentPieceBO = modelPiece.GetparentPieceBO()
+				parentPiece = self.pieces[parentPieceBO.getName()]
 				parentPiece.AddChildPiece(modelPiece)
 				modelPiece.SetParentPiece(parentPiece)
 
