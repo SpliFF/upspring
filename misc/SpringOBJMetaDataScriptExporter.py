@@ -11,7 +11,7 @@ Tooltip: 'Generate Spring meta-data script for OBJ models'
 
 __author__  = "Kloot"
 __license__ = "GPL v2"
-__version__ = "1.2 (August 16, 2010)"
+__version__ = "1.3 (August 17, 2010)"
 
 import os
 import bpy
@@ -88,20 +88,20 @@ class SpringModelPiece:
 	def IsRoot(self): return self.isRoot
 
 	def SetParentOffset(self):
+		localMat = None
+
 		if (not self.isRoot):
 			parentMat = self.parentPieceBO.getMatrix("worldspace")
 			objectMat = self.objectPieceBO.getMatrix("worldspace")
 
-			parentPos = parentMat.translationPart()
-			objectPos = objectMat.translationPart()
-
-			self.loffsetx = objectPos[BLENDER_AXIS_X] - parentPos[BLENDER_AXIS_X]
-			self.loffsety = objectPos[BLENDER_AXIS_Y] - parentPos[BLENDER_AXIS_Y]
-			self.loffsetz = objectPos[BLENDER_AXIS_Z] - parentPos[BLENDER_AXIS_Z]
+			## L = P^-1 * C
+			localMat = objectMat * (parentMat.invert())
 		else:
-			self.loffsetx = 0.0
-			self.loffsety = 0.0
-			self.loffsetz = 0.0
+			localMat = self.objectPieceBO.getMatrix("worldspace")
+
+		self.loffsetx = localMat.translationPart()[BLENDER_AXIS_X]
+		self.loffsety = localMat.translationPart()[BLENDER_AXIS_Y]
+		self.loffsetz = localMat.translationPart()[BLENDER_AXIS_Z]
 
 	def SetParentPiece(self, p): self.parentPiece = p
 	def GetparentPieceBO(self): return self.parentPieceBO
