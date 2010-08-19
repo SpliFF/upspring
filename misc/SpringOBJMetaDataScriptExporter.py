@@ -99,9 +99,9 @@ class SpringModelPiece:
 		else:
 			localMat = self.objectPieceBO.getMatrix("worldspace")
 
-		self.loffsetx = localMat.translationPart()[BLENDER_AXIS_X]
-		self.loffsety = localMat.translationPart()[BLENDER_AXIS_Y]
-		self.loffsetz = localMat.translationPart()[BLENDER_AXIS_Z]
+		self.loffsetx =  localMat.translationPart()[BLENDER_AXIS_X]
+		self.loffsety = -localMat.translationPart()[BLENDER_AXIS_Y]
+		self.loffsetz =  localMat.translationPart()[BLENDER_AXIS_Z]
 
 	def SetParentPiece(self, p): self.parentPiece = p
 	def GetparentPieceBO(self): return self.parentPieceBO
