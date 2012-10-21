@@ -313,7 +313,7 @@ bool CDDSImage::load(string filename, bool flipImage)
 
     // read in file marker, make sure its a DDS file
     char filecode[4];
-    fread(filecode, 1, 4, fp);
+    if (fread(filecode, 1, 4, fp)) {}
     if (strncmp(filecode, "DDS ", 4) != 0)
     {
         //fclose(fp);
@@ -322,7 +322,7 @@ bool CDDSImage::load(string filename, bool flipImage)
 
     // read in DDS header
     DDS_HEADER ddsh;
-    fread(&ddsh, sizeof(DDS_HEADER), 1, fp);
+    if (fread(&ddsh, sizeof(DDS_HEADER), 1, fp)) {}
 
     swap_endian(&ddsh.dwSize);
     swap_endian(&ddsh.dwFlags);
@@ -421,7 +421,7 @@ bool CDDSImage::load(string filename, bool flipImage)
 
         // load surface
         unsigned char *pixels = new unsigned char[size];
-        fread(pixels, 1, size, fp);
+        if (fread(pixels, 1, size, fp)) {}
 
 		img.create(width, height, depth, size, pixels);
         
@@ -454,7 +454,7 @@ bool CDDSImage::load(string filename, bool flipImage)
             size = (this->*sizefunc)(w, h)*d;
 
             unsigned char *pixels = new unsigned char[size];
-            fread(pixels, 1, size, fp);
+            if (fread(pixels, 1, size, fp)) {}
 
             mipmap.create(w, h, d, size, pixels);
             
@@ -711,7 +711,7 @@ bool CDDSImage::upload_texture2D(unsigned int imageIndex, GLenum target)
 {
     assert(m_valid);
     assert(!m_images.empty());
-    assert(imageIndex >= 0);
+    /*assert(imageIndex >= 0);*/
     assert(imageIndex < m_images.size());
     assert(m_images[imageIndex]);
 
@@ -922,6 +922,8 @@ inline void CDDSImage::swap_endian(void *val)
             ((*ival >>  8) & 0x0000ff00) |
             ((*ival <<  8) & 0x00ff0000) |
             ((*ival << 24) & 0xff000000);
+#else
+	(void) val;
 #endif
 }
 

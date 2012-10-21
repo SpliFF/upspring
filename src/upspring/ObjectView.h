@@ -12,8 +12,8 @@ public:
 
 	void Update();
 
-	fltk::Browser *tree;
 	EditorUI *editor;
+	fltk::Browser *tree;
 
 protected:
 	struct Item : public fltk::Item

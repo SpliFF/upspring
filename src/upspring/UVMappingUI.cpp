@@ -127,14 +127,14 @@ void UVViewWindow::DrawScene ()
 
 	// draw model vertices
 	vector <MdlObject*> objs = mdl->GetObjectList ();
-	for (int a=0;a<objs.size();a++) {
+	for (unsigned int a=0;a<objs.size();a++) {
 		MdlObject *obj = objs[a];
 		for (PolyIterator pi(obj);!pi.End();pi.Next()) {
 			if (!pi.verts())
 				continue;
 
 			glBegin(GL_POLYGON);
-			for (int v=0;v<pi->verts.size();v++) {
+			for (unsigned int v=0;v<pi->verts.size();v++) {
 				Vertex &vrt = (* pi.verts()) [pi->verts[v]];
 				glVertex2f (vrt.tc[0].x, vrt.tc[0].y);
 			}
@@ -165,14 +165,14 @@ int UVViewWindow::handle (int msg)
 	return r;
 }
 
-template<int chan> static void SetChannelCB(fltk::Widget *w, void *data)
+template<int chan> static void SetChannelCB(fltk::Widget* /*w*/, void *data)
 {
 	UVViewWindow *wnd = (UVViewWindow *)data;
 	wnd->channel = chan;
 	wnd->redraw();
 }
 
-template<int texture> static void SetTextureIndexCB(fltk::Widget* w, void *data)
+template<int texture> static void SetTextureIndexCB(fltk::Widget* /*w*/, void *data)
 {
 	UVViewWindow *wnd = (UVViewWindow *)data;
 	wnd->textureIndex = texture;
@@ -227,7 +227,7 @@ void MappingUI::flipUVs ()
 	Model* mdl = callback->GetMdl ();
 	vector<MdlObject*> obj = mdl->GetObjectList ();
 
-	for (int a=0;a<obj.size();a++)
+	for (unsigned int a=0;a<obj.size();a++)
 	{
 		MdlObject *o = obj[a];
 
@@ -241,7 +241,7 @@ void MappingUI::mirrorUVs()
 	Model* mdl = callback->GetMdl ();
 	vector<MdlObject*> obj = mdl->GetObjectList ();
 
-	for (int a=0;a<obj.size();a++)
+	for (unsigned int a=0;a<obj.size();a++)
 	{
 		MdlObject *o = obj[a];
 

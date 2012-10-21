@@ -1,5 +1,5 @@
 CC     = g++
-CFLAGS = -Wall -Wextra -g -DUSE_IK -O2
+CFLAGS = -Wall -Wextra -g -DUSE_IK -O2   -Wno-unused-parameter -Wno-unused-label
 LFLAGS = \
 	-lz -lIL -lILU -lILUT -lGLEW -lGL          \
 	-lfltk2_gl -lfltk2 -lfltk2_images          \

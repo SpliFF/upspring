@@ -44,7 +44,7 @@ class Timer {
 
 #else
 // #error implement tick counting stuff for other OSes here
-// KLOOTNOTE: stub Timer replacement
+// use a stub Timer replacement to at least allow compiling
 class Timer {
 	unsigned int startCounter;
 
@@ -164,7 +164,7 @@ static void ChopAnimationInfo (MdlObject *o, float time)
 	for (vector<AnimProperty*>::iterator pi = o->animInfo.properties.begin(); pi != o->animInfo.properties.end(); ++pi)
 		(*pi)->ChopAnimation (time);
 
-	for (int a=0;a<o->childs.size();a++)
+	for (unsigned int a=0;a<o->childs.size();a++)
 		ChopAnimationInfo (o->childs [a], time);
 }
 
@@ -176,9 +176,11 @@ void TimelineUI::cmdSetLength()
 	if (r) {
 		float m = atof(r);
 		if (m > 0.01f) {
+			/*
 			Model* mdl = callback->GetMdl();
-			//if (mdl->root)
-			//	ChopAnimationInfo (mdl->root, m);
+			if (mdl->root)
+				ChopAnimationInfo (mdl->root, m);
+			*/
 
 			timeSlider->maximum (m);
 			window->redraw();
@@ -196,7 +198,7 @@ void TimelineUI::Update()
 static void InsertKeysHelper (MdlObject *o, float time)
 {
 	o->animInfo.InsertKeyFrames (o, time);
-	for (int a=0;a<o->childs.size();a++)
+	for (unsigned int a=0;a<o->childs.size();a++)
 		InsertKeysHelper (o->childs [a], time);
 }
 

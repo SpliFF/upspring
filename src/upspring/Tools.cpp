@@ -41,7 +41,7 @@ CopyBuffer::~CopyBuffer ()
 
 void CopyBuffer::Clear ()
 {
-	for (int a=0;a<buffer.size();a++)
+	for (unsigned int a=0;a<buffer.size();a++)
 		delete buffer[a];
 	buffer.clear();
 }
@@ -51,7 +51,7 @@ void CopyBuffer::Copy (Model *mdl)
 	Clear ();
 
 	vector<MdlObject*> sel = mdl->GetSelectedObjects();
-	for (int a=0;a<sel.size();a++) {
+	for (unsigned int a=0;a<sel.size();a++) {
 		if (sel[a]->HasSelectedParent ()) 
 			continue; // the parent will be copied anyway
 
@@ -85,7 +85,7 @@ void CopyBuffer::Cut (Model *mdl)
 
 void CopyBuffer::Paste (Model *mdl, MdlObject *where)
 {
-	for (int a=0;a<buffer.size();a++) {
+	for (unsigned int a=0;a<buffer.size();a++) {
 		if (where) {
 			MdlObject *obj = buffer [a]->Clone();
 			where->childs.push_back (obj);
@@ -109,7 +109,7 @@ void CopyBuffer::Paste (Model *mdl, MdlObject *where)
 void ModifyObjects(MdlObject *obj, Vector3 d, void (*fn)(MdlObject *obj, Vector3 d))
 {
 	fn (obj, d);
-	for (int a=0;a<obj->childs.size();a++)
+	for (unsigned int a=0;a<obj->childs.size();a++)
 		ModifyObjects (obj->childs[a], d,fn);
 }
 
@@ -124,7 +124,7 @@ struct ECameraTool : Tool
 		imageFile = "camera.gif";
 	}
 
-	bool toggle (bool enable)
+	bool toggle (bool /*enable*/)
 	{
 		return true;
 	}
@@ -142,7 +142,7 @@ struct EMoveTool : Tool
 		imageFile = "move.gif";
 	}
 
-	bool toggle(bool enable)
+	bool toggle(bool /*enable*/)
 	{
 		return true;
 	}
@@ -205,7 +205,7 @@ void ECameraTool::mouse (EditorViewWindow *view, int msg, Point move)
 {
 	int s = fltk::event_state ();
 
-	if ((fltk::event_state () & fltk::CTRL) && !(fltk::event_state() & fltk::ALT))
+	if ((s & fltk::CTRL) && !(s & fltk::ALT))
 	{
 		MoveTool.mouse (view, msg, move);
 		return;
@@ -225,7 +225,7 @@ struct ERotateTool : public Tool
 		isToggle = true;
 	}
 
-	bool toggle (bool enabletool)
+	bool toggle (bool /*enabletool*/)
 	{
 		return true;
 	}
@@ -294,7 +294,7 @@ struct EScaleTool : public Tool
 		isToggle=true;
 	}
 
-	bool toggle(bool enabletool)
+	bool toggle(bool /*enabletool*/)
 	{
 		return true;
 	}
@@ -371,7 +371,7 @@ struct EOriginMoveTool : public Tool
 		isToggle = true;
 	}
 
-	bool toggle(bool enabletool)
+	bool toggle(bool /*enabletool*/)
 	{
 		return true;
 	}
@@ -440,14 +440,14 @@ struct ETextureTool : Tool
 		PolyMesh *pm = o->GetPolyMesh();
 		if (pm) 
 		{
-			for(int a=0;a<pm->poly.size();a++) {
+			for(unsigned int a=0;a<pm->poly.size();a++) {
 				if (pm->poly[a]->isSelected) {
 					pm->poly[a]->texture = tex;
 					pm->poly[a]->texname = tex->name;
 				}
 			}
 		}
-		for (int a=0;a<o->childs.size();a++)
+		for (unsigned int a=0;a<o->childs.size();a++)
 			applyTexture(o->childs[a],tex);
 	}
 
@@ -506,11 +506,11 @@ struct EPolyColorTool : Tool
 				pi->texname.clear();
 				pi->texture=0;
 			 }
-		for (int a=0;a<o->childs.size();a++)
+		for (unsigned int a=0;a<o->childs.size();a++)
 			applyColor (o->childs[a], color);
 	}
 
-	bool toggle (bool enable) { return true; }
+	bool toggle (bool /*enable*/) { return true; }
 	void click (){ 
 		if (!fltk::color_chooser("Color for selected polygons", color.x, color.y, color.z))
 			return;
@@ -539,7 +539,7 @@ struct EPolyFlipTool : Tool
 				 pi->Flip ();
 	}
 
-	bool toggle (bool enable) { return true; }
+	bool toggle (bool /*enable*/) { return true; }
 	void click (){ 
 		Model *m=editor->GetMdl();
 		if (m->root) IterateObjects (m->root,flip);
@@ -562,7 +562,7 @@ struct ERotateTexTool : Tool
 				 p->RotateVerts();
 	}
 
-	bool toggle (bool enable) { return true; }
+	bool toggle (bool /*enable*/) { return true; }
 	void click (){ 
 		Model *m=editor->GetMdl();
 		if (m->root) IterateObjects (m->root,rotatetex);
@@ -584,7 +584,7 @@ struct ECurvedPolyTool : Tool
 				 p->isCurved = !p->isCurved;
 	}
 
-	bool toggle (bool enable) { return true; }
+	bool toggle (bool /*enable*/) { return true; }
 	void click (){
 		Model *m=editor->GetMdl();
 		if (m->root) IterateObjects (m->root,togglecurved);
@@ -618,13 +618,13 @@ Tool* Tools::GetDefaultTool()
 
 void Tools::Disable()
 {
-	for (int a=0;a<tools.size();a++)
+	for (unsigned int a=0;a<tools.size();a++)
 		if (tools[a]->isToggle) tools[a]->toggle(false);
 }
 
 void Tools::SetEditor(IEditor *editor)
 {
-	for (int a=0;a<tools.size();a++)
+	for (unsigned int a=0;a<tools.size();a++)
 		tools[a]->editor = editor;
 }
 
@@ -634,7 +634,7 @@ FltkImage* FltkImage::Load(const char *filebuf, int filelen)
 	unsigned int id;
 	ilGenImages (1, &id);
 	ilBindImage (id);
-	if (!ilLoadL (IL_TYPE_UNKNOWN, (ILvoid*)filebuf, filelen)) {
+	if (!ilLoadL (IL_TYPE_UNKNOWN, (void*)filebuf, filelen)) {
 		ilDeleteImages (1, &id);
 		return 0;
 	}
@@ -667,7 +667,7 @@ void Tools::LoadImages()
 		ZipFile zf;
 		zf.Init(f);
 
-		for(int a=0;a<tools.size();a++) {
+		for(unsigned int a=0;a<tools.size();a++) {
 			if (!tools[a]->imageFile)
 				continue;
 

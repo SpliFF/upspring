@@ -1271,7 +1271,7 @@ SWIGRUNTIME void SWIG_Lua_NewPackedObj(lua_State* L,void* ptr,size_t size,swig_t
 SWIGRUNTIME int  SWIG_Lua_ConvertPacked(lua_State* L,int index,void* ptr,size_t size,swig_type_info *type)
 {
 	swig_lua_rawdata* raw;
-	swig_cast_info *cast;
+	/*swig_cast_info *cast;*/
 	raw=(swig_lua_rawdata*)lua_touserdata(L,index);	/* get data */
 	if (!raw) return SWIG_ERROR;	/* error */
     if (type==0 || type==raw->type) /* void* or identical type */
@@ -1780,6 +1780,7 @@ void upsAnimInsertVectorKey(AnimProperty& prop, float time, Vector3 v)
 		Quaternion q = rot.GetQuat();
 		prop.InsertKey(&q, time);
 		break; }
+	default: break;
 	}
 }
 

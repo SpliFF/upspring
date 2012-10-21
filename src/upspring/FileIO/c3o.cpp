@@ -84,7 +84,7 @@ void C3O_IO::LoadIKinfo (int chunkID, IKinfo& ik)
 
 	if (ch.id == C3O_HINGEJT) {
 		C3O_HingeJoint j;
-		fread (&j, sizeof(C3O_HingeJoint), 1, file);
+		if (fread (&j, sizeof(C3O_HingeJoint), 1, file)) {}
 
 		ik.jointType = IKJT_Hinge;
 		HingeJoint *jt = new HingeJoint;
@@ -93,7 +93,7 @@ void C3O_IO::LoadIKinfo (int chunkID, IKinfo& ik)
 
 	if (ch.id == C3O_UNIVERSALJT) {
 		C3O_UniversalJoint j;
-		fread (&j, sizeof(C3O_UniversalJoint), 1, file);
+		if (fread (&j, sizeof(C3O_UniversalJoint), 1, file)) {}
 
 		ik.jointType = IKJT_Universal;
 		UniversalJoint *jt = new UniversalJoint;
@@ -109,12 +109,12 @@ int C3O_IO::SavePolygons (const vector<Poly*>& pl)
 	int npl = pl.size();
 	fwrite (&npl, sizeof(int), 1, file);
 
-	for (int a=0;a<pl.size();a++)
+	for (unsigned int a=0;a<pl.size();a++)
 	{
 		const Poly* p = pl[a];
 		fputc (p->verts.size(), file);
 
-		for (int v=0;v<p->verts.size();v++)  {
+		for (unsigned int v=0;v<p->verts.size();v++)  {
 			ushort index = p->verts [v];
 			fwrite (&index, sizeof(ushort), 1, file);
 		}
@@ -133,7 +133,7 @@ vector<Poly*> C3O_IO::LoadPolygons (int chunk)
 
 	int npl;
 	fseek (file, ch.offset, SEEK_SET);
-	fread (&npl, sizeof(int), 1, file);
+	if (fread (&npl, sizeof(int), 1, file)) {}
 
 	polygons.resize (npl);
 	for (int a=0;a<npl;a++) {
@@ -144,7 +144,7 @@ vector<Poly*> C3O_IO::LoadPolygons (int chunk)
 		pl->verts.resize (vc);
 		for (int v=0;v<vc;v++) {
 			ushort index;
-			fread (&index, 2,1,file);
+			if (fread (&index, 2,1,file)) {}
 			pl->verts [v] = index;
 		}
 	}
@@ -159,7 +159,7 @@ int C3O_IO::SaveVertices (const vector<Vertex>& vertices)
 	int nvrt = vertices.size();
 	fwrite (&nvrt, sizeof(int), 1, file);
 
-	for(int a=0;a<vertices.size();a++) {
+	for(unsigned int a=0;a<vertices.size();a++) {
 		const Vertex& v = vertices[a];
 
 		C3O_Vertex wv;
@@ -187,14 +187,14 @@ vector<Vertex> C3O_IO::LoadVertices (int chunk)
 	int nv;
 	assert (sizeof(int)==4);
 	fseek (file, ch.offset, SEEK_SET);
-	fread (&nv, sizeof(int), 1, file);
+	if (fread (&nv, sizeof(int), 1, file)) {}
 
 	vertices.resize (nv);
 	for (int a=0;a<nv;a++) {
 		C3O_Vertex vrt;
 		Vertex& v = vertices[a];
 
-		fread (&vrt, sizeof(C3O_Vertex), 1, file);
+		if (fread (&vrt, sizeof(C3O_Vertex), 1, file)) {}
 
 		for (int x=0;x<3;x++) {
 			v.normal.v [x] = vrt.normal [x];
@@ -220,7 +220,7 @@ int C3O_IO::SaveObject (MdlObject *obj)
 
 	// write child objects
 	vector<int> childOfs;
-	for (int a=0;a<obj->childs.size();a++)
+	for (unsigned int a=0;a<obj->childs.size();a++)
 		childOfs.push_back (SaveObject (obj->childs [a]));
 
 	o.childOfs = ftell(file);
@@ -267,14 +267,14 @@ MdlObject* C3O_IO::LoadObject (int chunk)
 
 	C3O_Object o;
 	fseek (file, ch.offset, SEEK_SET);
-	fread (&o, sizeof(C3O_Object), 1, file);
+	if (fread (&o, sizeof(C3O_Object), 1, file)) {}
 
 	// read childs
 	fseek (file, o.childOfs, SEEK_SET);
 	vector <int> childs;
 	if(o.numChilds>0) {
 		childs.resize(o.numChilds);
-		fread (&childs[0], sizeof(int), o.numChilds, file);
+		if (fread (&childs[0], sizeof(int), o.numChilds, file)) {}
 		for (int a=0;a<o.numChilds;a++) {
 			obj->childs.push_back (LoadObject (childs[a]));
 			obj->childs.back()->parent = obj;
@@ -305,7 +305,7 @@ MdlObject* C3O_IO::LoadObject (int chunk)
 	return obj;
 }
 
-void C3O_IO::LoadTexture (Model *mdl, int chunk)
+void C3O_IO::LoadTexture (Model* /*mdl*/, int chunk)
 {
 	C3O_Chunk& ch = chunks[chunk];
 
@@ -341,7 +341,7 @@ int C3O_IO::SaveTexture (char type, const string& name)
 }
 
 
-bool Model::SaveC3O(const char *filename, IProgressCtl& progctl) {
+bool Model::SaveC3O(const char *filename, IProgressCtl& /*progctl*/) {
 	C3O_IO c3o;
 
 	if (!root) return false;
@@ -377,14 +377,14 @@ bool Model::SaveC3O(const char *filename, IProgressCtl& progctl) {
 }
 
 
-bool Model::LoadC3O(const char *filename, IProgressCtl& progctl) {
+bool Model::LoadC3O(const char *filename, IProgressCtl& /*progctl*/) {
 	C3O_IO c3o;
 	c3o.file = fopen(filename, "rb");
 	if (!c3o.file)
 		return false;
 
 	C3O_Header h;
-	fread (&h, sizeof(C3O_Header), 1, c3o.file);
+	if (fread (&h, sizeof(C3O_Header), 1, c3o.file)) {}
 
 	if (h.id != C3O_MAGIC_ID) 
 		throw std::runtime_error ("File does not have C3O identification.");
@@ -394,12 +394,12 @@ bool Model::LoadC3O(const char *filename, IProgressCtl& progctl) {
 	fseek (c3o.file, h.chunkTableOfs, SEEK_SET);
 	if (h.numChunks>0) {
 		c3o.chunks.resize (h.numChunks);
-		fread (&c3o.chunks [0], sizeof(C3O_Chunk), h.numChunks, c3o.file);
+		if (fread (&c3o.chunks [0], sizeof(C3O_Chunk), h.numChunks, c3o.file)) {}
 
 		root = c3o.LoadObject (h.rootObj);
 	} else root=0;
 
-	for (int a=0;a<c3o.chunks.size();a++) {
+	for (unsigned int a=0;a<c3o.chunks.size();a++) {
 		if (c3o.chunks [a].id == C3O_TEXTURE)
 			c3o.LoadTexture (this, a);
 	}

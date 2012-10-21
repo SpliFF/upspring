@@ -54,7 +54,7 @@ void TexGroupUI::RemoveFromGroup()
 {
 	vector<Texture*> sel=groupTexBrowser->GetSelection();
 
-	for (int a=0;a<sel.size();a++) {
+	for (unsigned int a=0;a<sel.size();a++) {
 		groupTexBrowser->RemoveTexture(sel[a]);
 		current->textures.erase (sel[a]);
 	}
@@ -100,7 +100,7 @@ void TexGroupUI::AddToGroup()
 		return;
 
 	vector <Texture *> sel = texBrowser->GetSelection();
-	for (int a=0;a<sel.size();a++) {
+	for (unsigned int a=0;a<sel.size();a++) {
 		if (current->textures.find(sel[a])==current->textures.end()) {
 			current->textures.insert(sel[a]);
 			groupTexBrowser->AddTexture (sel[a]);
@@ -119,7 +119,7 @@ void TexGroupUI::UpdateGroupList()
 	if (!current && !texGroupHandler->groups.empty())
 		current = texGroupHandler->groups.front();
 
-	for (int a=0;a<texGroupHandler->groups.size();a++) {
+	for (unsigned int a=0;a<texGroupHandler->groups.size();a++) {
 		TextureGroup *gr = texGroupHandler->groups[a];
 		groups->add (gr->name.c_str(),0,0,gr);
 		if (current==gr) curval=a;

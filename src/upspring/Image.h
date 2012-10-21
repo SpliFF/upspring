@@ -35,7 +35,7 @@ struct ImgFormat
 		return loss[3] != 8;
 	}
 
-	uint Make(int *cols) 
+	uint Make(int* /*cols*/) 
 	{
 		uint r = 0;
 		for (int x=0;x<4;x++)
@@ -50,7 +50,7 @@ struct ImgFormat
 			((b<<shift[2] >> loss[2])&mask[2]);
 	}
 
-	uint Make(int r,int g,int b,int a) 
+	uint Make(int r,int g,int b,int /*a*/) 
 	{
 		return ((r<<shift[0] >> loss[0])&mask[0]) |
 			((g<<shift[1] >> loss[1])&mask[1]) |

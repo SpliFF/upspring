@@ -27,7 +27,7 @@ public:
 			wasIconic=true;
 		} else if(wasIconic) {
 			// restore view dimensions
-			for (int a=0;a<children() && a<viewDims.size(); a++) {
+			for (int a=0;a<children() && a<int(viewDims.size()); a++) {
 				fltk::Widget *w = child (a);
 				Rectangle& dim=viewDims[a];
 				w->resize(dim.x(),dim.y(),dim.w(),dim.h());

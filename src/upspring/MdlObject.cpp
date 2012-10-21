@@ -100,10 +100,11 @@ void Rotator::FromMatrix(const Matrix&r )
 float MdlObject::Selector::Score (Vector3 &pos, float camdis)
 {
 	// it it close to the center?
+	Vector3 tmp;
 	Vector3 center;
 	Matrix transform;
 	obj->GetFullTransform(transform);
-	transform.apply(&Vector3(), &center);
+	transform.apply(&tmp, &center);
 	float best=(pos-center).length();
 	// it it close to a polygon?
 	for (PolyIterator pi(obj);!pi.End();pi.Next()) {
@@ -113,7 +114,7 @@ float MdlObject::Selector::Score (Vector3 &pos, float camdis)
 	}
 	return best;
 }
-void MdlObject::Selector::Toggle (Vector3 &pos, bool bSel) { 
+void MdlObject::Selector::Toggle (Vector3& /*pos*/, bool bSel) { 
 	obj->isSelected = bSel; 
 }
 bool MdlObject::Selector::IsSelected () { 
@@ -140,7 +141,7 @@ MdlObject::~MdlObject()
 { 
 	delete geometry;
 
-	for(int a=0;a<childs.size();a++)
+	for(unsigned int a=0;a<childs.size();a++)
 		if (childs[a]) delete childs[a];
 	childs.clear();
 
@@ -186,7 +187,7 @@ void MdlObject::AddChild(MdlObject *o)
 
 bool MdlObject::IsEmpty ()
 {
-	for (int a=0;a<childs.size();a++)
+	for (unsigned int a=0;a<childs.size();a++)
 		if (!childs[a]->IsEmpty())
 			return false;
 
@@ -200,7 +201,7 @@ void MdlObject::Dump (int r)
 		logger.Print ("  ");
 	logger.Trace (NL_Debug, "MdlObject \'%s\'\n", name.c_str());
 
-	for (int a=0;a<childs.size();a++)
+	for (unsigned int a=0;a<childs.size();a++)
 		childs[a]->Dump(r+1);
 }
 
@@ -271,7 +272,7 @@ void MdlObject::Load3DOTextures (TextureHandler *th)
 		bTexturesLoaded=true;
 	}
 
-	for (int a=0;a<childs.size();a++)
+	for (unsigned int a=0;a<childs.size();a++)
 		childs[a]->Load3DOTextures (th);
 }
 
@@ -308,7 +309,7 @@ void MdlObject::ApplyParentSpaceTransform(const Matrix& psTransform)
 	TransformVertices(result);
 
 	// transform childs objects
-	for (int a=0;a<childs.size();a++)
+	for (unsigned int a=0;a<childs.size();a++)
 		childs[a]->ApplyParentSpaceTransform(result);
 }
 
@@ -332,7 +333,7 @@ void MdlObject::ApplyTransform (bool removeRotation, bool removeScaling, bool re
 			mirrorMatrix.scale(mirror);
 
 			TransformVertices(mirrorMatrix);
-			for (int a=0;a<childs.size();a++)
+			for (unsigned int a=0;a<childs.size();a++)
 				childs[a]->ApplyParentSpaceTransform(mirrorMatrix);
 
 			if (flip)
@@ -365,7 +366,7 @@ void MdlObject::NormalizeNormals ()
 	for (VertexIterator v(this);!v.End();v.Next())
 		v->normal.normalize();
 
-	for (int a=0;a<childs.size();a++)
+	for (unsigned int a=0;a<childs.size();a++)
 		childs[a]->NormalizeNormals ();
 
 	InvalidateRenderData();
@@ -400,7 +401,7 @@ MdlObject* MdlObject::Clone()
 	if (geometry)
 		cp->geometry = geometry->Clone();
 
-	for (int a=0;a<childs.size();a++) {
+	for (unsigned int a=0;a<childs.size();a++) {
 		MdlObject *ch = childs[a]->Clone();
 		cp->childs.push_back(ch);
 		ch->parent = cp;
@@ -479,7 +480,7 @@ vector<MdlObject*> MdlObject::GetChildObjects()
 void MdlObject::FullMerge ()
 {
 	vector <MdlObject *> ch=childs;
-	for (int a=0;a<ch.size();a++) {
+	for (unsigned int a=0;a<ch.size();a++) {
 		ch[a]->FullMerge ();
 		MergeChild (ch[a]);
 	}
@@ -494,7 +495,7 @@ void MdlObject::MergeChild (MdlObject *ch)
 		pm->MoveGeometry(GetOrCreatePolyMesh());
 
 	// move the childs
-	for (int a=0;a<ch->childs.size();a++) ch->childs[a]->parent = this;
+	for (unsigned int a=0;a<ch->childs.size();a++) ch->childs[a]->parent = this;
 	childs.insert (childs.end(), ch->childs.begin(),ch->childs.end());
 	ch->childs.clear();
 
@@ -528,7 +529,7 @@ void MdlObject::UpdateAnimation(float time)
 {
 	animInfo.Evaluate(this, time);
 
-	for (int a = 0; a < childs.size(); a++)
+	for (unsigned int a = 0; a < childs.size(); a++)
 		childs[a]->UpdateAnimation(time);
 }
 
@@ -540,14 +541,14 @@ void MdlObject::InitAnimationInfo()
 			Vector3::StaticClass()
 		),
 		"position",
-		(long int) &((MdlObject*) 0)->position
+		(long int) &((MdlObject*) this)->position
 	);
 
 	/*
 	animInfo.AddProperty(
 		AnimController::GetQuaternionController(),
 		"rotation",
-		(long int) &((MdlObject*) 0)->rotation.q);
+		(long int) &((MdlObject*) this)->rotation.q);
 	*/
 	/*
 	animInfo.AddProperty(
@@ -556,7 +557,7 @@ void MdlObject::InitAnimationInfo()
 			Vector3::StaticClass()
 		),
 		"rotation",
-		(long int) &((MdlObject*) 0)->rotation
+		(long int) &((MdlObject*) this)->rotation
 	);
 	*/
 	animInfo.AddProperty(
@@ -565,7 +566,7 @@ void MdlObject::InitAnimationInfo()
 			Vector3::StaticClass()
 		),
 		"rotation",
-		(long int) &((MdlObject*) 0)->rotation.euler
+		(long int) &((MdlObject*) this)->rotation.euler
 	);
 
 	animInfo.AddProperty(
@@ -574,6 +575,6 @@ void MdlObject::InitAnimationInfo()
 			Vector3::StaticClass()
 		),
 		"scale",
-		(long int) &((MdlObject*) 0)->scale
+		(long int) &((MdlObject*) this)->scale
 	);
 }

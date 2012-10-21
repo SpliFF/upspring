@@ -168,7 +168,7 @@ void Model::InsertModel (MdlObject *obj, Model *sub)
 
 
 // TODO: Abstract file formats
-Model* Model::Load(const string& _fn, bool Optimize, IProgressCtl& progctl) {
+Model* Model::Load(const string& _fn, bool /*Optimize*/, IProgressCtl& progctl) {
 	const char *fn = _fn.c_str();
 	const char *ext=fltk::filename_ext(fn);
 	Model *mdl = 0;
@@ -251,7 +251,7 @@ static void GetSelectedObjectsHelper( MdlObject *obj, vector<MdlObject*>& sel)
 	if (obj->isSelected)
 		sel.push_back (obj);
 
-	for (int a=0;a<obj->childs.size();a++)
+	for (unsigned int a=0;a<obj->childs.size();a++)
 		GetSelectedObjectsHelper(obj->childs[a],sel);
 }
 
@@ -333,7 +333,7 @@ static void AddPositions (MdlObject *o, Vector3& p,int &count) {
 		p += temp;
 		count ++;
 	}
-	for (int a=0;a<o->childs.size();a++)
+	for (unsigned int a=0;a<o->childs.size();a++)
 		AddPositions (o->childs[a], p, count);
 }
 
@@ -354,9 +354,9 @@ void Model::CalculateRadius ()
 {
 	vector<MdlObject*> objs = GetObjectList();
 	radius=0.0f;
-	for (int o=0;o<objs.size();o++) {
+	for (unsigned int o=0;o<objs.size();o++) {
 		MdlObject *obj = objs[o];
-		PolyMesh *pm = obj->GetPolyMesh();
+		/*PolyMesh *pm = obj->GetPolyMesh();*/
 		Matrix objTransform;
 		obj->GetFullTransform(objTransform);
 		if (obj->geometry)
@@ -418,7 +418,7 @@ int MatchPolygon (MdlObject *root, vector<Vector3>& pverts, int& startVertex)
 
 		// in case the polygon vertices have been reordered, 
 		// this takes care of finding "the first" vertex again
-		int startv = 0;
+		unsigned int startv = 0;
 		for (;startv < pverts.size();startv++) {
 			if (( (*pi.verts())[pl->verts [0]].pos-pverts[startv]).length () < EPSILON)
 				break;
@@ -428,7 +428,7 @@ int MatchPolygon (MdlObject *root, vector<Vector3>& pverts, int& startVertex)
 			continue;
 
 		// compare the polygon vertices with eachother... 
-		int v = 0;
+		unsigned int v = 0;
 		for (;v<pverts.size();v++) {
 			if (( (*pi.verts())[pl->verts[v]].pos - pverts[(v+startv)%pverts.size()]).length () >= EPSILON)
 				break;
@@ -448,13 +448,13 @@ bool Model::ImportUVCoords(Model* other, IProgressCtl &progctl) {
 	vector <Vector3> pverts;
 
 	int numPl = 0, curPl=0;
-	for (int a=0;a<objects.size();a++) {
+	for (unsigned int a=0;a<objects.size();a++) {
 		PolyMesh *pm = objects[a]->GetPolyMesh();
 		if (pm)
 			numPl += pm->poly.size();
 	}
 	
-	for (int a=0;a<objects.size();a++) {
+	for (unsigned int a=0;a<objects.size();a++) {
 		MdlObject *obj = objects[a];
 		Matrix objTransform;
 		obj->GetFullTransform(objTransform);
@@ -463,7 +463,7 @@ bool Model::ImportUVCoords(Model* other, IProgressCtl &progctl) {
 		// give each polygon an independent set of vertices, this will be optimized back to normal later
 		vector <Vertex> nverts;
 		for (PolyIterator pi(obj);!pi.End();pi.Next()) {
-			for (int v=0;v<pi->verts.size();v++) {
+			for (unsigned int v=0;v<pi->verts.size();v++) {
 				nverts.push_back (pm->verts[pi->verts[v]]);
 				pi->verts[v]=nverts.size()-1;
 			}
@@ -473,7 +473,7 @@ bool Model::ImportUVCoords(Model* other, IProgressCtl &progctl) {
 		// match our polygons with the ones of the other model
 		for (PolyIterator pi(obj);!pi.End();pi.Next()) {
 			pverts.clear();
-			for (int pv=0;pv<pi->verts.size();pv++) {
+			for (unsigned int pv=0;pv<pi->verts.size();pv++) {
 				Vector3 tpos;
 				objTransform.apply (&pm->verts [pi->verts[pv]].pos, &tpos);
 				pverts.push_back (tpos);
@@ -485,7 +485,7 @@ bool Model::ImportUVCoords(Model* other, IProgressCtl &progctl) {
 			if (bestpl >= 0) {
 				// copy texture coordinates from rt->poly[bestpl] to pl
 				Poly *src = srcpm->poly [bestpl];
-				for (int v=0;v<src->verts.size();v++) {
+				for (unsigned int v=0;v<src->verts.size();v++) {
 					Vertex &dstvrt = pm->verts[pi->verts[(v + startVertex)%pi->verts.size()]];
 					dstvrt.tc[0] = srcpm->verts[src->verts[v]].tc[0];
 				}
@@ -502,7 +502,7 @@ bool Model::ImportUVCoords(Model* other, IProgressCtl &progctl) {
 static void GetObjectListHelper (MdlObject *obj, vector<MdlObject*>& list)
 {
 	list.push_back (obj);
-	for (int a=0;a<obj->childs.size();a++)
+	for (unsigned int a=0;a<obj->childs.size();a++)
 		GetObjectListHelper (obj->childs [a], list);
 }
 
@@ -524,7 +524,7 @@ vector<PolyMesh*> Model::GetPolyMeshList ()
 	return pmlist;
 }
 
-Model* Model::LoadOPK(const char *filename, IProgressCtl& progctl) {
+Model* Model::LoadOPK(const char *filename, IProgressCtl& /*progctl*/) {
 	creg::CInputStreamSerializer s;
 	Model *mdl = 0;
 	creg::Class *cls = 0;
@@ -546,7 +546,7 @@ Model* Model::LoadOPK(const char *filename, IProgressCtl& progctl) {
     return mdl;
 }
 
-bool Model::SaveOPK(Model* mdl, const char *filename, IProgressCtl& progctl)
+bool Model::SaveOPK(Model* mdl, const char *filename, IProgressCtl& /*progctl*/)
 {
 	creg::COutputStreamSerializer s;
 
@@ -620,7 +620,7 @@ bool Model::ConvertToS3O(std::string textureName, int texw, int texh)
 	vector<PolyMesh*> pmlist = GetPolyMeshList();
 	vector<Poly*> polygons = GetElementList(&PolyMesh::poly, pmlist.begin(), pmlist.end());
 
-	for (int a=0;a<polygons.size();a++)
+	for (unsigned int a=0;a<polygons.size();a++)
 	{
 		if (polygons[a]->texture)
 			textures.insert (polygons[a]->texture.Get());

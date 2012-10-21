@@ -7,12 +7,12 @@ public:
 	virtual void LinearInterp (void *a, void *b, float x, void *out) = 0;
 	virtual int GetSize () = 0;
 	virtual void Copy (void *src, void *dst) = 0;
-	virtual float ToFloat(void *v) {return 0.0f; }
+	virtual float ToFloat(void* /*v*/) {return 0.0f; }
 	virtual bool CanConvertToFloat() { return false; }
 
 	virtual int GetNumMembers () { return 0; }
-	virtual std::pair<AnimController*,void*> GetMemberCtl (int m, void *inst) { return std::pair<AnimController*,void*> (0,0); }
-	virtual const char* GetMemberName(int m) { return 0; }
+	virtual std::pair<AnimController*,void*> GetMemberCtl (int /*m*/, void* /*inst*/) { return std::pair<AnimController*,void*> (0,0); }
+	virtual const char* GetMemberName(int) { return 0; }
 	
 	// upsprings lua script has support for a fixed set of types
 	enum AnimKeyType {
@@ -54,8 +54,8 @@ public:
 	void Clear() { keyData.clear(); }
 	AnimProperty* Clone();
 
-	std::vector <char> keyData;
 	int offset, elemSize;
+	std::vector <char> keyData;
 	std::string name;
 #ifndef SWIG
 	AnimController *controller;

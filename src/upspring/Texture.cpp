@@ -16,6 +16,7 @@
 #include <IL/ilut.h>
 
 #include <GL/gl.h>
+#include <GL/glu.h>
 
 // ------------------------------------------------------------------------------------------------
 // Texture
@@ -50,7 +51,7 @@ bool Texture::Load (const string& fn, const string& hintpath)
 	if (!textureLoadDir.empty ()) paths.push_back (textureLoadDir + "/");
 
 	bool succes=true;
-	for(int a=0;a<paths.size();a++) {
+	for(unsigned int a=0;a<paths.size();a++) {
 		Image *img = new Image;
 		try {
 			img->Load ( (paths[a] + fn).c_str());
@@ -148,7 +149,7 @@ TextureHandler::TextureHandler ()
 
 TextureHandler::~TextureHandler ()
 {
-	for (int a=0;a<zips.size();a++) {
+	for (unsigned int a=0;a<zips.size();a++) {
 		delete zips[a];
 	}
 	zips.clear();
@@ -203,7 +204,7 @@ Texture* TextureHandler::LoadTexture (ZipFile*zf,int index, const char *name)
 
 
 
-// KLOOTNOTE: replacement for strlwr()
+// NOTE: replacement for strlwr() which is non-ANSI
 void str2lwr(char* s) {
 	for (int i = 0; s[i] != '\0'; i++)
 		s[i] = tolower(s[i]);
@@ -310,7 +311,7 @@ TextureGroupHandler::TextureGroupHandler (TextureHandler *th)
 
 TextureGroupHandler::~TextureGroupHandler ()
 {
-	for (int a=0;a<groups.size();a++) {
+	for (unsigned int a=0;a<groups.size();a++) {
 		delete groups[a];
 	}
 	groups.clear();
@@ -346,7 +347,7 @@ bool TextureGroupHandler::Save(const char *fn)
 	// create a config list and save it
 	CfgList cfg;
 
-	for (int a=0;a<groups.size();a++) {
+	for (unsigned int a=0;a<groups.size();a++) {
 		CfgList *gc=MakeConfig(groups[a]);
 
 		char n [10];

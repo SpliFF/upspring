@@ -9,7 +9,7 @@
 // Polygon
 // ------------------------------------------------------------------------------------------------
 
-float Poly::Selector::Score(Vector3 &pos, float camdis)
+float Poly::Selector::Score(Vector3 &pos, float /*camdis*/)
 {
 	assert (mesh);
 	const vector<Vertex>& v=mesh->verts;
@@ -23,7 +23,7 @@ float Poly::Selector::Score(Vector3 &pos, float camdis)
 	float dis = plane.Dis (&pos);
 	return fabs (dis);
 }
-void Poly::Selector::Toggle (Vector3 &pos, bool bSel) {
+void Poly::Selector::Toggle (Vector3& /*pos*/, bool bSel) {
 	poly->isSelected = bSel;
 }
 bool Poly::Selector::IsSelected () { 
@@ -59,7 +59,7 @@ void Poly::Flip()
 {
 	vector<int> nv;
 	nv.resize(verts.size());
-	for (int a=0;a<verts.size();a++)
+	for (unsigned int a=0;a<verts.size();a++)
 		nv[verts.size()-a-1]=verts[(a+2)%verts.size()];
 	verts=nv;
 }
@@ -73,7 +73,7 @@ Plane Poly::CalcPlane (const vector<Vertex>& vrt) {
 void Poly::RotateVerts ()
 {
 	vector<int> n(verts.size());
-	for (int a=0;a<verts.size();a++)
+	for (unsigned int a=0;a<verts.size();a++)
 		n[a]=verts[(a+1)%n.size()];
 	verts=n;
 }
@@ -87,13 +87,13 @@ void Poly::RotateVerts ()
 
 PolyMesh::~PolyMesh()
 {
-	for(int a=0;a<poly.size();a++) 
+	for(unsigned int a=0;a<poly.size();a++) 
 		if (poly[a]) delete poly[a]; 
 	poly.clear();
 }
 
 // Special case... polymesh drawing is done in the ModelDrawer
-void PolyMesh::Draw(ModelDrawer* drawer, Model *mdl, MdlObject *o)
+void PolyMesh::Draw(ModelDrawer* /*drawer*/, Model* /*mdl*/, MdlObject* /*o*/)
 {}
 
 PolyMesh* PolyMesh::ToPolyMesh()
@@ -107,7 +107,7 @@ Geometry* PolyMesh::Clone()
 
 	cp->verts=verts;
 
-	for (int a=0;a<poly.size();a++) 
+	for (unsigned int a=0;a<poly.size();a++) 
 		cp->poly.push_back(poly[a]->Clone());
 
 	return cp;
@@ -120,7 +120,7 @@ void PolyMesh::Transform(const Matrix& transform)
 	invTransform.transpose(&normalTransform);
 
 	// transform and add the child vertices to the parent vertices list
-	for (int a=0;a<verts.size();a++) 
+	for (unsigned int a=0;a<verts.size();a++) 
 	{
 		Vertex&v = verts[a];
 		Vector3 tpos, tnormal;
@@ -158,20 +158,20 @@ void PolyMesh::OptimizeVertices (PolyMesh::IsEqualVertexCB cb)
 	usage.resize (verts.size());
 	fill(usage.begin(),usage.end(),0);
 
-	for (int a=0;a<poly.size();a++) 
+	for (unsigned int a=0;a<poly.size();a++) 
 	{
 		Poly *pl=poly[a];
-		for (int b=0;b<pl->verts.size();b++) 
+		for (unsigned int b=0;b<pl->verts.size();b++) 
 			usage[pl->verts[b]]++;
 	}
 
-	for (int a=0;a<verts.size();a++) {
+	for (unsigned int a=0;a<verts.size();a++) {
 		bool matched=false;
 
 		if (!usage[a])
 			continue;
 
-		for (int b=0;b<nv.size();b++) {
+		for (unsigned int b=0;b<nv.size();b++) {
 			Vertex *va = &verts[a];
 			Vertex *vb = &nv[b];
 
@@ -191,10 +191,10 @@ void PolyMesh::OptimizeVertices (PolyMesh::IsEqualVertexCB cb)
 	verts = nv;
 
 	// map the poly vertex-indices to the new set of vertices
-	for (int a=0;a<poly.size();a++) 
+	for (unsigned int a=0;a<poly.size();a++) 
 	{
 		Poly *pl=poly[a];
-		for (int b=0;b<pl->verts.size();b++) 
+		for (unsigned int b=0;b<pl->verts.size();b++) 
 			pl->verts[b] = old2new[pl->verts[b]];
 	}
 }
@@ -205,13 +205,13 @@ void PolyMesh::Optimize (PolyMesh::IsEqualVertexCB cb)
 
 	// remove double linked vertices
 	vector<Poly*> npl;
-	for (int a=0;a<poly.size();a++) {
+	for (unsigned int a=0;a<poly.size();a++) {
 		Poly *pl=poly[a];
 
 		bool finished;
 		do {
 			finished=true;
-			for (int i=0,j=(int)pl->verts.size()-1;i<pl->verts.size();j=i++) 
+			for (unsigned int i=0,j=pl->verts.size()-1;i<pl->verts.size();j=i++) 
 				if (pl->verts[i] == pl->verts[j]) {
 					pl->verts.erase (pl->verts.begin()+i);
 					finished=false;
@@ -230,7 +230,7 @@ void PolyMesh::Optimize (PolyMesh::IsEqualVertexCB cb)
 
 void PolyMesh::CalculateRadius(float& radius, const Matrix &tr, const Vector3& mid)
 {
-	for(int v=0;v<verts.size();v++)
+	for(unsigned int v=0;v<verts.size();v++)
 	{
 		Vector3 tpos;
 		tr.apply(&verts[v].pos,&tpos);
@@ -244,9 +244,9 @@ vector<Triangle> PolyMesh::MakeTris ()
 {
 	vector<Triangle> tris;
 
-	for (int a=0;a<poly.size();a++) {
+	for (unsigned int a=0;a<poly.size();a++) {
 		Poly *p = poly[a];
-		for (int b=2;b<p->verts.size();b++)
+		for (unsigned int b=2;b<p->verts.size();b++)
 		{
 			Triangle t;
 
@@ -267,10 +267,10 @@ void GenerateUniqueVectors(const std::vector<Vertex>& verts,
 {
 	old2new.resize(verts.size());
 
-	for (int a=0;a<verts.size();a++) {
+	for (unsigned int a=0;a<verts.size();a++) {
 		bool matched=false;
 
-		for (int b=0;b<vertPos.size();b++) 
+		for (unsigned int b=0;b<vertPos.size();b++) 
 			if (vertPos[b] == verts[a].pos) {
 				old2new[a] = b;
 				matched=true;
@@ -297,43 +297,43 @@ void PolyMesh::CalculateNormals2(float maxSmoothAngle)
 
 	vector<vector<int> > new2old;
 	new2old.resize(vertPos.size());
-	for (int a=0;a<old2new.size();a++)
+	for (unsigned int a=0;a<old2new.size();a++)
 		new2old[old2new[a]].push_back(a);
 
 	// Calculate planes
 	std::vector <Plane> polyPlanes;
 	polyPlanes.resize (poly.size());
-	for (int a=0;a<poly.size();a++)
+	for (unsigned int a=0;a<poly.size();a++)
 		polyPlanes[a] = poly[a]->CalcPlane (verts);
 
 	// Determine which faces are using which unique vertex
 	std::vector <FaceVert> faceVerts; // one per unique vertex
 	faceVerts.resize (old2new.size ());
 
-	for (int a=0;a<poly.size();a++) {
+	for (unsigned int a=0;a<poly.size();a++) {
 		Poly *pl = poly[a];
-		for (int v=0;v<pl->verts.size();v++)
+		for (unsigned int v=0;v<pl->verts.size();v++)
 			faceVerts[old2new[pl->verts[v]]].adjacentFaces.push_back (a);
 	}
 
 	// Calculate normals
 	int cnorm = 0;
-	for (int a=0;a<poly.size();a++) cnorm += poly[a]->verts.size();
+	for (unsigned int a=0;a<poly.size();a++) cnorm += poly[a]->verts.size();
 	std::vector <Vector3> normals;
 	normals.resize (cnorm);
 
 	cnorm = 0;
-	for (int a=0;a<poly.size();a++) {
+	for (unsigned int a=0;a<poly.size();a++) {
 		Poly *pl = poly[a];
-		for (int v=0;v<pl->verts.size();v++) 
+		for (unsigned int v=0;v<pl->verts.size();v++) 
 		{
 			FaceVert& fv = faceVerts[old2new[pl->verts[v]]];
 			std::vector<Vector3> vnormals;
 			vnormals.push_back(polyPlanes[a].GetVector());
-			for (int adj = 0; adj < fv.adjacentFaces.size(); adj ++)
+			for (unsigned int adj = 0; adj < fv.adjacentFaces.size(); adj ++)
 			{
 				// Same poly?
-				if (fv.adjacentFaces [adj] == a)
+				if (fv.adjacentFaces [adj] == int(a))
 					continue;
 
 				Plane adjPlane = polyPlanes[fv.adjacentFaces[adj]];
@@ -346,7 +346,7 @@ void PolyMesh::CalculateNormals2(float maxSmoothAngle)
 
 				// see if the normal is unique for this vertex
 				bool isUnique = true;
-				for (int norm = 0; norm < vnormals.size(); norm ++) 
+				for (unsigned int norm = 0; norm < vnormals.size(); norm ++) 
 					if (vnormals[norm] == adjPlane.GetVector ()) 
 					{
 						isUnique = false;
@@ -357,7 +357,7 @@ void PolyMesh::CalculateNormals2(float maxSmoothAngle)
 					vnormals.push_back (adjPlane.GetVector());
 			}
 			Vector3 normal;
-			for (int n=0;n<vnormals.size();n++)
+			for (unsigned int n=0;n<vnormals.size();n++)
 				normal += vnormals[n];
 
 			if (normal.length () > 0.0f)
@@ -370,10 +370,10 @@ void PolyMesh::CalculateNormals2(float maxSmoothAngle)
 	std::vector <Vertex> newVertices;
 	newVertices.reserve(poly.size()*4); // approximate
 	cnorm = 0;
-	for (int a=0;a<poly.size();a++) {
+	for (unsigned int a=0;a<poly.size();a++) {
 		Poly *pl = poly[a];
-		for (int v=0;v<pl->verts.size();v++) {
-			FaceVert &fv = faceVerts[old2new[pl->verts[v]]];
+		for (unsigned int v=0;v<pl->verts.size();v++) {
+			/*FaceVert &fv = faceVerts[old2new[pl->verts[v]]];*/
 			Vertex nv = verts[pl->verts[v]];
 			nv.normal = normals[cnorm++];
 			newVertices.push_back (nv);
@@ -397,13 +397,13 @@ void PolyMesh::CalculateNormals()
 	
 	vector<vector<int> > new2old;
 	new2old.resize(vertPos.size());
-	for (int a=0;a<old2new.size();a++)
+	for (unsigned int a=0;a<old2new.size();a++)
 		new2old[old2new[a]].push_back(a);
 
 	vector<std::vector<Vector3> > normals;
 	normals.resize(vertPos.size());
 
-	for (int a=0;a<poly.size();a++) {
+	for (unsigned int a=0;a<poly.size();a++) {
 		Poly *pl = poly[a];
 		Plane plane;
 		
@@ -413,9 +413,9 @@ void PolyMesh::CalculateNormals()
 			vertPos[old2new[pl->verts[2]]]);
 
 		Vector3 plnorm = plane.GetVector();
-		for (int b=0;b<pl->verts.size();b++) {
+		for (unsigned int b=0;b<pl->verts.size();b++) {
 			vector<Vector3>& norms = normals[old2new[pl->verts[b]]];
-			int c;
+			unsigned int c;
 			for (c=0;c<norms.size();c++)
 				if (norms[c] == plnorm) break;
 
@@ -424,24 +424,24 @@ void PolyMesh::CalculateNormals()
 		}
 	}
 
-	for (int a=0;a<normals.size();a++) {
+	for (unsigned int a=0;a<normals.size();a++) {
 		Vector3 sum;
 		vector<Vector3>& vn = normals[a];
-		for(int b=0;b<vn.size();b++)
+		for(unsigned int b=0;b<vn.size();b++)
 			sum+=vn[b];
 
 		if (sum.length()>0.0f)
 			sum.normalize ();
 
 		vector<int>& vlist=new2old[a];
-		for(int b=0;b<vlist.size();b++)
+		for(unsigned int b=0;b<vlist.size();b++)
 			verts[vlist[b]].normal = sum;
 	}
 }
 
 void PolyMesh::FlipPolygons()
 {
-	for (int a=0;a<poly.size();a++)
+	for (unsigned int a=0;a<poly.size();a++)
 		poly[a]->Flip();
 }
 
@@ -449,11 +449,11 @@ void PolyMesh::FlipPolygons()
 void PolyMesh::MoveGeometry (PolyMesh *dst)
 {
 	// offset the vertex indices and move polygons
-	for (int a=0;a<poly.size();a++)
+	for (unsigned int a=0;a<poly.size();a++)
 	{
 		Poly *pl = poly[a];
 
-		for (int b=0;b<pl->verts.size();b++) 
+		for (unsigned int b=0;b<pl->verts.size();b++) 
 			pl->verts [b] += (int)dst->verts.size();
 	}
 	dst->poly.insert (dst->poly.end(), poly.begin(),poly.end());

@@ -72,7 +72,7 @@ extern Logger logger;
 
 struct InputBuffer
 {
-	InputBuffer () : pos(0), line(1), data(0), len(0), filename(0) {}
+	InputBuffer () : pos(0), len(0), line(1), data(0), filename(0) {}
 	char operator*() const { return data[pos]; }
 	bool end() const {  return pos == len; }
 	InputBuffer& operator++() { next(); return *this; }
@@ -89,11 +89,11 @@ struct InputBuffer
 	void Expecting(const char *s); // show an error message saying that 's' was expected
 	std::string ParseIdent();
 
-	const char *filename;
 	int pos;
 	int len;
-	char *data;
 	int line;
+	char *data;
+	const char *filename;
 };
 
 

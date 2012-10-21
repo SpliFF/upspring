@@ -37,7 +37,7 @@ public:
 	{
 		if (!loaded) Init();
 		int r=color.x*255,g=color.y*255,b=color.z*255;
-		int best=-1, bestdif;
+		int best=-1, bestdif=-1;
 		for (int a=0;a<256;a++) {
 			int dif=abs(r-p[a][0])+abs(g-p[a][1])+abs(b-p[a][2]);
 			if (best<0 || bestdif>dif) {
@@ -109,7 +109,7 @@ static MdlObject* load_object(int ofs, FILE *f, MdlObject *parent, int r=0)
 	int org=ftell(f);
 
 	fseek(f,ofs,SEEK_SET);
-	fread(&obj, sizeof(TA_Object),1,f);
+	if (fread(&obj, sizeof(TA_Object),1,f)) {}
 
 	if(obj.VersionSignature != 1)
 	{
@@ -125,7 +125,7 @@ static MdlObject* load_object(int ofs, FILE *f, MdlObject *parent, int r=0)
 	fseek (f,obj.OffsetToVertexArray, SEEK_SET);
 	for(int a=0;a<obj.NumberOfVertexes;a++)
 	{
-		fread(ipos, sizeof(long),3,f);
+		if (fread(ipos, sizeof(long),3,f)) {}
 		for (int b=0;b<3;b++)
 			pm->verts[a].pos.v[b] = FROM_TA(ipos[b]);
 	}
@@ -135,7 +135,7 @@ static MdlObject* load_object(int ofs, FILE *f, MdlObject *parent, int r=0)
 
 	fseek (f, obj.OffsetToPrimitiveArray, SEEK_SET);
 	if (obj.NumberOfPrimitives > 0)
-		fread (&tapl[0], sizeof(TA_Polygon), obj.NumberOfPrimitives, f);
+		if (fread (&tapl[0], sizeof(TA_Polygon), obj.NumberOfPrimitives, f)) {}
 	for (int a=0;a<obj.NumberOfPrimitives;a++)
 	{
 		fseek (f, tapl[a].VertOfs,SEEK_SET);
@@ -146,7 +146,7 @@ static MdlObject* load_object(int ofs, FILE *f, MdlObject *parent, int r=0)
 		for (int b=0;b<tapl[a].VertNum;b++)
 		{
 			short vindex;
-			fread (&vindex, sizeof(short), 1, f);
+			if (fread (&vindex, sizeof(short), 1, f)) {}
 			p->verts[b] = vindex;
 		}
 
@@ -196,7 +196,7 @@ static MdlObject* load_object(int ofs, FILE *f, MdlObject *parent, int r=0)
 }
 
 
-bool Model::Load3DO(const char *filename, IProgressCtl& progctl)
+bool Model::Load3DO(const char *filename, IProgressCtl& /*progctl*/)
 {
 	FILE *f=0;
 
@@ -241,7 +241,7 @@ static void save_object(FILE *f, MdlObject *parent, std::vector<MdlObject*>::ite
 	WriteZStr (f, obj->name);
 
 	n.OffsetToVertexArray = ftell(f);
-	for (int a=0;a<pm->verts.size();a++)
+	for (unsigned int a=0;a<pm->verts.size();a++)
 	{
 		long v[3];
 		Vector3 *p = &pm->verts[a].pos;
@@ -254,7 +254,7 @@ static void save_object(FILE *f, MdlObject *parent, std::vector<MdlObject*>::ite
 	fseek (f, sizeof(TA_Polygon) * pm->poly.size(), SEEK_CUR);
 	memset (tapl,0,sizeof(TA_Polygon)*pm->poly.size());
 
-	for (int a=0;a<pm->poly.size();a++)
+	for (unsigned int a=0;a<pm->poly.size();a++)
 	{
 		Poly *pl = pm->poly [a];
 
@@ -266,7 +266,7 @@ static void save_object(FILE *f, MdlObject *parent, std::vector<MdlObject*>::ite
 		tapl[a].TexnameOfs = ftell(f);
 		WriteZStr (f,pl->texname);
 		tapl[a].VertOfs = ftell(f);
-		for (int b=0;b<pl->verts.size();b++)
+		for (unsigned int b=0;b<pl->verts.size();b++)
 		{
 			unsigned short v;
 			v = pl->verts[b];
@@ -310,7 +310,7 @@ static inline void ApplyOrientationAndScaling (MdlObject *o)
 }
 
 
-bool Model::Save3DO(const char *fn, IProgressCtl& progctl) {
+bool Model::Save3DO(const char *fn, IProgressCtl& /*progctl*/) {
 	FILE *f = fopen(fn, "wb");
 
 	if (!f)

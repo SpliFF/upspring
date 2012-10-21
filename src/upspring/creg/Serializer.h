@@ -61,7 +61,7 @@ namespace creg {
 		void Serialize (void *data, int byteSize);
 
 		/** Empty function, only applies to loading */
-		void AddPostLoadCallback (void (*cb)(void *d), void *d) {}
+		void AddPostLoadCallback (void (*/*cb*/)(void *d), void* /*d*/) {}
 	};
 
 	/** Input stream serializer

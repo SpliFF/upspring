@@ -274,7 +274,7 @@ void CInputStreamSerializer::Serialize (void *data, int byteSize)
 	stream->read ((char*)data, byteSize);
 }
 
-void CInputStreamSerializer::SerializeObjectPtr (void **ptr, creg::Class *cls)
+void CInputStreamSerializer::SerializeObjectPtr (void **ptr, creg::Class* /*cls*/)
 {
 	char v;
 //	printf ("reading ptr %s* at %d\n", cls->name.c_str(), (int)stream->tellg());

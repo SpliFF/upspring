@@ -21,7 +21,7 @@ Model* ReadMD5Model (const char *filename)
 	long len = ftell(file);
 	fseek(file, 0, SEEK_SET);
 	char *buffer = new char[len];
-	fread(buffer, 1, len, file);
+	if (fread(buffer, 1, len, file)) {}
 	fclose(file);
 
 	InputBuffer ibuf;

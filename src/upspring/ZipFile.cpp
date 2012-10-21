@@ -125,7 +125,7 @@ TError ZipFile::Init(FILE *f)
   fseek(f, -(int)sizeof(dh), SEEK_END);
   long dhOffset = ftell(f);
   memset(&dh, 0, sizeof(dh));
-  fread(&dh, sizeof(dh), 1, f);
+  if (fread(&dh, sizeof(dh), 1, f)) {}
 
   // Check
   if (dh.sig != TZipDirHeader::SIGNATURE)
@@ -139,7 +139,7 @@ TError ZipFile::Init(FILE *f)
   if (!m_pDirData)
     return RET_FAIL;
   memset(m_pDirData, 0, dh.dirSize + dh.nDirEntries*sizeof(*m_papDir));
-  fread(m_pDirData, dh.dirSize, 1, f);
+  if (fread(m_pDirData, dh.dirSize, 1, f)) {}
 
   // Now process each entry.
   char *pfh = m_pDirData;
@@ -249,7 +249,7 @@ TError ZipFile::ReadFile(int i, void *pBuf)
   TZipLocalHeader h;
 
   memset(&h, 0, sizeof(h));
-  fread(&h, sizeof(h), 1, m_f);
+  if (fread(&h, sizeof(h), 1, m_f)) {}
   if (h.sig != TZipLocalHeader::SIGNATURE)
     return RET_FAIL;
 
@@ -259,7 +259,7 @@ TError ZipFile::ReadFile(int i, void *pBuf)
   if (h.compression == TZipLocalHeader::COMP_STORE)
   {
     // Simply read in raw stored data.
-    fread(pBuf, h.cSize, 1, m_f);
+    if (fread(pBuf, h.cSize, 1, m_f)) {}
     return RET_OK;
   }
   else if (h.compression != TZipLocalHeader::COMP_DEFLAT)
@@ -271,7 +271,7 @@ TError ZipFile::ReadFile(int i, void *pBuf)
     return RET_FAIL;
 
   memset(pcData, 0, h.cSize);
-  fread(pcData, h.cSize, 1, m_f);
+  if (fread(pcData, h.cSize, 1, m_f)) {}
 
   TError ret = RET_OK;
 

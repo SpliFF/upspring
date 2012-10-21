@@ -28,7 +28,7 @@ string SPrintf(const char *fmt, ...)
 string ReadZStr(FILE *f)
 {
 	std::string s;
-	int c,i=0;
+	int c/*,i=0*/;
 	while((c = fgetc(f)) != EOF && c) 
 		s += c;
 	return s;
@@ -175,6 +175,7 @@ void Logger::PrintBuf (LogNotifyLevel lev, const char *buf)
 	case NL_Debug: d_puts ("dbg: ");break;
 	case NL_Error: d_puts ("error: ");break;
 	case NL_Warn: d_puts ("warning: ");break;
+	default: break;
 	}
 
 	d_puts (buf);

@@ -243,7 +243,7 @@ local function GetObjectMap()
 end
 
 function BVH_Import(animOnly)
-	local result = upsFileOpenDlg("Select BVH file to import:", "BVH animation data\0bvh\0")
+	local result = upsFileOpenDlg("Select BVH file to import:", "BVH animation data\0*.bvh\0")
 	if result == nil then return end
 	
 	-- open the file, and show the error when it failed

@@ -36,9 +36,9 @@ public:
 	~Tool() { delete image; }
 	// on a mapview 
 	// msg = fltk::PUSH, fltk::RELEASE, fltk::DRAG, fltk::MOVE
-	virtual void mouse (EditorViewWindow *view, int msg, Point move) {} // scene is in view
+	virtual void mouse (EditorViewWindow* /*view*/, int /*msg*/, Point /*move*/) {} // scene is in view
 	virtual void click () {}
-	virtual bool toggle (bool enabletool) { return false; } // return true if it may be toggled
+	virtual bool toggle (bool /*enabletool*/) { return false; } // return true if it may be toggled
 	virtual bool needsPolySelect() { return false; }
 
 	bool isToggle; // is this a toggle tool or regular tool?

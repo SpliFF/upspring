@@ -38,7 +38,7 @@ public:
 	bool HasUndo();
 	bool HasRedo();
 
-	int GetNumBackups() { return numBackups; }
+	unsigned int GetNumBackups() { return numBackups; }
 	void SetNumBackups(int num);
 
 
@@ -62,7 +62,7 @@ protected:
 	void AddBackup(const char *name, OperationType ot, ulong cmpDat);
 	void RemoveRedoBackups();
 
-	int numBackups;
+	unsigned int numBackups;
 	IEditor *editor;
 
 	Backup* LastBackup();

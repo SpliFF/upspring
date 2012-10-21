@@ -24,10 +24,11 @@
 #include <fltk/BarGroup.h>
 #include <fltk/ask.h>
 #include <fltk/events.h>
-// KLOOTNOTE: "font.h" needs to be "Font.h" on Linux
+// NOTE: "font.h" needs to be "Font.h" on Linux (in fltk2)
 #include <fltk/Font.h>
 #include <fltk/filename.h>
 #include <fltk/ScrollGroup.h>
+// NOTE: subsumbed by FLNativeFileChooser
 // #include <fltk/file_chooser.h>
 // #include <fltk/FileChooser.h>
 

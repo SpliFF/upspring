@@ -47,7 +47,7 @@ void IK_UI::JointType (IKJointType jt)
 	Model *mdl = callback->GetMdl ();
 	vector<MdlObject*> sel = mdl->GetSelectedObjects ();
 
-	for (int a=0;a<sel.size();a++) {
+	for (unsigned int a=0;a<sel.size();a++) {
 		IKinfo& ik = sel[a]->ikInfo;
 
 		if (ik.jointType == jt)
@@ -79,7 +79,7 @@ void IK_UI::Update ()
 		selJointType->activate ();
 
 		int jt = sel.front()->ikInfo.jointType;
-		for (int a=1;a<sel.size();a++) {
+		for (unsigned int a=1;a<sel.size();a++) {
 			if (sel[a]->ikInfo.jointType != jt) {
 				jt = -1;
 				break;

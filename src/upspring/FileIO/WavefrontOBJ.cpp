@@ -31,7 +31,7 @@ struct wf_face
 struct wf_object
 {
 	~wf_object() { 
-		for (int a=0;a<faces.size();a++)
+		for (unsigned int a=0;a<faces.size();a++)
 			delete faces[a];
 		faces.clear();
 	}
@@ -132,7 +132,7 @@ static void get_face(char *line, wf_object *obj)
 	wf_face *f = new wf_face;
 	s = strtok(line,whitespace);
 
-	while (s = strtok(NULL,whitespace))
+	while ((s = strtok(NULL,whitespace)) != NULL)
 	{
 		v = atoi(s);
 
@@ -357,7 +357,7 @@ wf_object *ReadWFObject (char *fname, IProgressCtl& progctl)
 	return obj;
 }
 
-bool SaveWavefrontObject (const char *fn, MdlObject *src, IProgressCtl& progctl)
+bool SaveWavefrontObject (const char *fn, MdlObject *src, IProgressCtl& /*progctl*/)
 {
 	MdlObject *obj = src->Clone();
 	obj->FullMerge();
@@ -372,7 +372,7 @@ bool SaveWavefrontObject (const char *fn, MdlObject *src, IProgressCtl& progctl)
 	PolyMesh* pm = obj->GetPolyMesh();
 	if(!pm) return false;
 
-	fprintf (f, "# %d vertices, %d polygons\n", pm->verts.size(), pm->poly.size());
+	fprintf (f, "# %d vertices, %d polygons\n", int(pm->verts.size()), int(pm->poly.size()));
 
 	for (vector<Vertex>::iterator v=pm->verts.begin();v!=pm->verts.end();++v)
 		fprintf(f,"v %f %f %f\n",v->pos.x, v->pos.y, v->pos.z);
@@ -386,11 +386,11 @@ bool SaveWavefrontObject (const char *fn, MdlObject *src, IProgressCtl& progctl)
 		fprintf(f,"vt %f %f 0.0\n",v->tc[0].x, v->tc[0].y);
 
 // write faces
-	for (int a=0;a<pm->poly.size();a++)
+	for (unsigned int a=0;a<pm->poly.size();a++)
 	{
 		Poly *p=pm->poly[a];
 		fprintf(f,"f");
-		for (int v=0; v<p->verts.size(); v++) {
+		for (unsigned int v=0; v<p->verts.size(); v++) {
 			int i = p->verts[v]+1;
 			fprintf(f," %d/%d/%d ", i,i,i);
 		}
@@ -414,24 +414,24 @@ MdlObject *LoadWavefrontObject (const char *fn, IProgressCtl& progctl)
 	PolyMesh *pm = new PolyMesh;
 	o->geometry = pm;
 
-	for (int fi=0;fi<wfobj->faces.size();fi++)
+	for (unsigned int fi=0;fi<wfobj->faces.size();fi++)
 	{
 		Poly *pl = new Poly;
 		wf_face *face = wfobj->faces [fi];
 		pl->verts.resize (face->verts.size());
 
-		for (int a=0;a<pl->verts.size();a++)
+		for (unsigned int a=0;a<pl->verts.size();a++)
 		{
 			pm->verts.push_back (Vertex());
 			Vertex& v=pm->verts.back();
 			
 			wf_face_vert& fv=face->verts[a];
 
-			if (!wfobj->norm.empty() && fv.norm-1 < wfobj->norm.size())
+			if (!wfobj->norm.empty() && fv.norm-1 < int(wfobj->norm.size()))
 				v.normal = wfobj->norm [fv.norm-1];
-			if (!wfobj->texc.empty() && fv.tex-1 < wfobj->texc.size())
+			if (!wfobj->texc.empty() && fv.tex-1 < int(wfobj->texc.size()))
 				v.tc [0] = wfobj->texc [fv.tex-1];
-			if (!wfobj->vert.empty() && fv.vert-1 < wfobj->vert.size())
+			if (!wfobj->vert.empty() && fv.vert-1 < int(wfobj->vert.size()))
 				v.pos = wfobj->vert [fv.vert-1];
 
 			pl->verts [a] = pm->verts.size()-1;

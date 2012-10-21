@@ -16,9 +16,9 @@ Object::Object()
 
 Object::~Object()
 {
-	for (int a=0;a<edges.size();a++)
+	for (unsigned int a=0;a<edges.size();a++)
 		delete edges[a];
-	for (int a=0;a<faces.size();a++)
+	for (unsigned int a=0;a<faces.size();a++)
 		delete faces[a];
 }
 
@@ -122,8 +122,10 @@ void Object::GenerateFromPolyMesh(PolyMesh *o)
 		if (pl->verts.size() == 4) {
 			const float step = 1.0f / (float)(steps-1);
 
+			/*
 			Edge* Xedge = face->edges[0];
 			Edge* Yedges[2] = { face->edges[1], face->edges[3] };
+			*/
 
 //			const Vector3& start = vertices[face->edges[0]->meshVerts[0]].pos;
 			const Vector3& leftEdge = face->edges[3]->dir;
@@ -182,7 +184,7 @@ void Object::Draw()
 
 	glColor3ub(255,255,255);
 	glBegin(GL_LINES);
-	for (int a=0;a<edges.size();a++)
+	for (unsigned int a=0;a<edges.size();a++)
 	{
 		Edge* edge = edges[a];
 		
@@ -195,7 +197,7 @@ void Object::Draw()
 		glVertex3fv(ep[0].getf());
 		glVertex3fv(ep[1].getf());
 
-		for (int l=0;l<edge->intersecting.size();l++) {
+		for (unsigned int l=0;l<edge->intersecting.size();l++) {
 			Edge *ie = edge->intersecting[l];
 
 			Vector3 iep[2];

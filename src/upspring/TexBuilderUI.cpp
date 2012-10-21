@@ -68,7 +68,7 @@ inline int ImgHeight(ILuint img) {
 
 
 
-// KLOOTNOTE: fix "jump to label crosses initialization of..." goto stuff
+// NOTE: kills the use of goto's below and fixes "jump to label crosses initialization of..."
 void freeimgs(ILuint a, ILuint b) {
 	if (a) iluDeleteImage(a);
 	if (b) iluDeleteImage(b);
@@ -84,21 +84,21 @@ void TexBuilderUI::BuildTexture1() {
 
 	if ((color = LoadImg(colorTex->value())) == 0 || !ilConvertImage(IL_RGB, IL_UNSIGNED_BYTE)) {
 		fltk::message("Failed to load color texture %s", colorTex->value());
-		freeimgs(color, teamcol);
-		// goto freeimgs;
+		freeimgs(color, teamcol); // goto freeimgs;
+		return;
 	}
 	if ((teamcol = LoadImg(teamColorTex->value())) == 0 || !ilConvertImage(IL_LUMINANCE, IL_UNSIGNED_BYTE)) {
 		fltk::message("Failed to load team color texture %s", teamColorTex->value());
-		freeimgs(color, teamcol);
-		// goto freeimgs;
+		freeimgs(color, teamcol); // goto freeimgs;
+		return;
 	}
 
 	int w = ImgWidth(color), h = ImgHeight(color);
 
 	if (ImgWidth(teamcol) != w || ImgHeight(teamcol) != h) {
 		fltk::message("Team color texture must have the same dimensions as the color texture");
-		freeimgs(color, teamcol);
-		// goto freeimgs;
+		freeimgs(color, teamcol); // goto freeimgs;
+		return;
 	}
 
 	// build the first texture (color + teamcolor)
@@ -133,8 +133,9 @@ void TexBuilderUI::BuildTexture1() {
 	fltk::message ("Texture 1 succesfully generated and saved to: %s", output1->value());
 
 // freeimgs:
-	if (color) iluDeleteImage(color);
-	if (teamcol) iluDeleteImage(teamcol);
+//	if (color) iluDeleteImage(color);
+//	if (teamcol) iluDeleteImage(teamcol);
+	freeimgs(color, teamcol);
 }
 
 
@@ -149,21 +150,21 @@ void TexBuilderUI::BuildTexture2() {
 
 	if ((reflect = LoadImg(reflectTex->value())) == 0 || !ilConvertImage(IL_LUMINANCE, IL_UNSIGNED_BYTE)) {
 		fltk::message("Failed to load reflectiveness texture %s", reflectTex->value());
-		freeimgs(reflect, selfillum);
-		// goto freeimgs;
+		freeimgs(reflect, selfillum); // goto freeimgs;
+		return;
 	}
 	if ((selfillum = LoadImg(selfIllumTex->value())) == 0 || !ilConvertImage(IL_LUMINANCE, IL_UNSIGNED_BYTE)) {
 		fltk::message("Failed to load self-illumination texture %s", selfIllumTex->value());
-		freeimgs(reflect, selfillum);
-		// goto freeimgs;
+		freeimgs(reflect, selfillum); // goto freeimgs;
+		return;
 	}
 
 	int w, h;
 
 	if (ImgWidth(reflect) != ImgWidth(selfillum) || ImgHeight(reflect) != ImgHeight(selfillum)) {
 		fltk::message("Reflectiveness texture should have the same dimensions as the self-illumination texture");
-		freeimgs(reflect, selfillum);
-		// goto freeimgs;
+		freeimgs(reflect, selfillum); // goto freeimgs;
+		return;
 	}
 
 	// build the second texture (selfillum + reflectiveness)
@@ -199,6 +200,7 @@ void TexBuilderUI::BuildTexture2() {
 	fltk::message ("Texture 2 succesfully generated to: %s", output2->value());
 
 // freeimgs:
-	if (reflect) iluDeleteImage(reflect);
-	if (selfillum) iluDeleteImage(selfillum);
+//	if (reflect) iluDeleteImage(reflect);
+//	if (selfillum) iluDeleteImage(selfillum);
+	freeimgs(reflect, selfillum);
 }

@@ -29,6 +29,9 @@ import BPyMessages
 ## Blender's coordinate-system is XZY, ie. rotated
 ## 90 degrees clock-wise around the x-axis (facing
 ## toward the origin) of Spring's XYZ system
+##
+##   Blender: XYZ ->  Spring: (X)(Z)(-Y)
+##    Spring: XYZ -> Blender: (X)(-Z)(Y)
 BLENDER_AXIS_X = 0
 BLENDER_AXIS_Y = 2
 BLENDER_AXIS_Z = 1

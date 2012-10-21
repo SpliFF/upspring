@@ -760,7 +760,7 @@ void NearestBoxVertex(const Vector3 *min, const Vector3 *max, const Vector3 *pos
 // Calculates the exact nearest point, not just one of the box'es vertices
 void NearestBoxPoint(const Vector3 *min, const Vector3 *max, const Vector3 *pos, Vector3 *out)
 {
-	Vector3 mid = (*max + *min) * 0.5f;
+	/*Vector3 mid = (*max + *min) * 0.5f;*/
 	if(pos->x < min->x) out->x = min->x;
 	else if(pos->x > max->x) out->x = max->x;
 	else out->x = pos->x;
@@ -1163,7 +1163,7 @@ void Quaternion::apply(float x, float y, float z, float *xout, float *yout, floa
 
 
 
-void Quaternion::apply(Vector3 *in, Vector3 *out) const
+void Quaternion::apply(Vector3* /*in*/, Vector3 *out) const
 {
    Quaternion v;
    Quaternion i;
@@ -1332,6 +1332,6 @@ void math_test()
 		logger.Print("Equal\n");
 
 
-	system("pause");
+	if (system("pause")) {}
 }
 
