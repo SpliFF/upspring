@@ -99,6 +99,11 @@ OBJECTS =            \
 	$(SWIG_OBS)      \
 	$(UPSPRING_OBS)
 
+all:
+	make dirs
+	make objects
+	make target
+
 objects: $(OBJECTS)
 
 
@@ -135,11 +140,6 @@ dirs:
 target:
 	## FIXME: the extra linker argument should not be needed
 	$(CC)   -o $(BIN_BASE_DIR)/$(TARGET)   $(OBJECTS) -lfltk2_images $(LFLAGS)
-
-all:
-	make dirs
-	make objects
-	make target
 
 clean:
 	rm -f -r $(OBJ_BASE_DIR)
