@@ -62,8 +62,11 @@ typedef unsigned short ushort;
 
 	// This is needed as gnu doesn't offer specialization for other pointer types other than char*
 	// (look in ext/hash_fun.h for the types supported out of the box)
+#define GCC_VERSION (__GNUC__ * 10000 \
+			+ __GNUC_MINOR__ * 100 \
+			+ __GNUC_PATCHLEVEL__)
 
-	#if (__GNUC__ == 4 && __GNUC_MINOR__ > 2)
+	#if (GCC_VERSION > 40200)
 	#include <backward/hash_fun.h>
 	#else
 	#include <ext/hash_fun.h>

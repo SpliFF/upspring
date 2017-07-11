@@ -44,6 +44,7 @@ class FL_API TabGroupPager {
 public:
 
     TabGroupPager() : shift_(0), border_(10), slope_(5), extra_space_(5),_noclip(false) {}
+    virtual ~TabGroupPager(){}
     
     /* Pager template methods definition */
 

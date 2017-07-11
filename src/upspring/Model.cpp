@@ -193,7 +193,7 @@ Model* Model::Load(const string& _fn, bool /*Optimize*/, IProgressCtl& progctl) 
 			else {
 				fltk::message ("Unknown extension %s\n", fltk::filename_ext(fn));
 				delete mdl;
-				return false;
+				return nullptr;
 			}
 			if (!r) {
 				delete mdl;
@@ -204,13 +204,13 @@ Model* Model::Load(const string& _fn, bool /*Optimize*/, IProgressCtl& progctl) 
 	catch (std::runtime_error err)
 	{
 		fltk::message (err.what());
-		return false;
+		return nullptr;
 	}
 	if (mdl)
 		return mdl;
 	else {
 		fltk::message ("Failed to read file %s:\n",fn);
-		return 0;
+		return nullptr;
 	}
 }
 
