@@ -9,7 +9,7 @@
 // Polygon
 // ------------------------------------------------------------------------------------------------
 
-float Poly::Selector::Score(Vector3 &pos, float camdis)
+float Poly::Selector::Score(Vector3 &pos, float /*camdis*/)
 {
 	assert (mesh);
 	const vector<Vertex>& v=mesh->verts;
@@ -23,7 +23,7 @@ float Poly::Selector::Score(Vector3 &pos, float camdis)
 	float dis = plane.Dis (&pos);
 	return fabs (dis);
 }
-void Poly::Selector::Toggle (Vector3 &pos, bool bSel) {
+void Poly::Selector::Toggle (Vector3& /*pos*/, bool bSel) {
 	poly->isSelected = bSel;
 }
 bool Poly::Selector::IsSelected () { 
@@ -75,10 +75,7 @@ void Poly::RotateVerts ()
 	vector<int> n(verts.size());
 	for (uint a=0;a<verts.size();a++)
 		n[a]=verts[(a+1)%n.size()];
-	verts=n;
 }
-
-
 
 // ------------------------------------------------------------------------------------------------
 // PolyMesh
@@ -93,7 +90,7 @@ PolyMesh::~PolyMesh()
 }
 
 // Special case... polymesh drawing is done in the ModelDrawer
-void PolyMesh::Draw(ModelDrawer* drawer, Model *mdl, MdlObject *o)
+void PolyMesh::Draw(ModelDrawer* /*drawer*/, Model* /*mdl*/, MdlObject* /*o*/)
 {}
 
 PolyMesh* PolyMesh::ToPolyMesh()
@@ -333,7 +330,7 @@ void PolyMesh::CalculateNormals2(float maxSmoothAngle)
 			for (uint adj = 0; adj < fv.adjacentFaces.size(); adj ++)
 			{
 				// Same poly?
-				if (fv.adjacentFaces [adj] == a)
+				if (fv.adjacentFaces [adj] == int(a))
 					continue;
 
 				Plane adjPlane = polyPlanes[fv.adjacentFaces[adj]];
@@ -373,11 +370,9 @@ void PolyMesh::CalculateNormals2(float maxSmoothAngle)
 	for (uint a=0;a<poly.size();a++) {
 		Poly *pl = poly[a];
 		for (uint v=0;v<pl->verts.size();v++) {
-			//FaceVert &fv = faceVerts[old2new[pl->verts[v]]]; //unused
 			Vertex nv = verts[pl->verts[v]];
 			nv.normal = normals[cnorm++];
 			newVertices.push_back (nv);
-			pl->verts [v] = newVertices.size () - 1;
 		}
 	}
 

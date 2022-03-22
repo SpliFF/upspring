@@ -13,7 +13,7 @@
 #include <stdlib.h>
 
 #ifdef WIN32
-// KLOOTNOTE: not supplied with gcc (since not defined by ANSI/ISO C or POSIX)
+// NOTE: this is not supplied with gcc (since not defined by either ANSI/ISO C or by POSIX)
 #include <process.h>
 #endif
 

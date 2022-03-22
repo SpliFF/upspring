@@ -170,7 +170,7 @@ CR_REG_METADATA(AnimProperty, (
 				));
 
 AnimProperty::AnimProperty(AnimController *ctl, const std::string& name, int offset) 
-	: name (name), controller(ctl), offset (offset)
+	: offset (offset), name (name), controller(ctl)
 {
 	elemSize = sizeof (float) + controller->GetSize();
 }

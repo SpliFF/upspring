@@ -186,8 +186,6 @@ void ModelDrawer::RenderPolygon (MdlObject *o, Poly*pl, IView *v, int mapping, b
 		} else {
 			for (uint a=0;a<pl->verts.size();a++) {
 				int i = pl->verts [a];
-				glNormal3fv ((float*)&pm->verts[i].normal);
-				glVertex3fv ((float*)&pm->verts[i].pos);
 			}
 		}
 		glEnd ();
@@ -621,7 +619,7 @@ void ModelDrawer::RenderSelection_ (MdlObject *o, IView *view)
 				continue;
 
 			glBegin(GL_POLYGON);
-			for (int b=0;b<pl->verts.size();b++)
+			for (unsigned int b=0;b<pl->verts.size();b++)
 				glVertex3fv ((float *)& (*pi.verts())[pl->verts[b]].pos);
 			glEnd ();
 		}
@@ -711,7 +709,7 @@ void ModelDrawer::CleanupS3OBasicDrawing ()
 
 
 
-void ModelDrawer::SetupS3OAdvDrawing (const Vector3& teamcol,IView *v)
+void ModelDrawer::SetupS3OAdvDrawing (const Vector3& teamcol,IView* /*v*/)
 {
 	glEnable(GL_VERTEX_PROGRAM_ARB);
 	glEnable(GL_FRAGMENT_PROGRAM_ARB);
@@ -766,7 +764,7 @@ char* LoadTextFile (string fn, int &l)
 	l=ftell(f);
 	fseek (f,0,SEEK_SET);
 	char *buf=new char[l];
-	fread (buf,l,1,f);
+	if (fread (buf,l,1,f)) {}
 	fclose (f);
 	return buf;
 }

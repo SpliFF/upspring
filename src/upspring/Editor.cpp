@@ -116,7 +116,7 @@ vector<EditorViewWindow *> EditorUI::EditorCB::GetViews ()
 
 void EditorUI::EditorCB::MergeView (EditorViewWindow *own, EditorViewWindow *other)
 {
-	//int w = other->w ();
+	/*int w = other->w ();*/
 	if (own->x () > other->x()) own->set_x(other->x());
 	if (own->y () > other->y()) own->set_y(other->y());
 	if (own->r () < other->r()) own->set_r(other->r());
@@ -149,7 +149,7 @@ static void EditorUIProgressCallback (float part, void *data)
 	ui->progress->redraw();
 }
 
-static void LogCallbackProc(LogNotifyLevel level, const char *str, void *user_data)
+static void LogCallbackProc(LogNotifyLevel level, const char *str, void* /*user_data*/)
 {
 	if (level == NL_Warn || level == NL_Error)
 		fltk::message (str);
@@ -784,7 +784,7 @@ void EditorUI::UpdateTextureGroups()
 	textureGroupMenu->redraw();
 }
 
-void EditorUI::SelectTextureGroup (fltk::Widget *w,void *d) 
+void EditorUI::SelectTextureGroup (fltk::Widget* /*w*/,void* /*d*/) 
 {
 	InitTexBrowser ();
 }
@@ -1266,7 +1266,7 @@ void EditorUI::menuScriptLoad()
 
 static EditorUI* editorUI = 0;
 
-static void scriptClickCB(fltk::Widget* w, void *d)
+static void scriptClickCB(fltk::Widget* /*w*/, void *d)
 {
 	ScriptedMenuItem *s= (ScriptedMenuItem*)d;
 
@@ -1342,13 +1342,13 @@ string ReadTextFile (const char *name)
 	fseek (f, 0, SEEK_SET);
 	string r;
 	r.resize (l);
-	fread (&r[0], l, 1, f);
+	if (fread (&r[0], l, 1, f)) {}
 	fclose (f);
 
 	return r;
 }
 
-bool ParseCmdLine(int argc, char *argv[], int& r)
+bool ParseCmdLine(int argc, char *argv[], int& /*r*/)
 {
 	for (int a=1;a<argc;a++) {
 		if (!STRCASECMP(argv[a], "-run")) {
@@ -1357,8 +1357,10 @@ bool ParseCmdLine(int argc, char *argv[], int& r)
 				return false;
 			}
 
+			/*
 			const char *scriptFile = argv[a+1];
-			//r = RunScript (binder, scriptFile);
+			r = RunScript (binder, scriptFile);
+			*/
 			return false;
 		}
 	}
@@ -1417,7 +1419,7 @@ int main (int argc, char *argv[])
 			fltk::message("Error while executing init.lua: %s", err);
 		}
 
-		// KLOOTNOTE: "scripts/plugins" changed to "scripts/plugins/"
+		// NOTE: the "scripts/plugins" literal was changed to "scripts/plugins/"
 		std::list<std::string>* luaFiles = FindFiles("*.lua", false,
 #ifdef WIN32
 			"scripts\\plugins");

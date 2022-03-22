@@ -409,7 +409,7 @@ bool Image::Save(const char *file)
 
 #endif
 
-void Image::Load (const char *file, bool IsGrayscale)
+void Image::Load (const char *file, bool /*IsGrayscale*/)
 {
 	/*
 	FileReader fr (file);
@@ -429,7 +429,7 @@ void Image::Load (const char *file, bool IsGrayscale)
 	int len=ftell(f);
 	fseek(f,0,SEEK_SET);
 	uchar *buf=new uchar[len];
-	fread(buf,len,1,f);
+	if (fread(buf,len,1,f)) {}
 
 	try {
 		LoadFromMemory(buf, len);

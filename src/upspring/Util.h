@@ -72,14 +72,7 @@ extern Logger logger;
 
 struct InputBuffer
 {
-
-	int pos;
-	int line;
-	char *data;
-	int len;
-	const char *filename;
-
-	InputBuffer () : pos(0), line(1), data(0), len(0), filename(0) {}
+	InputBuffer () : pos(0), len(0), line(1), data(0), filename(0) {}
 	char operator*() const { return data[pos]; }
 	bool end() const {  return pos == len; }
 	InputBuffer& operator++() { next(); return *this; }
@@ -95,6 +88,12 @@ struct InputBuffer
 	void SkipKeyword(const char *s);
 	void Expecting(const char *s); // show an error message saying that 's' was expected
 	std::string ParseIdent();
+
+	int pos;
+	int len;
+	int line;
+	char *data;
+	const char *filename;
 };
 
 

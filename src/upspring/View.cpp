@@ -96,7 +96,7 @@ void ViewWindow::draw ()
 	}
 }
 
-float ViewWindow::GetCamDistance (const Vector3& pos) {
+float ViewWindow::GetCamDistance (const Vector3& /*pos*/) {
 	return 1.0f;
 }
 
@@ -164,8 +164,6 @@ void ViewWindow::PushSelector (ViewSelector *s)
 	else if (bUnSelecting) {
 		Vector3 v;
 		s->Toggle(v, false);
-		// KLOOTNOTE: reference to temporary object
-		// s->Toggle(Vector3(), false);
 	}
 }
 
@@ -612,7 +610,7 @@ void EditorViewWindow::DrawScene ()
 
 void EditorViewWindow::Draw2D ()
 {
-	char * str;
+	const char * str = "";
 	switch (mode) {
 	case MAP_3D: str = "3D"; break;
 	case MAP_XY: str = "XY"; break;
@@ -786,20 +784,20 @@ int EditorViewWindow::GetMode ()
 	return mode;
 }
 
-template<int rmode> static void RenderTypeCB(fltk::Widget* w, void *data)
+template<int rmode> static void RenderTypeCB(fltk::Widget* /*w*/, void *data)
 {
 	EditorViewWindow *wnd = (EditorViewWindow *)data;
 	wnd->rendermode=rmode;
 	wnd->redraw();
 }
 
-template<int MapType> static void MapTypeCB(fltk::Widget* w, void *data)
+template<int MapType> static void MapTypeCB(fltk::Widget* /*w*/, void *data)
 {
 	EditorViewWindow *wnd = (EditorViewWindow *)data;
 	wnd->SetMode(MapType);
 }
 
-template<Camera::CtlMode ctlmode> static void CameraModeCB(fltk::Widget *w,void *data)
+template<Camera::CtlMode ctlmode> static void CameraModeCB(fltk::Widget* /*w*/,void *data)
 {
 	EditorViewWindow *wnd= (EditorViewWindow *)data;
 	wnd->cam.SetCtlMode (ctlmode);
@@ -807,7 +805,7 @@ template<Camera::CtlMode ctlmode> static void CameraModeCB(fltk::Widget *w,void 
 	wnd->redraw();
 }
 
-template<bool EditorViewWindow::*prop> static void BooleanPropCB(fltk::Widget *w,void *data) {
+template<bool EditorViewWindow::*prop> static void BooleanPropCB(fltk::Widget* /*w*/,void *data) {
 	EditorViewWindow *wnd = (EditorViewWindow *)data;
 	wnd->*prop = !(wnd->*prop);
 	wnd->redraw();
@@ -819,7 +817,7 @@ inline void setvalue(fltk::Widget *w, bool v) {
 	i->set_flag(fltk::STATE, v);
 }
 
-template<bool bHor> static void SplitViewCB(fltk::Widget *w,void *data)
+template<bool bHor> static void SplitViewCB(fltk::Widget* /*w*/,void *data)
 {
 	EditorViewWindow *v=(EditorViewWindow *)data;
 
@@ -881,7 +879,7 @@ struct MergeViewData {
 	EditorViewWindow *own;
 };
 
-static void MergeViewCallback (fltk::Widget *w, void *data)
+static void MergeViewCallback (fltk::Widget* /*w*/, void *data)
 {
 	MergeViewData *mvd = (MergeViewData*)data;
 	mvd->editor->MergeView (mvd->own, mvd->other);

@@ -94,8 +94,8 @@ void ArchiveListUI::cb_Remove(fltk::Button* o, void* v) {
 inline void ArchiveListUI::cb_Add_i(fltk::Button*, void*) {
 	if(!strlen(edit->value())) return;
 	if (settings.archives.find(edit->value())==settings.archives.end()) {
-		// KLOOTNOTE: cast to void* to fix invalid conversion from const void*
-		archlist->add(edit->value(), (void*) &*settings.archives.insert(edit->value()).first);
+		// NOTE: cast to void* to fix "invalid conversion from const void*"
+		archlist->add(edit->value(), (void*) &(*settings.archives.insert(edit->value()).first));
 		archlist->redraw();
 	}
 ;}
@@ -105,9 +105,9 @@ void ArchiveListUI::cb_Add(fltk::Button* o, void* v) {
 }
 
 ArchiveListUI::ArchiveListUI(const ArchiveList& s) {
-  fltk::Window* w;
+  /*fltk::Window* w;*/
    {fltk::Window* o = window = new fltk::Window(589, 314, "Texture archives");
-    w = o;
+    /*w = o;*/
     o->shortcut(0xff1b);
     o->user_data((void*)(this));
     o->begin();
@@ -136,7 +136,7 @@ ArchiveListUI::ArchiveListUI(const ArchiveList& s) {
   }
   settings=s;
 	for (set<string>::iterator i=settings.archives.begin();i!=settings.archives.end();++i) {
-		// KLOOTNOTE: cast to void* to fix invalid conversion from const void*
+		// NOTE: cast to void* to fix "invalid conversion from const void*"
 		archlist->add(i->c_str(), (void*) &(*i));
 	}
 }
@@ -1198,9 +1198,9 @@ void EditorUI::cb_About(fltk::Item* o, void* v) {
 }
 
 EditorUI::EditorUI() {
-  fltk::Window* w;
+  /*fltk::Window* w;*/
    {fltk::Window* o = window = new fltk::Window(724, 552);
-    w = o;
+    /*w = o;*/
     o->labelfont(fltk::COURIER);
     o->textfont(fltk::COURIER);
     o->shortcut(0xff1b);
@@ -1688,7 +1688,7 @@ child objects. Similar to the origin-move tool");
          {fltk::Item* o = new fltk::Item("Load script");
           o->callback((fltk::Callback*)cb_Load2);
         }
-         {fltk::ItemGroup* o = menuScriptList = new fltk::ItemGroup("Scripts");
+         {/*fltk::ItemGroup* o =*/ menuScriptList = new fltk::ItemGroup("Scripts");
         }
         o->end();
       }

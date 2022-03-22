@@ -204,7 +204,7 @@ Texture* TextureHandler::LoadTexture (ZipFile*zf,int index, const char *name)
 
 
 
-// KLOOTNOTE: replacement for strlwr()
+// NOTE: replacement for strlwr() which is non-ANSI
 void str2lwr(char* s) {
 	for (int i = 0; s[i] != '\0'; i++)
 		s[i] = tolower(s[i]);

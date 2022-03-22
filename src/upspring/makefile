@@ -1,5 +1,5 @@
 CC     = g++
-CFLAGS = -fno-strict-aliasing -Wno-deprecated -Wall -g -DUSE_IK -O2
+CFLAGS = -Wall -Wextra -g -DUSE_IK -O2   -Wno-unused-parameter -Wno-unused-label -fno-strict-aliasing -Wno-deprecated -Wall -g -DUSE_IK -O2
 LFLAGS = \
 	-l3ds -lboost_regex -llua \
 	-lz -lIL -lILU -lILUT -lGLEW -lGL \
@@ -96,6 +96,11 @@ OBJECTS =            \
 	$(MATH_OBS)      \
 	$(SWIG_OBS)      \
 	$(UPSPRING_OBS)
+
+all:
+	make dirs
+	make objects
+	make target
 
 objects: $(OBJECTS)
 

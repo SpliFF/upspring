@@ -72,7 +72,7 @@ void CfgWriter::MakeIndent(char c)
 // CfgValue - base config parsing class
 //-------------------------------------------------------------------------
 
-void CfgValue::dbgPrint (int depth)
+void CfgValue::dbgPrint (int /*depth*/)
 {
 	logger.Trace (NL_Debug, "??\n");
 }
@@ -135,7 +135,7 @@ CfgValue* CfgValue::ParseValue (InputBuffer& buf)
 	return v;
 }
 
-void CfgValue::Write (CfgWriter& w) {}
+void CfgValue::Write (CfgWriter& /*w*/) {}
 
 CfgList* CfgValue::LoadNestedFile (InputBuffer& buf)
 {
@@ -234,7 +234,7 @@ bool CfgNumeric::Parse (InputBuffer& buf)
 	return true;
 }
 
-void CfgNumeric::dbgPrint (int depth)
+void CfgNumeric::dbgPrint (int /*depth*/)
 {
 	logger.Trace (NL_Debug, "%g\n", value);
 }
@@ -278,7 +278,7 @@ bool CfgLiteral::Parse (InputBuffer& buf)
 	return true;
 }
 
-void CfgLiteral::dbgPrint (int depth)
+void CfgLiteral::dbgPrint (int /*depth*/)
 {
 	logger.Trace (NL_Debug, "%s\n", value.c_str());
 }

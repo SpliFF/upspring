@@ -18,7 +18,7 @@
 // ------------------------------------------------------------------------------------------------
 
 
-TextureBrowser::Item::Item(Texture *t) : tex(t), fltk::Widget(0,0,50,50)
+TextureBrowser::Item::Item(Texture *t) : fltk::Widget(0,0,50,50), tex(t)
 {
 	color ((fltk::Color)0x1f1f1f00);
 	tooltip (t->name.c_str());
@@ -135,7 +135,7 @@ vector<Texture*> TextureBrowser::GetSelection()
 }
 
 // calculates child widget positions
-void TextureBrowser::UpdatePositions(bool bRedraw)
+void TextureBrowser::UpdatePositions(bool /*bRedraw*/)
 {
 	int x=0, y=0;
 	int rowHeight=0;

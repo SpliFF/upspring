@@ -68,7 +68,7 @@ fltk::Widget *EditorUI::ObjectView::List::child (const fltk::Menu *, const int *
 	if (!obj) return 0;
 	for (;;) {
 		int i = *indexes++;
-		if (i < 0 || i >= obj->childs.size()) return 0;
+		if (i < 0 || i >= int(obj->childs.size())) return 0;
 		MdlObject *ch = obj->childs[i];// Widget* widget = group->child(i);
 		if (!level--) {
 			obj = ch;

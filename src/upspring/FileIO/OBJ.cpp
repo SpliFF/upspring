@@ -132,7 +132,7 @@ static void get_face(char *line, wf_object *obj)
 	wf_face *f = new wf_face;
 	s = strtok(line,whitespace);
 
-	while ((s = strtok(NULL,whitespace)))
+	while ((s = strtok(NULL,whitespace)) != NULL)
 	{
 		v = atoi(s);
 
@@ -357,7 +357,7 @@ wf_object *ReadWFObject (char *fname, IProgressCtl& progctl)
 	return obj;
 }
 
-bool SaveWavefrontObject (const char *fn, MdlObject *src, IProgressCtl& progctl)
+bool SaveWavefrontObject (const char *fn, MdlObject *src, IProgressCtl& /*progctl*/)
 {
 	MdlObject *obj = src->Clone();
 	obj->FullMerge();
@@ -427,11 +427,11 @@ MdlObject *LoadWavefrontObject (const char *fn, IProgressCtl& progctl)
 			
 			wf_face_vert& fv=face->verts[a];
 
-			if (!wfobj->norm.empty() && fv.norm-1 < wfobj->norm.size())
+			if (!wfobj->norm.empty() && fv.norm-1 < int(wfobj->norm.size()))
 				v.normal = wfobj->norm [fv.norm-1];
-			if (!wfobj->texc.empty() && fv.tex-1 < wfobj->texc.size())
+			if (!wfobj->texc.empty() && fv.tex-1 < int(wfobj->texc.size()))
 				v.tc [0] = wfobj->texc [fv.tex-1];
-			if (!wfobj->vert.empty() && fv.vert-1 < wfobj->vert.size())
+			if (!wfobj->vert.empty() && fv.vert-1 < int(wfobj->vert.size()))
 				v.pos = wfobj->vert [fv.vert-1];
 
 			pl->verts [a] = pm->verts.size()-1;

@@ -22,7 +22,7 @@ public:
 protected:
 	PolyIterator(const PolyIterator&) {}
 
-	int pos;
+	unsigned int pos;
 	PolyMesh *mesh;
 };
 
@@ -64,19 +64,24 @@ public:
 	Vertex* operator->() { return Get(); }
 
 protected:
-	int pos;
+	unsigned int pos;
 	PolyMesh *mesh;
 };
 
 
 
+// NOTE:
+//   using typedefs would be cleaner but causes "expected nested-name-specifier"
+//   error since MemberContainerT then will get referenced outside the template
+//   definition
 #define TEMPLATE template<typename ObjIterator, typename ObjT, typename MemberContainerT>
-#define RET_TYPE_1 std::vector<typename MemberContainerT::value_type>
-#define RET_TYPE_2 std::vector<typename MemberContainerT::value_type*>
+#define ELEM_VAL_VEC std::vector<typename MemberContainerT::value_type >
+#define ELEM_PTR_VEC std::vector<typename MemberContainerT::value_type*>
 
-// KLOOTNOTE: fix "expected nested-name-specifier" error in arg1
-TEMPLATE RET_TYPE_1 GetElementList(MemberContainerT ObjT::*containerPtr, ObjIterator start, ObjIterator end) {
-	RET_TYPE_1 vec;
+TEMPLATE
+ELEM_VAL_VEC
+GetElementList(MemberContainerT ObjT::*containerPtr, ObjIterator start, ObjIterator end) {
+	ELEM_VAL_VEC vec;
 
 	for (; start != end; ++start) {
 		MemberContainerT& mc = (*start)->*containerPtr;
@@ -86,9 +91,10 @@ TEMPLATE RET_TYPE_1 GetElementList(MemberContainerT ObjT::*containerPtr, ObjIter
 	return vec;
 }
 
-// KLOOTNOTE: fix "expected nested-name-specifier" error in arg1
-TEMPLATE RET_TYPE_2 GetElementPtrList(MemberContainerT ObjT::*containerPtr, ObjIterator start, ObjIterator end) {
-	RET_TYPE_2 vec;
+TEMPLATE
+ELEM_PTR_VEC
+GetElementPtrList(MemberContainerT ObjT::*containerPtr, ObjIterator start, ObjIterator end) {
+	ELEM_PTR_VEC vec;
 
 	for (; start != end; ++start) {
 		MemberContainerT& mc = (*start)->*containerPtr;

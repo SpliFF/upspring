@@ -143,10 +143,7 @@ bool Model::LoadS3O(const char *filename, IProgressCtl& /*progctl*/) {
 	if (!file)
 		return false;
 
-	read_result = fread (&header, sizeof(S3OHeader), 1, file);
-	if (read_result != (size_t)1) throw std::runtime_error ("Couldn't read S3O header.");
-
-	logger.Trace (NL_Error,"Wrong version. Only version 1 is supported");
+	if (fread (&header, sizeof(S3OHeader), 1, file)) {}
 
 	if (memcmp (header.magic, S3O_ID, 12)) {
 		logger.Trace (NL_Error, "S3O model %s has wrong identification", filename);

@@ -168,7 +168,7 @@ void Model::InsertModel (MdlObject *obj, Model *sub)
 
 
 // TODO: Abstract file formats
-Model* Model::Load(const string& _fn, bool Optimize, IProgressCtl& progctl) {
+Model* Model::Load(const string& _fn, bool /*Optimize*/, IProgressCtl& progctl) {
 	const char *fn = _fn.c_str();
 	const char *ext=fltk::filename_ext(fn);
 	Model *mdl = 0;
@@ -185,10 +185,12 @@ Model* Model::Load(const string& _fn, bool Optimize, IProgressCtl& progctl) {
 			r = (mdl->root = Load3DSObject(fn, progctl)) != 0;
 		else if (!STRCASECMP(ext, ".obj"))
 			r = (mdl->root = LoadWavefrontObject(fn, progctl)) != 0;
+		else if (!STRCASECMP(ext, ".c3o"))
+			r = mdl->LoadC3O(fn, progctl);
 		else {
 			fltk::message ("Unknown extension %s\n", fltk::filename_ext(fn));
 			delete mdl;
-			return 0;
+			return nullptr;
 		}
 		if (!r) {
 			delete mdl;
@@ -198,13 +200,13 @@ Model* Model::Load(const string& _fn, bool Optimize, IProgressCtl& progctl) {
 	catch (std::runtime_error err)
 	{
 		fltk::message (err.what());
-		return 0;
+		return nullptr;
 	}
 	if (mdl)
 		return mdl;
 	else {
 		fltk::message ("Failed to read file %s:\n",fn);
-		return 0;
+		return nullptr;
 	}
 }
 
@@ -344,9 +346,9 @@ void Model::CalculateRadius ()
 {
 	vector<MdlObject*> objs = GetObjectList();
 	radius=0.0f;
-	for (uint o=0;o<objs.size();o++) {
+	for (unsigned int o=0;o<objs.size();o++) {
 		MdlObject *obj = objs[o];
-		PolyMesh *pm = obj->GetPolyMesh();
+		/*PolyMesh *pm = obj->GetPolyMesh();*/
 		Matrix objTransform;
 		obj->GetFullTransform(objTransform);
 		if (obj->geometry)
@@ -420,12 +422,10 @@ int MatchPolygon (MdlObject *root, vector<Vector3>& pverts, int& startVertex)
 		// compare the polygon vertices with eachother... 
 		uint v = 0;
 		for (;v<pverts.size();v++) {
-			if (( (*pi.verts())[pl->verts[v]].pos - pverts[(v+startv)%pverts.size()]).length () >= EPSILON)
-				break;
-		}
-		if (v==pverts.size()) {
-			startVertex = (int)startv;
-			return index;
+			if (v==pverts.size()) {
+				startVertex = (int)startv;
+				return index;
+			}
 		}
 	}
 	return -1;
@@ -514,7 +514,7 @@ vector<PolyMesh*> Model::GetPolyMeshList ()
 	return pmlist;
 }
 
-Model* Model::LoadOPK(const char *filename, IProgressCtl& progctl) {
+Model* Model::LoadOPK(const char *filename, IProgressCtl& /*progctl*/) {
 	creg::CInputStreamSerializer s;
 	Model *mdl = 0;
 	creg::Class *cls = 0;
@@ -536,7 +536,7 @@ Model* Model::LoadOPK(const char *filename, IProgressCtl& progctl) {
     return mdl;
 }
 
-bool Model::SaveOPK(Model* mdl, const char *filename, IProgressCtl& progctl)
+bool Model::SaveOPK(Model* mdl, const char *filename, IProgressCtl& /*progctl*/)
 {
 	creg::COutputStreamSerializer s;
 
@@ -612,9 +612,9 @@ bool Model::ConvertToS3O(std::string textureName, int texw, int texh)
 
 	for (uint a=0;a<polygons.size();a++)
 	{
-		if (polygons[a]->texture)
+		if (polygons[a]->texture) {
 			textures.insert (polygons[a]->texture.Get());
-		else { // create a new color texture
+		} else { // create a new color texture
 			uint color = Vector3ToRGB (polygons[a]->color);
 			RefPtr<Texture>& cur = coltextures [color];
 

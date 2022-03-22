@@ -300,6 +300,8 @@ static inline void IterateObjects(MdlObject *obj, void (*fn)(MdlObject *obj))
 		IterateObjects (obj->childs[a], fn);
 }
 
+
+
 // allows a GUI component to plug in and show the progress
 struct IProgressCtl {
 	IProgressCtl() { data=0; cb=0; }
@@ -322,8 +324,9 @@ struct TextureBinding
 };
 
 
-// KLOOTNOTE: g++ disallows references to temporary objects so...
-#define HACK_CAST (IProgressCtl&) (const IProgressCtl&)
+
+// NOTE: g++ disallows references to temporary objects, so...
+static IProgressCtl defprogctl;
 
 struct Model {
 	CR_DECLARE(Model);
@@ -334,31 +337,31 @@ struct Model {
 	void PostLoad();
 
 
-	bool Load3DO(const char *filename, IProgressCtl& progctl = HACK_CAST IProgressCtl());
-	bool Save3DO(const char *filename, IProgressCtl& progctl = HACK_CAST IProgressCtl());
+	bool Load3DO(const char *filename, IProgressCtl& progctl = defprogctl);
+	bool Save3DO(const char *filename, IProgressCtl& progctl = defprogctl);
 
-	bool LoadS3O(const char *filename, IProgressCtl& progctl = HACK_CAST IProgressCtl());
-	bool SaveS3O(const char *filename, IProgressCtl& progctl = HACK_CAST IProgressCtl());
+	bool LoadS3O(const char *filename, IProgressCtl& progctl = defprogctl);
+	bool SaveS3O(const char *filename, IProgressCtl& progctl = defprogctl);
 
 	// Common 3D MdlObject (chunk based format)
-	bool LoadC3O(const char *filename, IProgressCtl& progctl = HACK_CAST IProgressCtl());
-	bool SaveC3O(const char *filename, IProgressCtl& progctl = HACK_CAST IProgressCtl());
+	bool LoadC3O(const char *filename, IProgressCtl& progctl = defprogctl);
+	bool SaveC3O(const char *filename, IProgressCtl& progctl = defprogctl);
 
 	// Memory dump using creg
-	static Model* LoadOPK(const char *filename, IProgressCtl& progctl = HACK_CAST IProgressCtl());
-	static bool SaveOPK(Model *mdl, const char *filename, IProgressCtl& progctl = HACK_CAST IProgressCtl());
+	static Model* LoadOPK(const char *filename, IProgressCtl& progctl = defprogctl);
+	static bool SaveOPK(Model *mdl, const char *filename, IProgressCtl& progctl = defprogctl);
 
 
-	static Model* Load(const string& fn, bool Optimize=true, IProgressCtl& progctl = HACK_CAST IProgressCtl());
-	static bool Save(Model *mdl, const string& fn, IProgressCtl& progctl = HACK_CAST IProgressCtl());
+	static Model* Load(const string& fn, bool Optimize=true, IProgressCtl& progctl = defprogctl);
+	static bool Save(Model *mdl, const string& fn, IProgressCtl& progctl = defprogctl);
 
 
 	// exports merged version of the model
 	bool ExportUVMesh(const char *fn);
 
 	// copies the UV coords of the single piece exported by ExportUVMesh back to the model
-	bool ImportUVMesh(const char *fn, IProgressCtl& progctl = HACK_CAST IProgressCtl());
-	bool ImportUVCoords(Model* other, IProgressCtl& progctl = HACK_CAST IProgressCtl());
+	bool ImportUVMesh(const char *fn, IProgressCtl& progctl = defprogctl);
+	bool ImportUVCoords(Model* other, IProgressCtl& progctl = defprogctl);
 
 
 	void InsertModel(MdlObject *obj, Model *sub);

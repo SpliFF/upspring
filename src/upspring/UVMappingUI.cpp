@@ -134,7 +134,7 @@ void UVViewWindow::DrawScene ()
 				continue;
 
 			glBegin(GL_POLYGON);
-			for (int v=0;v<pi->verts.size();v++) {
+			for (unsigned int v=0;v<pi->verts.size();v++) {
 				Vertex &vrt = (* pi.verts()) [pi->verts[v]];
 				glVertex2f (vrt.tc[0].x, vrt.tc[0].y);
 			}
@@ -165,14 +165,14 @@ int UVViewWindow::handle (int msg)
 	return r;
 }
 
-template<int chan> static void SetChannelCB(fltk::Widget *w, void *data)
+template<int chan> static void SetChannelCB(fltk::Widget* /*w*/, void *data)
 {
 	UVViewWindow *wnd = (UVViewWindow *)data;
 	wnd->channel = chan;
 	wnd->redraw();
 }
 
-template<int texture> static void SetTextureIndexCB(fltk::Widget* w, void *data)
+template<int texture> static void SetTextureIndexCB(fltk::Widget* /*w*/, void *data)
 {
 	UVViewWindow *wnd = (UVViewWindow *)data;
 	wnd->textureIndex = texture;

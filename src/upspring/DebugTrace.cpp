@@ -39,7 +39,7 @@ void d_puts (const char *buf)
 #ifdef WIN32
 	OutputDebugString(buf);
 #else
-	fprintf(stderr, buf);
+	fprintf(stderr, "%s", buf);
 #endif
 
 	if(g_logfile[0])

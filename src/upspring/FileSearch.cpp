@@ -8,7 +8,7 @@
 #include <FileSearch.h>
 
 
-// KLOOTNOTE: no io.h on Linux, so do conditional compilation of FindFiles()
+// NOTE: no io.h on Linux, so do conditional compilation of FindFiles()
 // (Linux code copied from rts/System/Platform/Linux/UnixFileSystemHandler.cpp
 // with minor modifications)
 

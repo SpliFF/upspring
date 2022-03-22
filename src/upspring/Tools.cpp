@@ -126,7 +126,7 @@ struct ECameraTool : Tool
 		imageFile = "camera.gif";
 	}
 
-	bool toggle (bool enable)
+	bool toggle (bool /*enable*/)
 	{
 		return true;
 	}
@@ -144,7 +144,7 @@ struct EMoveTool : Tool
 		imageFile = "move.gif";
 	}
 
-	bool toggle(bool enable)
+	bool toggle(bool /*enable*/)
 	{
 		return true;
 	}
@@ -207,7 +207,7 @@ void ECameraTool::mouse (EditorViewWindow *view, int msg, Point move)
 {
 	int s = fltk::event_state ();
 
-	if ((fltk::event_state () & fltk::CTRL) && !(fltk::event_state() & fltk::ALT))
+	if ((s & fltk::CTRL) && !(s & fltk::ALT))
 	{
 		MoveTool.mouse (view, msg, move);
 		return;
@@ -227,7 +227,7 @@ struct ERotateTool : public Tool
 		isToggle = true;
 	}
 
-	bool toggle (bool enabletool)
+	bool toggle (bool /*enabletool*/)
 	{
 		return true;
 	}
@@ -296,7 +296,7 @@ struct EScaleTool : public Tool
 		isToggle=true;
 	}
 
-	bool toggle(bool enabletool)
+	bool toggle(bool /*enabletool*/)
 	{
 		return true;
 	}
@@ -373,7 +373,7 @@ struct EOriginMoveTool : public Tool
 		isToggle = true;
 	}
 
-	bool toggle(bool enabletool)
+	bool toggle(bool /*enabletool*/)
 	{
 		return true;
 	}
@@ -442,7 +442,7 @@ struct ETextureTool : Tool
 		PolyMesh *pm = o->GetPolyMesh();
 		if (pm) 
 		{
-			for(int a=0;a<pm->poly.size();a++) {
+			for(unsigned int a=0;a<pm->poly.size();a++) {
 				if (pm->poly[a]->isSelected) {
 					pm->poly[a]->texture = tex;
 					pm->poly[a]->texname = tex->name;
@@ -512,7 +512,7 @@ struct EPolyColorTool : Tool
 			applyColor (o->childs[a], color);
 	}
 
-	bool toggle (bool enable) { return true; }
+	bool toggle (bool /*enable*/) { return true; }
 	void click (){ 
 		if (!fltk::color_chooser("Color for selected polygons", color.x, color.y, color.z))
 			return;
@@ -541,7 +541,7 @@ struct EPolyFlipTool : Tool
 				 pi->Flip ();
 	}
 
-	bool toggle (bool enable) { return true; }
+	bool toggle (bool /*enable*/) { return true; }
 	void click (){ 
 		Model *m=editor->GetMdl();
 		if (m->root) IterateObjects (m->root,flip);
@@ -564,7 +564,7 @@ struct ERotateTexTool : Tool
 				 p->RotateVerts();
 	}
 
-	bool toggle (bool enable) { return true; }
+	bool toggle (bool /*enable*/) { return true; }
 	void click (){ 
 		Model *m=editor->GetMdl();
 		if (m->root) IterateObjects (m->root,rotatetex);
@@ -586,7 +586,7 @@ struct ECurvedPolyTool : Tool
 				 p->isCurved = !p->isCurved;
 	}
 
-	bool toggle (bool enable) { return true; }
+	bool toggle (bool /*enable*/) { return true; }
 	void click (){
 		Model *m=editor->GetMdl();
 		if (m->root) IterateObjects (m->root,togglecurved);

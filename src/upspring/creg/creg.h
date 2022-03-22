@@ -336,7 +336,7 @@ namespace creg {
 		Type::memberRegistrator=this;				\
 	}												\
 	void RegisterMembers(creg::Class* class_) {		\
-		TClass* null=(Type*)0;						\
+		TClass* null=(Type*)0; (void) null;			\
 		Members; }									\
 	} static TClass##mreg;
 
@@ -351,7 +351,7 @@ namespace creg {
 		Type::memberRegistrator=this;				\
 	}												\
 	void RegisterMembers(creg::Class* class_) {		\
-		Type* null=(Type*)0;						\
+		Type* null=(Type*)0; (void) null;			\
 		Members; }									\
 	} static TSuperClass##TSubClass##mreg;
 

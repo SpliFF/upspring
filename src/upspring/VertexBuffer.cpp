@@ -40,8 +40,9 @@ VertexBuffer::~VertexBuffer ()
 		glDeleteBuffersARB(1,&id);
 		id=0;
 	} else {
-		SAFE_DELETE_ARRAY(data);
+		delete[] (char*) data;
 	}
+	data = 0;
 	totalBufferSize-=size;
 }
 

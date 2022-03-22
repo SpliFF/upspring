@@ -40,16 +40,32 @@ typedef unsigned short ushort;
 	#define UPS_HASH_MAP stdext::hash_map
 	#define UPS_HASH_MAP_H <hash_map>
 #elif defined(__GNUC__)
-	#define UPS_HASH_SET __gnu_cxx::hash_set
-	#define UPS_HASH_SET_H <ext/hash_set>
+	#if (__GNUC__ <= 4 && __GNUC_MINOR__ <= 2)
+		#define UPS_HASH_SET __gnu_cxx::hash_set
+		#define UPS_HASH_SET_H <ext/hash_set>
 
-	#define UPS_HASH_MAP __gnu_cxx::hash_map
-	#define UPS_HASH_MAP_H <ext/hash_map>
+		#define UPS_HASH_MAP __gnu_cxx::hash_map
+		#define UPS_HASH_MAP_H <ext/hash_map>
+	#else
+		// 21-10-2012
+		// with gcc 4.6, including headers from ext/* generates deprecation warnings
+		// however the replacements suggested by backward_warning.h cause "This file
+		// requires compiler and library support for the upcoming ISO C++ standard"
+		// warnings so we must still use the tr1/ versions
+		#define UPS_HASH_SET std::unordered_set
+		#define UPS_HASH_SET_H <tr1/unordered_set>
+
+		#define UPS_HASH_MAP std::unordered_map
+		#define UPS_HASH_MAP_H <tr1/unordered_map>
+	#endif
 
 	// This is needed as gnu doesn't offer specialization for other pointer types other than char*
 	// (look in ext/hash_fun.h for the types supported out of the box)
+#define GCC_VERSION (__GNUC__ * 10000 \
+			+ __GNUC_MINOR__ * 100 \
+			+ __GNUC_PATCHLEVEL__)
 
-	#if (__GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
+	#if (GCC_VERSION > 40200)
 	#include <backward/hash_fun.h>
 	#else
 	#include <ext/hash_fun.h>
@@ -126,7 +142,7 @@ struct ArchiveList {
 class content_error: public std::exception {
 	public:
 		content_error(const string& s): errMsg(s) {}
-		// KLOOTNOTE: g++ demands null-bodies
+		// NOTE: g++ demands null-bodies
 		~content_error() throw() {};
 
 	string errMsg;
@@ -146,13 +162,15 @@ extern string applicationPath;
 
 template<typename InputIterator, typename EqualityComparable>
 int element_index(InputIterator first, InputIterator last, const EqualityComparable& value) {
-	// KLOOTNOTE: g++ craps out on   <type1> i = <val1>, <type2> j = <val2>   style loop-init
+	// NOTE: g++ rejects   <type1> i = <val1>, <type2> j = <val2>   style loop-init
 	InputIterator i;
+	int index = -1;
 
-	for (int index = 0, i = first; i != last; ++i, ++index)
-		// KLOOTNOTE: i is not a pointer so invalid type for *
+	for (index = 0, i = first; i != last; ++i, ++index) {
+		// NOTE: i is not a pointer, so invalid type for *
 		// if (*i == value) return index;
 		if (i == value) return index;
+	}
 	return -1;
 }
 
@@ -170,8 +188,7 @@ InputIterator element_at(InputIterator first, InputIterator last, int index) {
 
 #define SET_WIDGET_VALUE(w, v) (w)->set_flag(fltk::STATE, v)
 
-static const char ImageFileExt[] =
-"All image files\0bmp,tga,pcx,jpg,png,dds,pnm,raw,tif,sgi\0";
+#define ImageFileExt "All image files\0bmp,tga,pcx,jpg,png,dds,pnm,raw,tif,sgi\0"
 
 #endif
 

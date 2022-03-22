@@ -44,7 +44,7 @@ class Timer {
 
 #else
 // #error implement tick counting stuff for other OSes here
-// KLOOTNOTE: stub Timer replacement
+// use a stub Timer replacement to at least allow compiling
 class Timer {
 	unsigned int startCounter;
 
@@ -176,9 +176,11 @@ void TimelineUI::cmdSetLength()
 	if (r) {
 		float m = atof(r);
 		if (m > 0.01f) {
+			/*
 			Model* mdl = callback->GetMdl();
-			//if (mdl->root)
-			//	ChopAnimationInfo (mdl->root, m);
+			if (mdl->root)
+				ChopAnimationInfo (mdl->root, m);
+			*/
 
 			timeSlider->maximum (m);
 			window->redraw();

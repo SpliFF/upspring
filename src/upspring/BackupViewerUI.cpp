@@ -26,7 +26,7 @@ void BackupViewerUI::Hide()
 	window->hide();
 }
 
-void BackupViewerUI::BufferViewerCallback(fltk::Widget *w, void *d)
+void BackupViewerUI::BufferViewerCallback(fltk::Widget* /*w*/, void *d)
 {
 	long index = (long)d;
 
@@ -48,7 +48,7 @@ void BackupViewerUI::Update()
 			name = "<" + name + ">";
 			selindex=index;
 		}
-		bufferView->add(name.c_str(), 0, BufferViewerCallback, (void*)index);
+		/*fltk::Widget* w =*/ bufferView->add(name.c_str(), 0, BufferViewerCallback, (void*)index);
 	}
 	bufferView->select( (int)selindex);
 	bufferView->redraw();
