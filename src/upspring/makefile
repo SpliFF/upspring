@@ -1,10 +1,11 @@
 CC     = g++
 CFLAGS = -fno-strict-aliasing -Wno-deprecated -Wall -g -DUSE_IK -O2
 LFLAGS = \
-	-lX11 -lXft -lXinerama -lXcursor \
 	-l3ds -lboost_regex -llua \
 	-lz -lIL -lILU -lILUT -lGLEW -lGL \
-	-lfltk2_gl -lfltk2_images -lfltk2
+	-lfltk2_gl -lfltk2_images -lfltk2 \
+	-ljpeg -lpng16 -lXext -lX11 -lGLU -ldl \
+	-lXft -lXinerama -lXcursor -lXi
 
 MKDIR  = mkdir -p
 TARGET = UpSpring
@@ -15,8 +16,7 @@ OBJ_BASE_DIR = ../../obj
 BIN_BASE_DIR = ../..
 
 FLTK2_SRC_DIR  = ../fltk2/
-LUA_SRC_DIR = ../lua/
-LIB3DS_SRC_DIR = ../lib3ds/
+LUA_SRC_DIR = ../lua/src/
 FLCHOOSER_SRC_DIR = $(LIB_BASE_DIR)/FLNativeFileChooser
 FLCHOOSER_OBJ_DIR = $(LIB_BASE_DIR)/FLNativeFileChooser
 
@@ -29,9 +29,9 @@ MATH_OBJ_DIR      = $(OBJ_BASE_DIR)/math
 SWIG_SRC_DIR      = $(SRC_BASE_DIR)/swig
 SWIG_OBJ_DIR      = $(OBJ_BASE_DIR)/swig
 
-IFLAGS_FLTK2 = -I$(SRC_BASE_DIR) -I$(LUA_SRC_DIR) -I$(LUA_SRC_DIR)/src  -I$(LIB3DS_SRC_DIR) -I$(FLTK2_SRC_DIR)
+IFLAGS_FLTK2 = -I$(SRC_BASE_DIR) -I$(LUA_SRC_DIR) -I$(LUA_SRC_DIR)/src -I$(FLTK2_SRC_DIR)
 
-LIB_DIR_FLAGS = -L$(FLTK2_SRC_DIR)/lib -L$(LUA_SRC_DIR) -L$(LIB3DS_SRC_DIR)/.libs -L/usr/lib64
+LIB_DIR_FLAGS = -L$(FLTK2_SRC_DIR)/lib -L$(LUA_SRC_DIR) -L/usr/lib64
 
 CREG_OBS = \
 	$(CREG_OBJ_DIR)/creg.o       \

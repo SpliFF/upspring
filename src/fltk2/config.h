@@ -62,7 +62,7 @@
 
 /* Use the new Xft library to draw fonts, which is how you get
    anti-aliasing. (ignored if !USE_X11) */
-#define USE_XFT 1
+#define USE_XFT			0
 
 /* Use Xcursor library for fltk::cursor(Image*,int,int) function.
    (ignored if !USE_X11) */
@@ -215,7 +215,7 @@
 /* Which header file do we include for libpng? */
 /* #undef HAVE_LOCAL_PNG_H */
 #define HAVE_PNG_H 1
-/* #undef HAVE_LIBPNG_PNG_H */
+#define HAVE_LIBPNG_PNG_H 1
 
 /* Which header file do we include for libjpeg? */
 /* #undef HAVE_LOCAL_JPEG_H */

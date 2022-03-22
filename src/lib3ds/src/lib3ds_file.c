@@ -75,9 +75,9 @@ fileio_write_func(void *self, const void *buffer, size_t size) {
  *
  * \note     To free the returned structure use lib3ds_free.
  *
- * \see lib3ds_file_save
- * \see lib3ds_file_new
- * \see lib3ds_file_free
+ * \see 	 lib3ds_file_save,
+ *           lib3ds_file_new,
+ *           lib3ds_file_free
  */
 Lib3dsFile*
 lib3ds_file_open(const char *filename) {
@@ -461,7 +461,6 @@ kfdata_read(Lib3dsFile *file, Lib3dsIo *io) {
     Lib3dsChunk c;
     uint16_t chunk;
     unsigned num_nodes = 0;
-    Lib3dsIoImpl *impl = (Lib3dsIoImpl*)io->impl;
     Lib3dsNode *last = NULL;
 
     lib3ds_chunk_read_start(&c, CHK_KFDATA, io);
@@ -500,7 +499,7 @@ kfdata_read(Lib3dsFile *file, Lib3dsIo *io) {
             case CHK_LIGHT_NODE_TAG: 
             case CHK_SPOTLIGHT_NODE_TAG: 
             case CHK_L_TARGET_NODE_TAG: {
-                Lib3dsNodeType type;
+                Lib3dsNodeType type = (Lib3dsNodeType)0;
                 Lib3dsNode *node;
 
                 switch (chunk) {
@@ -528,7 +527,7 @@ kfdata_read(Lib3dsFile *file, Lib3dsIo *io) {
                 }
 
                 node = lib3ds_node_new(type);
-                node->node_id = num_nodes++;
+                node->node_id = (unsigned short)(num_nodes++);
                 if (last) {
                     last->next = node;
                 } else {
@@ -547,7 +546,7 @@ kfdata_read(Lib3dsFile *file, Lib3dsIo *io) {
     }
 
     {
-        Lib3dsNode **nodes = malloc(num_nodes * sizeof(Lib3dsNode*));
+        Lib3dsNode **nodes = (Lib3dsNode**)malloc(num_nodes * sizeof(Lib3dsNode*));
         unsigned i;
         Lib3dsNode *p, *q, *parent;
 
@@ -560,7 +559,7 @@ kfdata_read(Lib3dsFile *file, Lib3dsIo *io) {
 
         p = last;
         while (p) {
-            q = p->user_ptr;
+            q = (Lib3dsNode*)p->user_ptr;
             if (p->user_id != 65535) {
                 parent = *(Lib3dsNode**)bsearch(&p->user_id, nodes, num_nodes, sizeof(Lib3dsNode*), compare_node_id2);
                 if (parent) {
@@ -850,7 +849,7 @@ kfdata_write(Lib3dsFile *file, Lib3dsIo *io) {
         c.chunk = CHK_KFHDR;
         c.size = 6 + 2 + (uint32_t)strlen(file->name) + 1 + 4;
         lib3ds_chunk_write(&c, io);
-        lib3ds_io_write_intw(io, file->keyf_revision);
+        lib3ds_io_write_intw(io, (int16_t)file->keyf_revision);
         lib3ds_io_write_string(io, file->name);
         lib3ds_io_write_intd(io, file->frames);
     }

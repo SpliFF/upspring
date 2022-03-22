@@ -74,31 +74,31 @@ const float scaleFactor=1/(65536.0f);
 
 typedef struct
 {
-	long VersionSignature;
-	long NumberOfVertexes;
-	long NumberOfPrimitives;
-	long NoSelectionRect;
-	long XFromParent;
-	long YFromParent;
-	long ZFromParent;
-	long OffsetToObjectName;        // 28
-	long Always_0;                  // 32
-	long OffsetToVertexArray;       // 36
-	long OffsetToPrimitiveArray;    // 40
-	long OffsetToSiblingObject;     // 44
-	long OffsetToChildObject;       // 48
+	int VersionSignature;
+	int NumberOfVertexes;
+	int NumberOfPrimitives;
+	int NoSelectionRect;
+	int XFromParent;
+	int YFromParent;
+	int ZFromParent;
+	int OffsetToObjectName;        // 28
+	int Always_0;                  // 32
+	int OffsetToVertexArray;       // 36
+	int OffsetToPrimitiveArray;    // 40
+	int OffsetToSiblingObject;     // 44
+	int OffsetToChildObject;       // 48
 } TA_Object;
 
 typedef struct
 {
-	long PaletteIndex;
-	long VertNum;
-	long Always_0;
-	long VertOfs;
-	long TexnameOfs;
-	long Unknown_1; 
-	long Unknown_2;
-	long Unknown_3; 
+	int PaletteIndex;
+	int VertNum;
+	int Always_0;
+	int VertOfs;
+	int TexnameOfs;
+	int Unknown_1; 
+	int Unknown_2;
+	int Unknown_3; 
 } TA_Polygon;
 
 
@@ -119,7 +119,7 @@ static MdlObject* load_object(int ofs, FILE *f, MdlObject *parent, int r=0)
 		return 0;
 	}
 
-	long ipos[3];
+	int ipos[3];
 	PolyMesh *pm = new PolyMesh;
 	n->geometry = pm;
 	pm->verts.resize (obj.NumberOfVertexes);
@@ -127,7 +127,7 @@ static MdlObject* load_object(int ofs, FILE *f, MdlObject *parent, int r=0)
 	fseek (f,obj.OffsetToVertexArray, SEEK_SET);
 	for(int a=0;a<obj.NumberOfVertexes;a++)
 	{
-		read_result = fread(ipos, sizeof(long),3,f);
+		read_result = fread(ipos, sizeof(int),3,f);
 		if (read_result != (size_t)3) throw std::runtime_error ("Couldn't read vertexes.");
 		for (int b=0;b<3;b++)
 			pm->verts[a].pos.v[b] = FROM_TA(ipos[b]);
@@ -249,10 +249,10 @@ static void save_object(FILE *f, MdlObject *parent, std::vector<MdlObject*>::ite
 	n.OffsetToVertexArray = ftell(f);
 	for (unsigned int a=0;a<pm->verts.size();a++)
 	{
-		long v[3];
+		int v[3];
 		Vector3 *p = &pm->verts[a].pos;
 		for (int i=0;i<3;i++) v[i] = TO_TA(p->v[i]);
-		write_result = fwrite (v, sizeof(long), 3, f);
+		write_result = fwrite (v, sizeof(int), 3, f);
 		if (write_result != (size_t)3) throw std::runtime_error ("Couldn't write vertex.");
 	}
 

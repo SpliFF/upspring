@@ -70,9 +70,9 @@ POSTBUILD=":"
 
 # flags for C++ compiler:
 CFLAGS=""
-CXXFLAGS="-I/usr/include/freetype2  -Wno-non-virtual-dtor"
-LDFLAGS=" -L/usr/lib64 "
-LDLIBS=" -L/usr/lib64  -lX11 -lXi -lXinerama -lXcursor -lXft -lpthread -lm  -lXext  -lsupc++"
+CXXFLAGS="  -Wno-non-virtual-dtor"
+LDFLAGS=" "
+LDLIBS="  -lX11 -lXi -lXinerama -lXcursor -ldl -lpthread -lm  -lXext  -lsupc++"
 
 # libraries to link with:
 LIBNAME="@LIBNAME@"

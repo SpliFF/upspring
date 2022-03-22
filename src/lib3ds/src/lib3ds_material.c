@@ -746,7 +746,7 @@ lib3ds_material_write(Lib3dsMaterial *material, Lib3dsIo *io) {
         c.chunk = CHK_MAT_SHADING;
         c.size = 8;
         lib3ds_chunk_write(&c, io);
-        lib3ds_io_write_intw(io, material->shading);
+        lib3ds_io_write_intw(io, (int16_t)material->shading);
     }
 
     { /*---- CHK_MAT_REFBLUR ----*/
@@ -851,8 +851,8 @@ lib3ds_material_write(Lib3dsMaterial *material, Lib3dsIo *io) {
         c.size = 18;
         lib3ds_chunk_write(&c, io);
         lib3ds_io_write_intb(io, 0);
-        lib3ds_io_write_intb(io, material->autorefl_map_anti_alias);
-        lib3ds_io_write_intw(io, material->autorefl_map_flags);
+        lib3ds_io_write_intb(io, (int8_t)material->autorefl_map_anti_alias);
+        lib3ds_io_write_intw(io, (int16_t)material->autorefl_map_flags);
         lib3ds_io_write_intd(io, material->autorefl_map_size);
         lib3ds_io_write_intd(io, material->autorefl_map_frame_step);
     }

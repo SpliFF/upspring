@@ -18,6 +18,8 @@
 #include <fltk/Image.h>
 #include <ZipFile.h>
 
+#include <fstream>
+
 #ifdef _MSC_VER
  #include <float.h>
  #define ISNAN(c) _isnan(c)
@@ -658,50 +660,31 @@ FltkImage* FltkImage::Load(const char *filebuf, int filelen)
 
 void Tools::LoadImages()
 {
-	FILE *f = fopen("data/buttons.ups", "rb");
-	if (!f) {
-		fltk::message("Failed to load data/buttons.ups");
-	}
-	else
-	{
-		ZipFile zf;
-		zf.Init(f);
+	for (std::size_t a = 0, max = tools.size(); a != max; ++a) {
+		auto filename = std::string("data/buttons/") + tools[a]->imageFile;
+		std::ifstream file(filename, std::ios::binary | std::ios::ate);
+		std::streamsize size = file.tellg();
+		file.seekg(0, std::ios::beg);
 
-		for(int a=0;a<tools.size();a++) {
-			if (!tools[a]->imageFile)
-				continue;
-
-			std::string fn = tools[a]->imageFile;
-
-			int zipIndex=-1;
-			for (int fi=0;fi<zf.GetNumFiles();fi++) {
-				char zfn [64];
-				zf.GetFilename(fi, zfn, sizeof(zfn));
-				if (!STRCASECMP(zfn, fn.c_str())) {
-					zipIndex = fi;
-					break;
-				}
-			}
-
-			if (zipIndex>=0) {
-				int len = zf.GetFileLen(zipIndex);
-				char *buf = new char[len];
-				zf.ReadFile(zipIndex, buf);
-
-				tools[a]->image = FltkImage::Load(buf, len);
-				if (!tools[a]->image) {
-					fltk::message("Failed to load texture %s from data/buttons.ups\n", fn.c_str());
-					delete[] buf;
-					continue;
-				}
-				delete[] buf;
-
-				tools[a]->button->image(tools[a]->image->img);
-				tools[a]->button->label("");
-			} else
-				fltk::message("Couldn't find %s in data/buttons.ups", fn.c_str());
+		std::vector<char> buffer(size);
+		if (!file.read(buffer.data(), size)) 
+		{
+    		fltk::message("Failed to load texture %s\n", filename);
+			file.close();
+			buffer.clear();
+			continue;
 		}
-		fclose(f);
+		file.close();
+
+		tools[a]->image = FltkImage::Load(buffer.data(), size);
+		buffer.clear();
+		if (!tools[a]->image) {
+			fltk::message("Failed to load texture %s\n", filename);
+			continue;
+		}
+
+		tools[a]->button->image(tools[a]->image->img);
+		tools[a]->button->label("");
 	}
 }
 

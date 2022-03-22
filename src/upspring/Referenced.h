@@ -98,7 +98,7 @@ public:
 	WeakPtr& operator=(T* ptr) { Set(ptr); }
 	const T* operator*() const { return (T*)_object; }
 	T* operator*() { return (T*)_object; }
-	operator bool() const { return _object>=0; }
+	operator bool() const { return _object != 0; }
 
 	class Type : public creg::IType
 	{

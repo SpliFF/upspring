@@ -38,6 +38,7 @@ extern "C"
 #endif
 }
 
+# include <cstring>
 # include <stdlib.h>
 
 static png_bytep cur_datas;
@@ -111,7 +112,7 @@ bool pngImage::fetch()
     png_set_sig_bytes(png_ptr, 8);
   }
 
-  if (setjmp(png_ptr->jmpbuf))
+  if (setjmp(png_jmpbuf(png_ptr)))
     goto error;
 
   png_read_info(png_ptr, info_ptr);

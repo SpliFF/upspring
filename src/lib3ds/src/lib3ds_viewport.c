@@ -158,13 +158,13 @@ lib3ds_viewport_write(Lib3dsViewport *viewport, Lib3dsIo *io) {
         c.chunk = CHK_VIEWPORT_LAYOUT;
         lib3ds_chunk_write_start(&c, io);
 
-        lib3ds_io_write_word(io, viewport->layout_style);
-        lib3ds_io_write_intw(io, viewport->layout_active);
+        lib3ds_io_write_word(io, (uint16_t)viewport->layout_style);
+        lib3ds_io_write_intw(io, (int16_t)viewport->layout_active);
         lib3ds_io_write_intw(io, 0);
-        lib3ds_io_write_intw(io, viewport->layout_swap);
+        lib3ds_io_write_intw(io, (int16_t)viewport->layout_swap);
         lib3ds_io_write_intw(io, 0);
-        lib3ds_io_write_intw(io, viewport->layout_swap_prior);
-        lib3ds_io_write_intw(io, viewport->layout_swap_view);
+        lib3ds_io_write_intw(io, (int16_t)viewport->layout_swap_prior);
+        lib3ds_io_write_intw(io, (int16_t)viewport->layout_swap_view);
 
         {
             Lib3dsChunk c;
@@ -184,12 +184,12 @@ lib3ds_viewport_write(Lib3dsViewport *viewport, Lib3dsIo *io) {
             lib3ds_chunk_write(&c, io);
 
             lib3ds_io_write_intw(io, 0);
-            lib3ds_io_write_word(io, viewport->layout_views[i].axis_lock);
-            lib3ds_io_write_intw(io, viewport->layout_views[i].position[0]);
+            lib3ds_io_write_word(io, (uint16_t)viewport->layout_views[i].axis_lock);
+            lib3ds_io_write_intw(io, (int16_t)viewport->layout_views[i].position[0]);
             lib3ds_io_write_intw(io, viewport->layout_views[i].position[1]);
             lib3ds_io_write_intw(io, viewport->layout_views[i].size[0]);
             lib3ds_io_write_intw(io, viewport->layout_views[i].size[1]);
-            lib3ds_io_write_word(io, viewport->layout_views[i].type);
+            lib3ds_io_write_word(io, (uint16_t)viewport->layout_views[i].type);
             lib3ds_io_write_float(io, viewport->layout_views[i].zoom);
             lib3ds_io_write_vector(io, viewport->layout_views[i].center);
             lib3ds_io_write_float(io, viewport->layout_views[i].horiz_angle);

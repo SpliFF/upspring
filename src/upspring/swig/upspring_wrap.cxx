@@ -279,7 +279,7 @@ private:
 /* Cast-Rank Mode */
 #if defined(SWIG_CASTRANK_MODE)
 #  ifndef SWIG_TypeRank
-#    define SWIG_TypeRank             unsigned long
+#    define SWIG_TypeRank             unsigned int
 #  endif
 #  ifndef SWIG_MAXCASTRANK            /* Default cast allowed */
 #    define SWIG_MAXCASTRANK          (2)

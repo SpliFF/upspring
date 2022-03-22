@@ -55,7 +55,7 @@ MAKEDEPEND	= $(CXX) -MM -DMAKEDEPEND
 # flags for C++ compiler:
 OPTIM		=  -O2 -Wall -Wunused 
 CFLAGS		= $(OPTIM) 
-CXXFLAGS	= $(OPTIM) -I/usr/include/freetype2  -Wno-non-virtual-dtor
+CXXFLAGS	= $(OPTIM)   -Wno-non-virtual-dtor
 
 # programs and definitions to make static libraries:
 LIBCOMMAND	= /usr/bin/ar cr
@@ -77,8 +77,8 @@ LOCALIMAGES	=
 ZLIBINC		= 
 
 # libraries to link with:
-LDLIBS =  -L/usr/lib64  -lX11 -lXi -lXinerama -lXcursor -lXft -lpthread -lm  -lXext  -lsupc++
-GLDLIBS =  -L/usr/lib64  -lGLU -lGL -lX11 -lXi -lXinerama -lXcursor -lXft -lpthread -lm  -lXext  -lsupc++
+LDLIBS =   -lX11 -lXi -lXinerama -lXcursor -ldl -lpthread -lm  -lXext  -lsupc++
+GLDLIBS =   -lGLU -lGL -lX11 -lXi -lXinerama -lXcursor -ldl -lpthread -lm  -lXext  -lsupc++
 LINKFLTK = -L../lib -lfltk2
 LINKFLTKGL = -L../lib -lfltk2_gl -lfltk2
 LINKFLTKFORMS = -L../lib -lfltk2_forms -lfltk2

@@ -15,6 +15,10 @@
     You should  have received a copy of the GNU Lesser General Public License
     along with  this program; If not, see <http://www.gnu.org/licenses/>. 
 */
+
+/** @file lib3ds_quat.c
+	Quaternion mathematics implementation */
+
 #include "lib3ds_impl.h"
 
 
@@ -183,7 +187,7 @@ lib3ds_quat_ln(float c[4]) {
     double om, s, t;
 
     s = sqrt(c[0] * c[0] + c[1] * c[1] + c[2] * c[2]);
-    om = atan2(s, c[3]);
+    om = atan2(s, (double)c[3]);
     if (fabs(s) < LIB3DS_EPSILON) {
         t = 0.0f;
     } else {

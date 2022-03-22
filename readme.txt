@@ -5,9 +5,9 @@ January 31, 2010 [SpliFF]
 
 March 28, 2009 [Kloot]
 	quick compilation guide:
-		src/fltk2          configure && make && make install
-		src/lib3ds         configure && make && make install
-		src/LuaJIT-1.1.2   make linux && make install
+		src/fltk2          configure && make
+		src/lib3ds         cmake -S . -B build --install-prefix=/usr; cmake --build build --parallel; sudo cmake --install build
+		src/lua            make linux
 
 		cd src/upspring/ && make all
 

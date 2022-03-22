@@ -31,7 +31,7 @@ lib3ds_node_new(Lib3dsNodeType type) {
     Lib3dsNode *node;
     switch (type) {
         case LIB3DS_NODE_AMBIENT_COLOR: {
-            Lib3dsAmbientColorNode *n = calloc(sizeof(Lib3dsAmbientColorNode), 1);
+            Lib3dsAmbientColorNode *n = (Lib3dsAmbientColorNode*)calloc(sizeof(Lib3dsAmbientColorNode), 1);
             node = (Lib3dsNode*)n;
             strcpy(node->name, "$AMBIENT$");
             n->color_track.type = LIB3DS_TRACK_VECTOR;
@@ -39,7 +39,7 @@ lib3ds_node_new(Lib3dsNodeType type) {
         }
 
         case LIB3DS_NODE_MESH_INSTANCE: {
-            Lib3dsMeshInstanceNode *n = calloc(sizeof(Lib3dsMeshInstanceNode), 1);
+            Lib3dsMeshInstanceNode *n = (Lib3dsMeshInstanceNode*)calloc(sizeof(Lib3dsMeshInstanceNode), 1);
             node = (Lib3dsNode*)n;
             strcpy(node->name, "$$$DUMMY");
             n->pos_track.type = LIB3DS_TRACK_VECTOR;
@@ -50,7 +50,7 @@ lib3ds_node_new(Lib3dsNodeType type) {
         }
 
         case LIB3DS_NODE_CAMERA: {
-            Lib3dsCameraNode *n = calloc(sizeof(Lib3dsCameraNode), 1);
+            Lib3dsCameraNode *n = (Lib3dsCameraNode*)calloc(sizeof(Lib3dsCameraNode), 1);
             node = (Lib3dsNode*)n;
             n->pos_track.type = LIB3DS_TRACK_VECTOR;
             n->fov_track.type = LIB3DS_TRACK_FLOAT;
@@ -59,14 +59,14 @@ lib3ds_node_new(Lib3dsNodeType type) {
         }
 
         case LIB3DS_NODE_CAMERA_TARGET: {
-            Lib3dsTargetNode *n = calloc(sizeof(Lib3dsTargetNode), 1);
+            Lib3dsTargetNode *n = (Lib3dsTargetNode*)calloc(sizeof(Lib3dsTargetNode), 1);
             node = (Lib3dsNode*)n;
             n->pos_track.type = LIB3DS_TRACK_VECTOR;
             break;
         }
 
         case LIB3DS_NODE_OMNILIGHT: {
-            Lib3dsOmnilightNode *n = calloc(sizeof(Lib3dsOmnilightNode), 1);
+            Lib3dsOmnilightNode *n = (Lib3dsOmnilightNode*)calloc(sizeof(Lib3dsOmnilightNode), 1);
             node = (Lib3dsNode*)n;
             n->pos_track.type = LIB3DS_TRACK_VECTOR;
             n->color_track.type = LIB3DS_TRACK_VECTOR;
@@ -74,7 +74,7 @@ lib3ds_node_new(Lib3dsNodeType type) {
         }
 
         case LIB3DS_NODE_SPOTLIGHT: {
-            Lib3dsSpotlightNode *n = calloc(sizeof(Lib3dsSpotlightNode), 1);
+            Lib3dsSpotlightNode *n = (Lib3dsSpotlightNode*)calloc(sizeof(Lib3dsSpotlightNode), 1);
             node = (Lib3dsNode*)n;
             n->pos_track.type = LIB3DS_TRACK_VECTOR;
             n->color_track.type = LIB3DS_TRACK_VECTOR;
@@ -85,7 +85,7 @@ lib3ds_node_new(Lib3dsNodeType type) {
         }
 
         case LIB3DS_NODE_SPOTLIGHT_TARGET: {
-            Lib3dsTargetNode *n = calloc(sizeof(Lib3dsTargetNode), 1);
+            Lib3dsTargetNode *n = (Lib3dsTargetNode*)calloc(sizeof(Lib3dsTargetNode), 1);
             node = (Lib3dsNode*)n;
             n->pos_track.type = LIB3DS_TRACK_VECTOR;
             break;

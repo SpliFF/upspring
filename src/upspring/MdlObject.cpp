@@ -103,7 +103,8 @@ float MdlObject::Selector::Score (Vector3 &pos, float camdis)
 	Vector3 center;
 	Matrix transform;
 	obj->GetFullTransform(transform);
-	transform.apply(&Vector3(), &center);
+	Vector3 empty = Vector3();
+	transform.apply(&empty, &center);
 	float best=(pos-center).length();
 	// it it close to a polygon?
 	for (PolyIterator pi(obj);!pi.End();pi.Next()) {

@@ -15,6 +15,10 @@
     You should  have received a copy of the GNU Lesser General Public License
     along with  this program; If not, see <http://www.gnu.org/licenses/>. 
 */
+
+/** @file lib3ds_vector.c
+	Vector mathematics implementation */
+
 #include "lib3ds_impl.h"
 
 
@@ -79,7 +83,8 @@ lib3ds_vector_sub(float c[3], float a[3], float b[3]) {
 /*!
  * Multiply a vector by a scalar.
  *
- * \param c Vector to be multiplied.
+ * \param c Result.
+ * \param a Vector to be multiplied.
  * \param k Scalar.
  */
 void

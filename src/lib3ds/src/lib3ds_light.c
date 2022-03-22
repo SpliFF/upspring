@@ -267,7 +267,7 @@ lib3ds_light_write(Lib3dsLight *light, Lib3dsIo *io) {
             lib3ds_chunk_write(&c, io);
             lib3ds_io_write_float(io, light->shadow_bias);
             lib3ds_io_write_float(io, light->shadow_filter);
-            lib3ds_io_write_intw(io, light->shadow_size);
+            lib3ds_io_write_intw(io, (int16_t)light->shadow_size);
         }
         if (light->see_cone) { /*---- LIB3DS_DL_SEE_CONE ----*/
             Lib3dsChunk c;

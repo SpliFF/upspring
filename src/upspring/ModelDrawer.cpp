@@ -97,17 +97,17 @@ void ModelDrawer::SetupGL() {
 
 		if (GLEW_ARB_fragment_program && GLEW_ARB_vertex_program && GLEW_ARB_texture_cube_map) {
 
-			s3oFP = LoadFragmentProgram (applicationPath + "shaders/s3o.fp");
-			s3oVP = LoadVertexProgram (applicationPath + "shaders/s3o.vp");
-			s3oFPunlit = LoadFragmentProgram (applicationPath + "shaders/s3o_unlit.fp");
-			s3oVPunlit = LoadVertexProgram (applicationPath + "shaders/s3o_unlit.vp");
+			s3oFP = LoadFragmentProgram (applicationPath + "data/shaders/s3o.fp");
+			s3oVP = LoadVertexProgram (applicationPath + "data/shaders/s3o.vp");
+			s3oFPunlit = LoadFragmentProgram (applicationPath + "data/shaders/s3o_unlit.fp");
+			s3oVPunlit = LoadVertexProgram (applicationPath + "data/shaders/s3o_unlit.vp");
 
 			if (s3oFP && s3oVP && s3oFPunlit && s3oVPunlit) {
 				canRenderS3O = 2;
 
 				nv_dds::CDDSImage image;
-				if (!image.load(applicationPath + "data/skybox.dds")) {
-					fltk::message("Failed to load data/skybox.dds");
+				if (!image.load(applicationPath + "data/textures/skybox.dds")) {
+					fltk::message("Failed to load textures/skybox.dds");
 
 					canRenderS3O = 1;
 				}

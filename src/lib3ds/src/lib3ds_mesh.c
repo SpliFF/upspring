@@ -65,20 +65,20 @@ lib3ds_mesh_free(Lib3dsMesh *mesh) {
 void
 lib3ds_mesh_resize_vertices(Lib3dsMesh *mesh, int nvertices, int use_texcos, int use_flags) {
     assert(mesh);
-    mesh->vertices = lib3ds_util_realloc_array(mesh->vertices, mesh->nvertices, nvertices, 3 * sizeof(float));
-    mesh->texcos = lib3ds_util_realloc_array(
+    mesh->vertices = (float(*)[3])lib3ds_util_realloc_array(mesh->vertices, mesh->nvertices, nvertices, 3 * sizeof(float));
+    mesh->texcos = (float(*)[2])lib3ds_util_realloc_array(
         mesh->texcos, 
         mesh->texcos? mesh->nvertices : 0, 
         use_texcos? nvertices : 0, 
         2 * sizeof(float)
     );
-    mesh->vflags = lib3ds_util_realloc_array(
+    mesh->vflags = (unsigned short*)lib3ds_util_realloc_array(
         mesh->vflags, 
         mesh->vflags? mesh->nvertices : 0, 
         use_flags? nvertices : 0, 
         2 * sizeof(float)
     );
-    mesh->nvertices = nvertices;
+    mesh->nvertices = (unsigned short)nvertices;
 }
 
 
@@ -86,11 +86,11 @@ void
 lib3ds_mesh_resize_faces(Lib3dsMesh *mesh, int nfaces) {
     int i;
     assert(mesh);
-    mesh->faces = lib3ds_util_realloc_array(mesh->faces, mesh->nfaces, nfaces, sizeof(Lib3dsFace));
+    mesh->faces = (Lib3dsFace*)lib3ds_util_realloc_array(mesh->faces, mesh->nfaces, nfaces, sizeof(Lib3dsFace));
     for (i = mesh->nfaces; i < nfaces; ++i) {
         mesh->faces[i].material = -1;
     }
-    mesh->nfaces = nfaces;
+    mesh->nfaces = (unsigned short)nfaces;
 }
 
 
@@ -169,8 +169,8 @@ lib3ds_mesh_calculate_vertex_normals(Lib3dsMesh *mesh, float (*normals)[3]) {
         return;
     }
 
-    fl = calloc(sizeof(Lib3dsFaces*), mesh->nvertices);
-    fa = malloc(sizeof(Lib3dsFaces) * 3 * mesh->nfaces);
+    fl = (Lib3dsFaces**)calloc(sizeof(Lib3dsFaces*), mesh->nvertices);
+    fa = (Lib3dsFaces*)malloc(sizeof(Lib3dsFaces) * 3 * mesh->nfaces);
 
     for (i = 0; i < mesh->nfaces; ++i) {
         for (j = 0; j < 3; ++j) {
@@ -511,7 +511,10 @@ face_array_write(Lib3dsFile *file, Lib3dsMesh *mesh, Lib3dsIo *io) {
         Lib3dsChunk c;
         int i, j;
         uint16_t num;
-        char *matf = ((Lib3dsIoImpl*)io->impl)->tmp_mem = calloc(sizeof(char), mesh->nfaces);
+        Lib3dsIoImpl *impl = (Lib3dsIoImpl*)io->impl;
+
+        char *matf = (char*)calloc(sizeof(char), mesh->nfaces);
+        impl->tmp_mem = matf;
         assert(matf);
 
         for (i = 0; i < mesh->nfaces; ++i) {
@@ -538,7 +541,7 @@ face_array_write(Lib3dsFile *file, Lib3dsMesh *mesh, Lib3dsIo *io) {
                 }
             }
         }
-        ((Lib3dsIoImpl*)io->impl)->tmp_mem = NULL;
+        impl->tmp_mem = NULL;
         free(matf);
     }
 
@@ -624,7 +627,7 @@ lib3ds_mesh_write(Lib3dsFile *file, Lib3dsMesh *mesh, Lib3dsIo *io) {
         c.size = 92;
         lib3ds_chunk_write(&c, io);
 
-        lib3ds_io_write_word(io, mesh->map_type);
+        lib3ds_io_write_word(io, (uint16_t)mesh->map_type);
 
         for (i = 0; i < 2; ++i) {
             lib3ds_io_write_float(io, mesh->map_tile[i]);
@@ -666,7 +669,7 @@ lib3ds_mesh_write(Lib3dsFile *file, Lib3dsMesh *mesh, Lib3dsIo *io) {
         c.chunk = CHK_MESH_COLOR;
         c.size = 7;
         lib3ds_chunk_write(&c, io);
-        lib3ds_io_write_byte(io, mesh->color);
+        lib3ds_io_write_byte(io, (uint8_t)mesh->color);
     }
     
     face_array_write(file, mesh, io);

@@ -316,7 +316,7 @@ bool CDDSImage::load(string filename, bool flipImage)
     fread(filecode, 1, 4, fp);
     if (strncmp(filecode, "DDS ", 4) != 0)
     {
-        //fclose(fp);
+        fclose(fp);
         return false;
     }
 
@@ -392,10 +392,11 @@ bool CDDSImage::load(string filename, bool flipImage)
 	}
     else 
     {
+        printf("Unknown DDS: (%u) (%u) %s\n", ddsh.dwSize, ddsh.ddspf.dwRGBBitCount, filename.c_str());
         fclose(fp);
         return false;
     }
-    
+
     // store primary surface width/height/depth
     unsigned int width, height, depth;
     width = ddsh.dwWidth;
@@ -1064,8 +1065,8 @@ void CDDSImage::flip_dxt5_alpha(DXT5AlphaBlock *block)
 {
     unsigned char gBits[4][4];
     
-    const unsigned long mask = 0x00000007;          // bits = 00 00 01 11
-    unsigned long bits = 0;
+    const unsigned int mask = 0x00000007;          // bits = 00 00 01 11
+    unsigned int bits = 0;
     memcpy(&bits, &block->row[0], sizeof(unsigned char) * 3);
 
     gBits[0][0] = (unsigned char)(bits & mask);
@@ -1103,7 +1104,7 @@ void CDDSImage::flip_dxt5_alpha(DXT5AlphaBlock *block)
     bits >>= 3;
     gBits[3][3] = (unsigned char)(bits & mask);
 
-    unsigned long *pBits = ((unsigned long*) &(block->row[0]));
+    unsigned int *pBits = ((unsigned int*) &(block->row[0]));
 
     *pBits = *pBits | (gBits[3][0] << 0);
     *pBits = *pBits | (gBits[3][1] << 3);
@@ -1115,7 +1116,7 @@ void CDDSImage::flip_dxt5_alpha(DXT5AlphaBlock *block)
     *pBits = *pBits | (gBits[2][2] << 18);
     *pBits = *pBits | (gBits[2][3] << 21);
 
-    pBits = ((unsigned long*) &(block->row[3]));
+    pBits = ((unsigned int*) &(block->row[3]));
 
 #ifdef MACOS
     *pBits &= 0x000000ff;

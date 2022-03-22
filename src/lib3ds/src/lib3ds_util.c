@@ -41,7 +41,7 @@ void lib3ds_util_reserve_array(void ***ptr, int *n, int *size, int new_size, int
                 (*ptr)[i] = 0;
             }
         }
-        *ptr = (void*)realloc(*ptr, sizeof(void*) * new_size);
+        *ptr = (void**)realloc(*ptr, sizeof(void*) * new_size);
         *size = new_size;
         if (*n > new_size) {
             *n = new_size;

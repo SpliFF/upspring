@@ -1391,7 +1391,7 @@ int main (int argc, char *argv[])
 #endif
 
 //	math_test();
-	fltk::message( "path: %s", applicationPath.c_str() );
+	// fltk::message( "path: %s", applicationPath.c_str() );
 
 	// Initialize the class system
 	creg::System::InitializeClasses ();

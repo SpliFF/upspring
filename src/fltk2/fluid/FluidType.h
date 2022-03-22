@@ -42,7 +42,7 @@
 class FLUID_API FluidType {
 
   friend class Widget_Browser;
-  friend fltk::Widget *make_type_browser(int,int,int,int,const char *l=0);
+  friend fltk::Widget *make_type_browser(int,int,int,int,const char *l);
   friend class WindowType;
   virtual void setlabel(const char *); // virtual part of label(char*)
 
