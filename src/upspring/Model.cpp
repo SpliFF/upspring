@@ -185,8 +185,6 @@ Model* Model::Load(const string& _fn, bool /*Optimize*/, IProgressCtl& progctl) 
 			r = (mdl->root = Load3DSObject(fn, progctl)) != 0;
 		else if (!STRCASECMP(ext, ".obj"))
 			r = (mdl->root = LoadWavefrontObject(fn, progctl)) != 0;
-		else if (!STRCASECMP(ext, ".c3o"))
-			r = mdl->LoadC3O(fn, progctl);
 		else {
 			fltk::message ("Unknown extension %s\n", fltk::filename_ext(fn));
 			delete mdl;

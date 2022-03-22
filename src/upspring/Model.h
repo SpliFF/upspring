@@ -343,10 +343,6 @@ struct Model {
 	bool LoadS3O(const char *filename, IProgressCtl& progctl = defprogctl);
 	bool SaveS3O(const char *filename, IProgressCtl& progctl = defprogctl);
 
-	// Common 3D MdlObject (chunk based format)
-	bool LoadC3O(const char *filename, IProgressCtl& progctl = defprogctl);
-	bool SaveC3O(const char *filename, IProgressCtl& progctl = defprogctl);
-
 	// Memory dump using creg
 	static Model* LoadOPK(const char *filename, IProgressCtl& progctl = defprogctl);
 	static bool SaveOPK(Model *mdl, const char *filename, IProgressCtl& progctl = defprogctl);
