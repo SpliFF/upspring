@@ -121,6 +121,8 @@ void TexGroupUI::UpdateGroupList()
 
 	for (uint a=0;a<texGroupHandler->groups.size();a++) {
 		TextureGroup *gr = texGroupHandler->groups[a];
+		groups->add (gr->name.c_str(),0,0,gr);
+		if (current==gr) curval=a;
 	}
 
 	if (curval>=0) groups->value(curval);

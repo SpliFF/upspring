@@ -8,28 +8,6 @@
 #include "Mathlib.h"
 #include "Util.h"
 
-//-----------------------------------------------------------------------
-// Register metadata
-//-----------------------------------------------------------------------
-CR_BIND(Vector2,());
-CR_REG_METADATA(Vector2, (CR_MEMBER(x), CR_MEMBER(y)));
-
-CR_BIND(Vector3,());
-CR_REG_METADATA(Vector3, (CR_MEMBER(x), CR_MEMBER(y), CR_MEMBER(z)));
-
-CR_BIND(Vector4,());
-CR_REG_METADATA(Vector4, (CR_MEMBER(x), CR_MEMBER(y), CR_MEMBER(z), CR_MEMBER(w)));
-
-CR_BIND(Plane,());
-CR_REG_METADATA(Plane, (CR_MEMBER(a), CR_MEMBER(b), CR_MEMBER(c), CR_MEMBER(d)));
-
-CR_BIND(Matrix,());
-CR_REG_METADATA(Matrix, (CR_MEMBER(m)));
-
-CR_BIND(Quaternion,());
-CR_REG_METADATA(Quaternion, (CR_MEMBER(x), CR_MEMBER(y), CR_MEMBER(z), CR_MEMBER(w)));
-//-----------------------------------------------------------------------
-
 #define USE_RADIANS
 
 #ifdef USE_RADIANS

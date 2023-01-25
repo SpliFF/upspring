@@ -22,9 +22,6 @@
 // Texture
 // ------------------------------------------------------------------------------------------------
 
-CR_BIND(Texture,());
-CR_REG_METADATA(Texture, (CR_MEMBER(name), CR_MEMBER(glIdent), CR_MEMBER(image)));
-
 string Texture::textureLoadDir;
 
 Texture::Texture() 

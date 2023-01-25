@@ -37,7 +37,7 @@ public:
 	{
 		if (!loaded) Init();
 		int r=color.x*255,g=color.y*255,b=color.z*255;
-		int best=-1, bestdif=-1;
+		int best=-1, bestdif=0;
 		for (int a=0;a<256;a++) {
 			int dif=abs(r-p[a][0])+abs(g-p[a][1])+abs(b-p[a][2]);
 			if (best<0 || bestdif>dif) {

@@ -3,6 +3,9 @@
 //  Copyright 2005 Jelmer Cnossen
 //  This code is released under GPL license, see LICENSE.HTML for info.
 //-----------------------------------------------------------------------
+
+#include <iostream>
+
 #include "EditorIncl.h"
 
 //#ifdef USE_IK
@@ -27,22 +30,18 @@
 #include "ObjectView.h"
 #include "Texture.h"
 #include "CfgParser.h"
-#include "BackupManager.h"
 
 #include <fstream>
-#include "creg/Serializer.h"
 
 #include "AnimationUI.h"
 #include "FileSearch.h"
 #include "MeshIterators.h"
 
-#ifdef __cplusplus
-  extern "C" {
-    #include "lua.h"
-    #include "lualib.h"
-    #include "lauxlib.h"
-  }
-#endif //__cplusplus
+extern "C" {
+	#include "lua.h"
+	#include "lualib.h"
+	#include "lauxlib.h"
+}
 
 #include "swig/ScriptInterface.h"
 
@@ -170,15 +169,13 @@ void EditorUI::Initialize ()
 	ilutRenderer(ILUT_OPENGL);
 
 	callback.ui = this;
-	new BackupManager(&callback);
-	
+
 	objectViewer = new ObjectView (this, objectTree);
 	uiIK = new IK_UI (&callback);
 	uiTimeline = new TimelineUI (&callback);
 	uiAnimTrackEditor = new AnimTrackEditorUI (&callback, uiTimeline);
 	uiRotator = new RotatorUI;
 	uiRotator->CreateUI(&callback);
-	uiBackupViewer = new BackupViewerUI(&callback);
 
 	tools.SetEditor (&callback);
 	tools.camera->button = selectCameraTool;
@@ -240,7 +237,7 @@ void EditorUI::Initialize ()
 		viewsGroup->end();
 	}
 
-	BACKUP_POINT("New model");
+	
 }
 
 void EditorUI::Show(bool initial)
@@ -260,7 +257,6 @@ EditorUI::~EditorUI()
 	SAFE_DELETE(uiTexBuilder);
 	SAFE_DELETE(uiAnimTrackEditor);
 	SAFE_DELETE(uiRotator);
-	SAFE_DELETE(uiBackupViewer);
 
 	if (textureGroupHandler) {
 		textureGroupHandler->Save((applicationPath+TextureGroupConfig).c_str());
@@ -273,8 +269,6 @@ EditorUI::~EditorUI()
 	SAFE_DELETE(objectViewer);
 	SAFE_DELETE(modelDrawer);
 	SAFE_DELETE(model);
-
-	delete &BackupManager::Get();
 
 	ilShutDown ();
 }
@@ -318,7 +312,7 @@ void EditorUI::uiAddUnitTextures()
 void EditorUI::uiCut ()
 {
 	copyBuffer.Cut (model);
-	BACKUP_POINT("Cut selected objects");
+	
 	Update();
 }
 
@@ -342,7 +336,7 @@ void EditorUI::uiPaste ()
 	}
 
 	copyBuffer.Paste (model, where);
-	BACKUP_POINT("Pasted copy buffer into model");
+	
 	Update();
 }
 
@@ -364,7 +358,7 @@ void EditorUI::uiAddObject ()
 			}
 		} else 	model->root=obj;
 
-		BACKUP_POINT("Added empty object");
+		
 		Update ();
 	}
 }
@@ -387,7 +381,7 @@ void EditorUI::uiDeleteSelection()
 				pm->poly = polygons;
 			}
 		}
-		BACKUP_POINT("Deleted selected polygons");
+		
 	} else {
 		vector <MdlObject *> objects=model->GetSelectedObjects ();
 		vector <MdlObject *> filtered;
@@ -399,7 +393,7 @@ void EditorUI::uiDeleteSelection()
 		for (unsigned int a=0;a<filtered.size();a++)
 			model->DeleteObject (filtered[a]);
 
-		BACKUP_POINT("Deleted selected objects");
+		
 	}
 	Update();
 }
@@ -413,7 +407,7 @@ void EditorUI::uiApplyTransform()
 		MdlObject *o=sel[a];
 		o->ApplyTransform(true,true,true);
 	}
-	BACKUP_POINT("Transformation applied");
+	
 	Update();
 }
 
@@ -433,7 +427,7 @@ void EditorUI::uiUniformScale()
 
 			sel[a]->scale *= scale;
 		}
-		BACKUP_POINT("Uniform scale applied");
+		
 		Update();
 	}
 }
@@ -454,7 +448,7 @@ void EditorUI::uiRotate3DOTex ()
 						pl->RotateVerts();
 				}
 		}
-		BACKUP_POINT("3DO texture rotated");
+		
 		Update();
 	}
 }
@@ -470,7 +464,7 @@ void EditorUI::uiSwapObjects()
 	model->SwapObjects(sel.front(), sel.back());
 	sel.front()->isOpen = true;
 	sel.back()->isOpen = true;
-	BACKUP_POINT("Objects swapped");
+	
 	Update();
 }
 
@@ -489,7 +483,7 @@ void EditorUI::uiObjectPositionChanged(int axis, fltk::Input *o)
 			sel->MoveOrigin(newPos - sel->position);
 		} else
 			sel->position[axis] = val;
-		BACKUP_POINT("Object position change");
+		
 		Update();
 	}
 }
@@ -502,7 +496,7 @@ void EditorUI::uiObjectStateChanged(Vector3 MdlObject::*state, float Vector3::*a
 	if (sel) {
 		float val=atof(o->value());
 		(sel->*state).*axis = val * scale;
-		BACKUP_POINT("Object property change");
+		
 		Update();
 	}
 }
@@ -515,7 +509,7 @@ void EditorUI::uiObjectRotationChanged(int axis, fltk::Input *o)
 		Vector3 euler = sel->rotation.GetEuler();
 		euler.v[axis] = atof(o->value()) * DegreesToRadians;
 		sel->rotation.SetEuler(euler);
-		BACKUP_POINT("Object rotation change");
+		
 		Update();
 	}
 }
@@ -523,21 +517,21 @@ void EditorUI::uiObjectRotationChanged(int axis, fltk::Input *o)
 void EditorUI::uiModelStateChanged(float *prop, fltk::Input *o)
 {
 	*prop = atof (o->value ());
-	BACKUP_POINT("Model property change");
+	
 	Update ();
 }
 
 void EditorUI::uiCalculateMidPos ()
 {
 	model->EstimateMidPosition ();
-	BACKUP_POINT("Midpoint estimation");
+	
 	Update ();
 }
 
 void EditorUI::uiCalculateRadius ()
 {
 	model->CalculateRadius();
-	BACKUP_POINT("Radius calculation");
+	
 	Update ();
 }
 
@@ -546,7 +540,7 @@ void EditorUI::menuObjectApproxOffset()
 	vector<MdlObject*> sel = model->GetSelectedObjects();
 	for (unsigned int a=0;a<sel.size();a++)
 		sel[a]->ApproximateOffset ();
-	BACKUP_POINT("Offset approximation of selected objects");
+	
 	Update();
 }
 
@@ -558,7 +552,6 @@ void EditorUI::browserSetObjectName (MdlObject *obj)
 	if (r) {
 		string prev = obj->name;
 		obj->name = r;
-		BACKUP_POINT( string("Object name change ('" + prev + "' => '" + obj->name + "')").c_str() );
 		objectTree->redraw();
 	}
 }
@@ -598,7 +591,6 @@ void EditorUI::Update ()
 	uiTimeline->Update ();
 	uiAnimTrackEditor->Update ();
 	uiRotator->Update();
-	uiBackupViewer->Update();
 
 	// update object inputs
 	vector<MdlObject*> sel = model->GetSelectedObjects();
@@ -727,7 +719,7 @@ void EditorUI::BrowseForTexture(int textureIndex)
 			delete tex;
 		else
 			SetModelTexture (textureIndex, tex);
-		BACKUP_POINT("Texture change");
+		
 		Update();
 	}
 }
@@ -743,7 +735,7 @@ void EditorUI::ReloadTexture (int index)
 	RefPtr<Texture> tex = new Texture(tb.name);
 	SetModelTexture (index, tex->IsLoaded () ? tex.Get() : 0);
 
-	BACKUP_POINT("Texture reload");
+	
 	Update();
 }
 
@@ -759,10 +751,8 @@ void EditorUI::ConvertToS3O()
 	if (model->ConvertToS3O(GetFilePath(filename) + "/" + name + "_tex.bmp", texW, texH)) {
 		// Update the UI
 		SetModelTexture (0, model->texBindings[0].texture.Get());
-		SetMapping (MAPPING_S3O);
-		BACKUP_POINT("Converted to S3O texturing");
-	} else
-		BackupManager::Get().ReloadLast ();
+		SetMapping (MAPPING_S3O);	
+	}
 	Update();
 }
 
@@ -827,7 +817,7 @@ bool EditorUI::Load (const string& fn)
 	if (mdl) { 
 		filename = fn;
 		SetModel (mdl);
-		BACKUP_POINT("Load model");
+		
 		Update();
 	} else {
 		delete mdl;
@@ -848,7 +838,7 @@ void EditorUI::menuObjectLoad()
 			model->InsertModel (obj, submdl);
 
 		delete submdl;
-		BACKUP_POINT("Load object");
+		
 		Update();
 	}
 }
@@ -885,7 +875,7 @@ void EditorUI::menuObjectReplace()
 			model->ReplaceObject (old, submdl->root);
 			submdl->root = 0;
 
-			BACKUP_POINT("Replace object");
+			
 			Update ();
 		}
 		delete submdl;
@@ -900,7 +890,7 @@ void EditorUI::menuObjectMerge()
 		MdlObject *parent = sel [a]->parent;
 		if (parent) parent->MergeChild (sel[a]);
 	}
-	BACKUP_POINT("Selected objects merged");
+	
 	Update ();
 }
 
@@ -913,7 +903,7 @@ void EditorUI::menuObjectFlipPolygons()
 		
 		sel[a]->InvalidateRenderData ();
 	}
-	BACKUP_POINT("Flip polygons of selected objects");
+	
 	Update ();
 }
 
@@ -926,7 +916,7 @@ void EditorUI::menuObjectRecalcNormals()
 
 		sel[a]->InvalidateRenderData ();
 	}
-	BACKUP_POINT("Normal recalculation");
+	
 	Update();
 }
 
@@ -937,7 +927,6 @@ void EditorUI::menuObjectResetScaleRot()
         sel[a]->rotation=Rotator();
 		sel[a]->scale.set(1,1,1);
 	}
-	BACKUP_POINT("Reset scale+rotation of selected objects");
 	Update();
 }
 
@@ -949,7 +938,7 @@ void EditorUI::menuObjectResetTransform()
         sel[a]->rotation=Rotator();
 		sel[a]->scale.set(1,1,1);
 	}
-	BACKUP_POINT("Reset transform of selected objects");
+	
 	Update();
 }
 
@@ -958,7 +947,7 @@ void EditorUI::menuObjectResetPos()
 	vector<MdlObject*> sel=model->GetSelectedObjects();
 	for (unsigned int a=0;a<sel.size();a++)
         sel[a]->position=Vector3();
-	BACKUP_POINT("Reset position of selected objects");
+	
 	Update();
 }
 
@@ -977,7 +966,7 @@ void EditorUI::menuObjectGenCSurf()
 		sel[a]->csurfobj = new csurf::Object;
 		sel[a]->csurfobj->GenerateFromPolyMesh(sel[a]->GetPolyMesh());
 	}
-	BACKUP_POINT("Curved surface object created");
+	
 }
 
 void EditorUI::menuEditOptimizeAll()
@@ -986,7 +975,7 @@ void EditorUI::menuEditOptimizeAll()
 	for (uint i=0;i<objects.size();i++)
 		if (objects[i]->GetPolyMesh ())
 			objects[i]->GetPolyMesh()->Optimize(PolyMesh::IsEqualVertexTCNormal);
-	BACKUP_POINT("All objects optimized");
+	
 }
 
 void EditorUI::menuEditOptimizeSelected()
@@ -995,24 +984,8 @@ void EditorUI::menuEditOptimizeSelected()
 	for (uint i=0;i<objects.size();i++)
 		if (objects[i]->isSelected && objects[i]->GetPolyMesh())
 			objects[i]->GetPolyMesh()->Optimize(PolyMesh::IsEqualVertexTCNormal);
-	BACKUP_POINT("Selected objects optimized");
+	
 }
-
-void EditorUI::menuEditUndo()
-{
-	BackupManager::Get().Undo();
-}
-
-void EditorUI::menuEditRedo()
-{
-	BackupManager::Get().Redo();
-}
-
-void EditorUI::menuEditShowUndoBufferViewer()
-{
-	uiBackupViewer->Show();
-}
-
 
 void EditorUI::menuFileSaveAs() 
 {
@@ -1028,7 +1001,7 @@ void EditorUI::menuFileSaveAs()
 void EditorUI::menuFileNew()
 {
 	SetModel (new Model);
-	BACKUP_POINT("New model");
+	
 }
 
 // this will also be called by the main window callback (on exit)
@@ -1039,7 +1012,6 @@ void EditorUI::menuFileExit()
 	uiTimeline->Hide();
 	uiAnimTrackEditor->Hide();
 	uiRotator->Hide();
-	uiBackupViewer->Hide();
 	window->hide ();
 }
 
@@ -1232,7 +1204,7 @@ void EditorUI::menuMappingImportUV() {
 		progress->show ();
 		model->ImportUVMesh(fn.c_str(), progctl);
 		progress->hide ();
-		BACKUP_POINT("UV mapping imported");
+		
 	}
 }
 
@@ -1352,6 +1324,37 @@ string ReadTextFile (const char *name)
 	return r;
 }
 
+extern "C" {
+	int luaopen_upspring(lua_State *L);
+}
+
+void RunScript(const std::string &pScriptFile) {
+	// Initialise Lua
+	lua_State *L = luaL_newstate();
+	luaL_openlibs(L);
+	luaopen_upspring(L);
+
+	if (luaL_dofile(L, "scripts/init.lua") != 0) {
+		const char *err = lua_tostring(L, -1);
+		std::cout << "Error while executing init.lua: " << err << std::endl;
+		return;
+	}
+
+	int status = luaL_loadfile(L, pScriptFile.c_str());
+	if (status == LUA_OK) {
+		status = lua_pcall(L, 0, 0, 0);
+	}
+	if (status != LUA_OK) {
+		const char *err = lua_tostring(L, -1);
+		std::cout << "Error while executing '" << pScriptFile << "': " << err << std::endl;
+		lua_close(L);
+		lua_pop(L, 1);
+		return;
+	}
+
+	lua_close(L);
+}
+
 bool ParseCmdLine(int argc, char *argv[], int& /*r*/)
 {
 	for (int a=1;a<argc;a++) {
@@ -1361,10 +1364,8 @@ bool ParseCmdLine(int argc, char *argv[], int& /*r*/)
 				return false;
 			}
 
-			/*
-			const char *scriptFile = argv[a+1];
-			r = RunScript (binder, scriptFile);
-			*/
+			auto scriptFile = std::string(argv[a+1]);
+			RunScript (scriptFile);
 			return false;
 		}
 	}
@@ -1373,8 +1374,6 @@ bool ParseCmdLine(int argc, char *argv[], int& /*r*/)
 }
 
 extern void math_test();
-
-extern "C" int luaopen_upspring(lua_State *L);
 
 int main (int argc, char *argv[])
 {
@@ -1398,9 +1397,6 @@ int main (int argc, char *argv[])
 
 //	math_test();
 	// fltk::message( "path: %s", applicationPath.c_str() );
-
-	// Initialize the class system
-	creg::System::InitializeClasses ();
 
 	int r = 0;
 	if (ParseCmdLine(argc, argv, r))
@@ -1440,9 +1436,6 @@ int main (int argc, char *argv[])
 
 		fltk::run();
 	}
-
-	// Shutdown scripting system and class system
-	creg::System::FreeClasses ();
 
 	return r;
 }

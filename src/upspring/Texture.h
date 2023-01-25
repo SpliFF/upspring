@@ -14,7 +14,6 @@ class CfgList;
 
 class Texture : public Referenced
 {
-	CR_DECLARE(Texture);
 public:
 	Texture ();
 	Texture (const string& filename);

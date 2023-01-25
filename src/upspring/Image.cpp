@@ -28,9 +28,6 @@ struct DevILInitializer
 #endif
 
 
-CR_BIND(Image, ());
-
-
 // define this to use color blending with mipmap generation
 #define BLEND_MIPMAP
 

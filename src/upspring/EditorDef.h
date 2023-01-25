@@ -145,7 +145,7 @@ class content_error: public std::exception {
 		// NOTE: g++ demands null-bodies
 		~content_error() throw() {};
 
-	string errMsg;
+	std::string errMsg;
 };
 
 inline void stringlwr(string& str) {

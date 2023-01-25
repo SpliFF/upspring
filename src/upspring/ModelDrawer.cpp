@@ -186,6 +186,8 @@ void ModelDrawer::RenderPolygon (MdlObject *o, Poly*pl, IView *v, int mapping, b
 		} else {
 			for (uint a=0;a<pl->verts.size();a++) {
 				int i = pl->verts [a];
+				glNormal3fv ((float*)&pm->verts[i].normal);
+				glVertex3fv ((float*)&pm->verts[i].pos);
 			}
 		}
 		glEnd ();

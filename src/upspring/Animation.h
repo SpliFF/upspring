@@ -26,17 +26,12 @@ public:
 	static AnimController *GetQuaternionController();
 	static AnimController *GetFloatController();
 	static AnimController *GetEulerAngleController();
-	// Create a struct controller that applies subctl on all it's members
-	// All struct members need to be compatible with the given subctl for this
-	static AnimController *GetStructController(AnimController* subctl, creg::Class *def);
 };
 #endif
 
 class AnimProperty
 {
 public:
-	CR_DECLARE(AnimProperty);
-
 	AnimProperty();
 	AnimProperty(AnimController *ctl, const std::string& name, int offset);
 	~AnimProperty();
@@ -66,10 +61,7 @@ public:
 class AnimationInfo
 {
 public:
-	CR_DECLARE(AnimationInfo);
-	
 	~AnimationInfo();
-	void Serialize(creg::ISerializer& s);
 
 	void AddProperty (AnimController *controller, const char *name, int offset);
 

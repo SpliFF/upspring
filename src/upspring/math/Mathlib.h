@@ -7,7 +7,6 @@
 #define C_MATHLIB_H
 
 #include <math.h>
-#include "creg/creg.h"
 
 #ifndef M_PI
 #define M_PI 3.1415926536f
@@ -27,8 +26,6 @@ class Quaternion;
 class Vector3
 {
 public:
-	CR_DECLARE_STRUCT(Vector3);
-
 	Vector3() { x=y=z=0; }
 	Vector3(float tx,float ty,float tz) { x=tx;y=ty;z=tz; }
 
@@ -90,8 +87,6 @@ public:
 
 class Vector2 {
 public:
-	CR_DECLARE_STRUCT(Vector2);
-
 	Vector2(float X,float Y):x(X),y(Y) {}
 	Vector2() {x=y=0.0f;}
 	float x,y;
@@ -100,8 +95,6 @@ public:
 class Vector4
 {
 public:
-	CR_DECLARE_STRUCT(Vector4);
-
 	Vector4(float tx=0, float ty=0, float tz=0, float tw=0)
 	{   x=tx; y=ty; z=tz; w=tw; }
 
@@ -111,8 +104,6 @@ public:
 class Plane
 {
 public:
-	CR_DECLARE_STRUCT(Plane);
-
 	float a,b,c,d;
 	Plane() { a=b=c=d=0; }
 	Plane(float ta,float tb,float tc,float td) { a=ta;b=tb;c=tc;d=td; }
@@ -136,8 +127,6 @@ public:
 class Matrix
 {
 public:
-	CR_DECLARE_STRUCT(Matrix);
-
 	Matrix () { clear(); } 
 	void vector_rotation (const Vector3 &v, float angle);
 	void translation(float tx, float ty, float tz);
@@ -231,8 +220,6 @@ w   12		13		14		15
 class Quaternion
 {
 public:
-	CR_DECLARE_STRUCT(Quaternion);
-
 	Quaternion () { identity (); }
 	Quaternion (float inx,float iny, float inz, float inw) 
 	{   x=inx; y=iny; z=inz; w=inw; }

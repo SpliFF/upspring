@@ -11,7 +11,6 @@
 #include "CfgParser.h"
 
 #include "AnimationUI.h"
-#include "BackupManager.h"
 
 #include <fltk/run.h>
 
@@ -176,11 +175,9 @@ void TimelineUI::cmdSetLength()
 	if (r) {
 		float m = atof(r);
 		if (m > 0.01f) {
-			/*
 			Model* mdl = callback->GetMdl();
 			if (mdl->root)
 				ChopAnimationInfo (mdl->root, m);
-			*/
 
 			timeSlider->maximum (m);
 			window->redraw();
@@ -214,6 +211,4 @@ void TimelineUI::InsertKeys (bool autoInsert)
 		if (!autoInsert)
 			callback->Update();
 	}
-
-	BACKUP_POINT("Animation keys inserted");
 }

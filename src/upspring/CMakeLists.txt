@@ -1,4 +1,5 @@
 add_executable (Upspring)
+
 add_dependencies(Upspring BuildFltk2)
 
 find_package(X11 COMPONENTS Xft Xinerama Xcursor Xi Xext)
@@ -27,6 +28,7 @@ target_link_libraries (Upspring
     ${X11_Xcursor_LIB}
     ${X11_Xi_LIB}
 
+    FLNativeFileChooser
     fltk2
     fltk2_gl
     fltk2_images
@@ -48,24 +50,25 @@ target_link_libraries (Upspring
     ${LUA_LIBRARIES}
 )
 
+# TODO(jochumdev): I hate those manual directories here.
 target_include_directories(Upspring 
     PRIVATE "${X11_INCLUDE_DIRS}"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" 
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../FLNativeFileChooser"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../fltk2" 
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../lib3ds/src"
 )
 
 target_link_directories(Upspring
+    PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../FLNativeFileChooser"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../fltk2/lib"
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../lib3ds/lib"
+    PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../lib3ds/lib"
 )
 
 target_sources(Upspring PRIVATE
     AnimTrackEditor.cpp
     Animation.cpp
     AnimationUI.cpp
-    BackupManager.cpp
-    BackupViewerUI.cpp
     CfgParser.cpp
     CurvedSurface.cpp
     DebugTrace.cpp
@@ -98,9 +101,6 @@ target_sources(Upspring PRIVATE
     VertexBuffer.cpp
     View.cpp
     ZipFile.cpp
-    creg/Serializer.cpp
-    creg/VarTypes.cpp
-    creg/creg.cpp
     math/Mathlib.cpp
     nv_dds.cpp
     pch.cpp

@@ -12,114 +12,12 @@
 #include "View.h"
 #include "Texture.h"
 
-#include "creg/Serializer.h"
-#include "creg/VarTypes.h"
 #include <fstream>
 #include <stdexcept>
 
 #include "CurvedSurface.h"
 
 #include "MeshIterators.h"
-
-// ------------------------------------------------------------------------------------------------
-// Register model types
-// ------------------------------------------------------------------------------------------------
-
-// Simple structures
-CR_BIND(Vertex,());
-CR_REG_METADATA(Vertex, 
-(
-	CR_MEMBER(pos), 
-	CR_MEMBER(normal), 
-	CR_MEMBER(tc))
-);
-
-CR_BIND(Triangle,());
-CR_REG_METADATA(Triangle, (CR_MEMBER(vrt)));
-
-// Joints
-CR_BIND(BaseJoint,());
-
-CR_BIND_DERIVED(HingeJoint, BaseJoint,());
-CR_REG_METADATA(HingeJoint, CR_MEMBER(axis));
-
-CR_BIND_DERIVED(UniversalJoint, BaseJoint,());
-CR_REG_METADATA(UniversalJoint, CR_MEMBER(axis));
-
-// IK info
-CR_BIND(IKinfo,());
-CR_REG_METADATA(IKinfo, (CR_MEMBER(joint), CR_ENUM_MEMBER(jointType)));
-
-// Poly
-CR_BIND(Poly,());
-CR_REG_METADATA(Poly, (
-	CR_MEMBER(verts), 
-	CR_MEMBER(texname), 
-	CR_MEMBER(color), 
-	CR_MEMBER(taColor),
-	CR_MEMBER(texture),
-	CR_MEMBER_SETFLAG(texture, CM_NoSerialize), // the texture shouldn't be serialized
-	CR_MEMBER(isSelected))
-);
-
-CR_BIND(Rotator,());
-CR_REG_METADATA(Rotator, 
-(
-	CR_MEMBER(euler),
-	CR_MEMBER(eulerInterp))
-);
-
-CR_BIND_INTERFACE(Geometry);
-
-CR_BIND_DERIVED(PolyMesh, Geometry, ())
-CR_REG_METADATA(PolyMesh,
-(
-	CR_MEMBER(poly),
-	CR_MEMBER(verts))
-);
-
-
-// MdlObject
-CR_BIND(MdlObject, ());
-CR_REG_METADATA(MdlObject,
-(
-	CR_MEMBER(childs),
-	CR_MEMBER(geometry),
-
-	// Orientation
-	CR_MEMBER(position),
-	CR_MEMBER(scale),
-	CR_MEMBER(rotation),
-
-	CR_MEMBER(name),
-	CR_MEMBER(isSelected),
-	CR_MEMBER(isOpen),
-	CR_MEMBER(parent),
-	CR_MEMBER(ikInfo),
-
-	CR_MEMBER(animInfo)
-))
-
-// Model
-CR_BIND(Model, ());
-CR_REG_METADATA(Model,
-(
-	CR_MEMBER(radius),
-	CR_MEMBER(height),
-	CR_MEMBER(mid),
-
-	CR_MEMBER(mapping),
-	CR_MEMBER(texBindings),
-	CR_MEMBER(root),
-	CR_POSTLOAD(PostLoad)
-))
-
-CR_BIND(TextureBinding, ())
-CR_REG_METADATA(TextureBinding, (
-	CR_MEMBER(name),
-	CR_MEMBER(texture),
-	CR_MEMBER_SETFLAG(texture,CM_NoSerialize)  // only texture names are stored
-	))
 
 // ------------------------------------------------------------------------------------------------
 // Model
@@ -510,40 +408,6 @@ vector<PolyMesh*> Model::GetPolyMeshList ()
 		if (objlist[a]->GetPolyMesh ())
 			pmlist.push_back (objlist[a]->GetPolyMesh());
 	return pmlist;
-}
-
-Model* Model::LoadOPK(const char *filename, IProgressCtl& /*progctl*/) {
-	creg::CInputStreamSerializer s;
-	Model *mdl = 0;
-	creg::Class *cls = 0;
-
-	std::ifstream f (filename, ios::in|ios::binary);
-	if (!f.is_open ())
-		return 0;
-
-	void *root = 0;
-	s.LoadPackage (&f, root, cls);
-
-	mdl = (Model *)root;
-	if (cls != Model::StaticClass())
-	{
-		cls->DeleteInstance (mdl);
-		return 0;
-	}
-
-    return mdl;
-}
-
-bool Model::SaveOPK(Model* mdl, const char *filename, IProgressCtl& /*progctl*/)
-{
-	creg::COutputStreamSerializer s;
-
-	std::ofstream f (filename, ios::out|ios::binary);
-	if (!f.is_open ())
-		return false;
-
-	s.SavePackage (&f, mdl, mdl->GetClass());
-	return true;
 }
 
 // loads textures after a creg read serialization

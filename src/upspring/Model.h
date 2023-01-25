@@ -33,8 +33,6 @@ class PolyMesh;
 
 struct Triangle
 {
-	CR_DECLARE_STRUCT(Triangle);
-
 	Triangle(){vrt[0]=vrt[1]=vrt[2]=0;}
 	int vrt[3];
 };
@@ -42,16 +40,12 @@ struct Triangle
 
 struct Vertex
 {
-	CR_DECLARE_STRUCT(Vertex);
-
 	Vector3 pos, normal;
 	Vector2 tc[1];
 };
 
 struct Poly
 {
-	CR_DECLARE(Poly);
-
 	Poly ();
 	~Poly ();
 
@@ -94,29 +88,21 @@ enum IKJointType
 
 struct BaseJoint 
 {
-	CR_DECLARE(BaseJoint);
-
 	virtual ~BaseJoint() {}
 };
 
 struct HingeJoint : public BaseJoint
 {
-	CR_DECLARE(HingeJoint);
-
 	Vector3 axis;
 };
 
 struct UniversalJoint : public BaseJoint
 {
-	CR_DECLARE(UniversalJoint);
-
 	Vector3 axis[2];
 };
 
 struct IKinfo
 {
-	CR_DECLARE(IKinfo);
-
 	IKinfo();
 	~IKinfo();
 
@@ -133,8 +119,6 @@ struct IRenderData
 class Rotator
 {
 public:
-	CR_DECLARE(Rotator);
-
 	Rotator();
 	void AddEulerAbsolute(const Vector3& rot);
 	void AddEulerRelative(const Vector3& rot);
@@ -156,8 +140,6 @@ class ModelDrawer;
 class Geometry
 {
 public:
-	CR_DECLARE(Geometry);
-
 	virtual ~Geometry() {}
 	
 	virtual void Draw(ModelDrawer *drawer, Model* mdl, MdlObject* o) = 0;
@@ -172,8 +154,6 @@ public:
 class PolyMesh : public Geometry
 {
 public:
-	CR_DECLARE(PolyMesh);
-
 	~PolyMesh();
 
 	vector <Vertex> verts;
@@ -201,8 +181,6 @@ public:
 
 
 struct MdlObject {
-	CR_DECLARE(MdlObject);
-
 	MdlObject ();
 	virtual ~MdlObject ();
 
@@ -312,8 +290,6 @@ struct IProgressCtl {
 
 struct TextureBinding
 {
-	CR_DECLARE(TextureBinding);
-
 	std::string name;
 #ifndef SWIG
 	RefPtr<Texture> texture;
@@ -329,8 +305,6 @@ struct TextureBinding
 static IProgressCtl defprogctl;
 
 struct Model {
-	CR_DECLARE(Model);
-
 	Model();
 	~Model();
 
@@ -343,14 +317,8 @@ struct Model {
 	bool LoadS3O(const char *filename, IProgressCtl& progctl = defprogctl);
 	bool SaveS3O(const char *filename, IProgressCtl& progctl = defprogctl);
 
-	// Memory dump using creg
-	static Model* LoadOPK(const char *filename, IProgressCtl& progctl = defprogctl);
-	static bool SaveOPK(Model *mdl, const char *filename, IProgressCtl& progctl = defprogctl);
-
-
 	static Model* Load(const string& fn, bool Optimize=true, IProgressCtl& progctl = defprogctl);
 	static bool Save(Model *mdl, const string& fn, IProgressCtl& progctl = defprogctl);
-
 
 	// exports merged version of the model
 	bool ExportUVMesh(const char *fn);

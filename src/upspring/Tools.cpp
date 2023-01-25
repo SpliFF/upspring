@@ -18,16 +18,12 @@
 #include <fltk/Image.h>
 #include <ZipFile.h>
 
-#include <fstream>
-
 #ifdef _MSC_VER
  #include <float.h>
  #define ISNAN(c) _isnan(c)
 #else
  #define ISNAN(c) isnan(c)
 #endif
-
-#include "BackupManager.h"
 
 // ------------------------------------------------------------------------------------------------
 // CopyBuffer - implements cut/copy/paste actions
@@ -126,7 +122,7 @@ struct ECameraTool : Tool
 		imageFile = "camera.gif";
 	}
 
-	bool toggle (bool /*enable*/)
+	bool toggle (bool enable)
 	{
 		return true;
 	}
@@ -144,7 +140,7 @@ struct EMoveTool : Tool
 		imageFile = "move.gif";
 	}
 
-	bool toggle(bool /*enable*/)
+	bool toggle(bool enable)
 	{
 		return true;
 	}
@@ -192,8 +188,6 @@ struct EMoveTool : Tool
 			d /= view->cam.zoom;
 			d *= SpeedMod;
 
-			BACKUP_MERGEABLE_OP("Object(s) moved", OT_Move, ApplyMoveOp, &d);
-
 			editor->RedrawViews();
 		}
 		if(fltk::event_state() & fltk::BUTTON2)
@@ -207,7 +201,7 @@ void ECameraTool::mouse (EditorViewWindow *view, int msg, Point move)
 {
 	int s = fltk::event_state ();
 
-	if ((s & fltk::CTRL) && !(s & fltk::ALT))
+	if ((fltk::event_state () & fltk::CTRL) && !(fltk::event_state() & fltk::ALT))
 	{
 		MoveTool.mouse (view, msg, move);
 		return;
@@ -227,7 +221,7 @@ struct ERotateTool : public Tool
 		isToggle = true;
 	}
 
-	bool toggle (bool /*enabletool*/)
+	bool toggle (bool enabletool)
 	{
 		return true;
 	}
@@ -278,7 +272,6 @@ struct ERotateTool : public Tool
 				break;
 			}
 			
-			BACKUP_MERGEABLE_OP("Object(s) rotated", OT_Rotate, ApplyRotateOp, &rot);
 			editor->RedrawViews();
 		}
 		else if(fltk::event_state() & fltk::BUTTON2)
@@ -296,7 +289,7 @@ struct EScaleTool : public Tool
 		isToggle=true;
 	}
 
-	bool toggle(bool /*enabletool*/)
+	bool toggle(bool enabletool)
 	{
 		return true;
 	}
@@ -353,7 +346,6 @@ struct EScaleTool : public Tool
 				break;
 			}
 
-			BACKUP_MERGEABLE_OP("Object(s) scaled", OT_Scale, ApplyScaleOp, &s);
 			editor->RedrawViews();
 		}
 		else if(fltk::event_state() & fltk::BUTTON2)
@@ -373,7 +365,7 @@ struct EOriginMoveTool : public Tool
 		isToggle = true;
 	}
 
-	bool toggle(bool /*enabletool*/)
+	bool toggle(bool enabletool)
 	{
 		return true;
 	}
@@ -418,7 +410,6 @@ struct EOriginMoveTool : public Tool
 			d /= view->cam.zoom;
 			d *= SpeedMod;
 
-			BACKUP_MERGEABLE_OP("Object origin(s) moved", OT_OriginMove, ApplyOriginMoveOp, &d);
 			editor->RedrawViews();
 		}
 	}
@@ -442,7 +433,7 @@ struct ETextureTool : Tool
 		PolyMesh *pm = o->GetPolyMesh();
 		if (pm) 
 		{
-			for(unsigned int a=0;a<pm->poly.size();a++) {
+			for(int a=0;a<pm->poly.size();a++) {
 				if (pm->poly[a]->isSelected) {
 					pm->poly[a]->texture = tex;
 					pm->poly[a]->texname = tex->name;
@@ -458,7 +449,6 @@ struct ETextureTool : Tool
 		ETextureTool *tool = (ETextureTool *)data;
 		Model *model = tool->editor->GetMdl();
 		if (model->root) applyTexture(model->root,tex);
-		BACKUP_POINT("3DO texture applied");
 		tool->editor->RedrawViews();
 	}
 
@@ -512,15 +502,13 @@ struct EPolyColorTool : Tool
 			applyColor (o->childs[a], color);
 	}
 
-	bool toggle (bool /*enable*/) { return true; }
+	bool toggle (bool enable) { return true; }
 	void click (){ 
 		if (!fltk::color_chooser("Color for selected polygons", color.x, color.y, color.z))
 			return;
 
 		Model *m=editor->GetMdl();
 		if (m->root) applyColor (m->root,color);
-
-		BACKUP_POINT("Polygon color changed");
 
 		editor->RedrawViews();
 	}
@@ -541,11 +529,10 @@ struct EPolyFlipTool : Tool
 				 pi->Flip ();
 	}
 
-	bool toggle (bool /*enable*/) { return true; }
+	bool toggle (bool enable) { return true; }
 	void click (){ 
 		Model *m=editor->GetMdl();
 		if (m->root) IterateObjects (m->root,flip);
-		BACKUP_POINT("Flipped selected polygons");
 		editor->RedrawViews();
 	}
 } static PolygonFlipTool;
@@ -564,11 +551,10 @@ struct ERotateTexTool : Tool
 				 p->RotateVerts();
 	}
 
-	bool toggle (bool /*enable*/) { return true; }
+	bool toggle (bool enable) { return true; }
 	void click (){ 
 		Model *m=editor->GetMdl();
 		if (m->root) IterateObjects (m->root,rotatetex);
-		BACKUP_POINT("3DO texture rotated");
 		editor->RedrawViews();
 	}
 } static RotateTexTool;
@@ -586,7 +572,7 @@ struct ECurvedPolyTool : Tool
 				 p->isCurved = !p->isCurved;
 	}
 
-	bool toggle (bool /*enable*/) { return true; }
+	bool toggle (bool enable) { return true; }
 	void click (){
 		Model *m=editor->GetMdl();
 		if (m->root) IterateObjects (m->root,togglecurved);
@@ -660,31 +646,50 @@ FltkImage* FltkImage::Load(const char *filebuf, int filelen)
 
 void Tools::LoadImages()
 {
-	for (std::size_t a = 0, max = tools.size(); a != max; ++a) {
-		auto filename = std::string("data/buttons/") + tools[a]->imageFile;
-		std::ifstream file(filename, std::ios::binary | std::ios::ate);
-		std::streamsize size = file.tellg();
-		file.seekg(0, std::ios::beg);
+	FILE *f = fopen("data/buttons.ups", "rb");
+	if (!f) {
+		fltk::message("Failed to load data/buttons.ups");
+	}
+	else
+	{
+		ZipFile zf;
+		zf.Init(f);
 
-		std::vector<char> buffer(size);
-		if (!file.read(buffer.data(), size)) 
-		{
-    		fltk::message("Failed to load texture %s\n", filename);
-			file.close();
-			buffer.clear();
-			continue;
+		for(int a=0;a<tools.size();a++) {
+			if (!tools[a]->imageFile)
+				continue;
+
+			std::string fn = tools[a]->imageFile;
+
+			int zipIndex=-1;
+			for (int fi=0;fi<zf.GetNumFiles();fi++) {
+				char zfn [64];
+				zf.GetFilename(fi, zfn, sizeof(zfn));
+				if (!STRCASECMP(zfn, fn.c_str())) {
+					zipIndex = fi;
+					break;
+				}
+			}
+
+			if (zipIndex>=0) {
+				int len = zf.GetFileLen(zipIndex);
+				char *buf = new char[len];
+				zf.ReadFile(zipIndex, buf);
+
+				tools[a]->image = FltkImage::Load(buf, len);
+				if (!tools[a]->image) {
+					fltk::message("Failed to load texture %s from data/buttons.ups\n", fn.c_str());
+					delete[] buf;
+					continue;
+				}
+				delete[] buf;
+
+				tools[a]->button->image(tools[a]->image->img);
+				tools[a]->button->label("");
+			} else
+				fltk::message("Couldn't find %s in data/buttons.ups", fn.c_str());
 		}
-		file.close();
-
-		tools[a]->image = FltkImage::Load(buffer.data(), size);
-		buffer.clear();
-		if (!tools[a]->image) {
-			fltk::message("Failed to load texture %s\n", filename);
-			continue;
-		}
-
-		tools[a]->button->image(tools[a]->image->img);
-		tools[a]->button->label("");
+		fclose(f);
 	}
 }
 

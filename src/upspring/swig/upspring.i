@@ -1,5 +1,18 @@
 %module upspring
+
 #pragma SWIG nowarn=509
+
+%{
+#undef SWIG_fail_arg
+#define SWIG_fail_arg(func_name,argnum,type) \
+  {lua_Debug ar;\
+  lua_getstack(L, 1, &ar);\
+  lua_getinfo(L, "nSl", &ar);\
+  lua_pushfstring(L,"Error (%s:%d) in %s (arg %d), expected '%s' got '%s'",\
+  ar.source,ar.currentline,func_name,argnum,type,SWIG_Lua_typename(L,argnum));\
+  goto fail;}
+%}
+
 
 %{
 #include "EditorIncl.h"
@@ -85,114 +98,3 @@ void upsUpdateViews() { upsGetEditor()->Update(); }
 bool _upsFileSaveDlg (const char *msg, const char *pattern, string& fn) { return FileSaveDlg(msg, pattern, fn); }
 bool _upsFileOpenDlg (const char *msg, const char *pattern, string& fn) { return FileOpenDlg(msg, pattern, fn); }
 %}
-
-// ---------------------------------------------------------------
-// Animation reading helpers
-// ---------------------------------------------------------------
-
-%inline %{
-#define ANIMTYPE_FLOAT 0
-#define ANIMTYPE_VECTOR3 1
-#define ANIMTYPE_ROTATION 2
-#define ANIMTYPE_OTHER 3
-
-int upsAnimGetType(AnimProperty& prop) 
-{
-	switch(prop.controller->GetType()) {
-	case AnimController::ANIMKEY_Float: return ANIMTYPE_FLOAT;
-	case AnimController::ANIMKEY_Vector3: return ANIMTYPE_VECTOR3;
-	case AnimController::ANIMKEY_Quat: return ANIMTYPE_ROTATION;
-	case AnimController::ANIMKEY_Other: return ANIMTYPE_OTHER;
-	}
-	return -1;
-}
-
-int upsAnimGetKeyIndex(AnimProperty& prop, float time) 
-{
-	return prop.GetKeyIndex(time);
-}
-
-int upsAnimGetNumKeys(AnimProperty& prop) 
-{
-	return prop.NumKeys();
-}
-
-float upsAnimGetKeyTime(AnimProperty& prop, int key) 
-{
-	if(key<0) key=0;
-	if(key>=prop.NumKeys()) key=prop.NumKeys()-1;
-	return prop.GetKeyTime(key);
-}
-
-float upsAnimGetFloatKey(AnimProperty& prop, int key) 
-{
-	if(key<0) key=0;
-	if(key>=prop.NumKeys()) key=prop.NumKeys()-1;
-	if (prop.controller->GetType() == AnimController::ANIMKEY_Float)
-		return *(float*)prop.GetKeyData(key);
-	return 0.0f;
-}
-
-Vector3 upsAnimGetVector3Key(AnimProperty& prop, int key) 
-{
-	if(key<0) key=0;
-	if(key>=prop.NumKeys()) key=prop.NumKeys()-1;
-	if (prop.controller->GetType() == AnimController::ANIMKEY_Vector3)
-		return *(Vector3*)prop.GetKeyData(key);
-	return Vector3();
-}
-
-Vector3 upsAnimGetRotationKey(AnimProperty& prop, int key) 
-{
-	if(key<0) key=0;
-	if(key>=prop.NumKeys()) key=prop.NumKeys()-1;
-	if (prop.controller->GetType() == AnimController::ANIMKEY_Quat) {
-		Quaternion q = *(Quaternion*)prop.GetKeyData(key);
-		Rotator rot;
-		rot.SetQuat(q);
-		return rot.GetEuler();
-	} else if(prop.controller->GetType() == AnimController::ANIMKEY_Vector3) {
-		Vector3 v = *(Vector3*)prop.GetKeyData(key);
-		return v;
-	}
-	return Vector3();
-}
-
-
-void upsAnimInsertVectorKey(AnimProperty& prop, float time, Vector3 v) 
-{
-	switch(prop.controller->GetType()) {
-	case AnimController::ANIMKEY_Vector3:
-		prop.InsertKey(&v, time);
-		break;
-	case AnimController::ANIMKEY_Quat: {
-		Rotator rot;
-		rot.SetEuler(v);
-		Quaternion q = rot.GetQuat();
-		prop.InsertKey(&q, time);
-		break; }
-	}
-}
-
-void upsAnimInsertRotatorKey(AnimProperty& prop, float time, Rotator r)
-{
-	if (prop.controller->GetType() == AnimController::ANIMKEY_Quat) {
-		Quaternion q = r.GetQuat();
-		prop.InsertKey(&q, time);
-	}
-	else if (prop.controller->GetType() == AnimController::ANIMKEY_Vector3) {
-		Vector3 v = r.GetEuler();
-		prop.InsertKey(&v, time);
-	}
-}
-
-void upsAnimInsertFloatKey(AnimProperty& prop, float time, float val) 
-{
-	if (prop.controller->GetType() == AnimController::ANIMKEY_Float)
-		prop.InsertKey(&val, time);
-}
-
-
-
-%}
-

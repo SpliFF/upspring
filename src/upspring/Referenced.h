@@ -99,33 +99,6 @@ public:
 	const T* operator*() const { return (T*)_object; }
 	T* operator*() { return (T*)_object; }
 	operator bool() const { return _object != nullptr; }
-
-	class Type : public creg::IType
-	{
-	public:
-		Type() {}
-		std::string GetName() { return "WeakPtr<" + T::StaticClass()->name + ">"; }
-		static void WeakPtrInitCallback(void *userdata) 
-		{
-			WeakPtrBase *wpb = (WeakPtrBase *)userdata;
-			Referenced *obj = wpb->_object;
-			wpb->_object = 0; 
-			// now assign it the right way
-			wpb->_Link(obj);
-		}
-		void Serialize(creg::ISerializer *s, void *instance)
-		{
-			WeakPtr<T> *wp = (WeakPtr<T>*)instance;
-			if(s->IsWriting()) {
-				void *ptr = (void*)wp->Get();
-				s->SerializeObjectPtr(&ptr, wp->Get() ? wp->Get()->GetClass() : 0);
-			} else {
-				WeakPtrBase *wbp = (WeakPtrBase *)instance;
-				s->SerializeObjectPtr((void**)&wbp->_object, T::StaticClass());
-				s->AddPostLoadCallback(WeakPtrInitCallback, instance);
-			}
-		}
-	};
 };
 
 template<typename T>
@@ -174,41 +147,6 @@ public:
 	
 private:
 	T* object;
-
-public:
-	
-	class Type : public creg::ObjectPointerType<T>
-	{
-	public:
-		std::string GetName() { return "RefPtr<" + T::StaticClass()->name + ">"; }
-		static void FixRefCount(void *userdata) 
-		{
-			RefPtr<T> *rp = (RefPtr<T>*)userdata;
-			if (rp->Get())
-				rp->Get()->AddRef();
-		}
-		void Serialize(creg::ISerializer *s, void *instance)
-		{
-			creg::ObjectPointerType<T>::Serialize (s, instance);
-			s->AddPostLoadCallback (FixRefCount, instance);
-		}
-	};
-
 };
-
-// creg registration
-namespace creg 
-{
-	// RefPtr
-	template<typename T> struct DeduceType < RefPtr <T> > {
-		IType* Get () { return new typename RefPtr <T>::Type; }
-	};
-
-	// WeakPtr
-	template<typename T> struct DeduceType < WeakPtr <T> > {
-		IType* Get() { return new typename WeakPtr <T>::Type; }
-	};
-}
-
 
 #endif

@@ -980,27 +980,6 @@ void EditorUI::cb_Exit(fltk::Item* o, void* v) {
   ((EditorUI*)(o->parent()->parent()->parent()->user_data()))->cb_Exit_i(o,v);
 }
 
-inline void EditorUI::cb_menuEdit_Undo_i(fltk::Item*, void*) {
-  menuEditUndo();
-}
-void EditorUI::cb_menuEdit_Undo(fltk::Item* o, void* v) {
-  ((EditorUI*)(o->parent()->parent()->parent()->user_data()))->cb_menuEdit_Undo_i(o,v);
-}
-
-inline void EditorUI::cb_menuEdit_Redo_i(fltk::Item*, void*) {
-  menuEditRedo();
-}
-void EditorUI::cb_menuEdit_Redo(fltk::Item* o, void* v) {
-  ((EditorUI*)(o->parent()->parent()->parent()->user_data()))->cb_menuEdit_Redo_i(o,v);
-}
-
-inline void EditorUI::cb_Show_i(fltk::Item*, void*) {
-  menuEditShowUndoBufferViewer();
-}
-void EditorUI::cb_Show(fltk::Item* o, void* v) {
-  ((EditorUI*)(o->parent()->parent()->parent()->user_data()))->cb_Show_i(o,v);
-}
-
 inline void EditorUI::cb_All_i(fltk::Item*, void*) {
   menuEditOptimizeAll();
 }
@@ -1583,17 +1562,6 @@ child objects. Similar to the origin-move tool");
       }
        {fltk::PopupMenu* o = new fltk::PopupMenu(9, 9, 73, 10, "Edit");
         o->begin();
-         {fltk::Item* o = menuEdit_Undo = new fltk::Item("Undo");
-          o->shortcut(0x4007a);
-          o->callback((fltk::Callback*)cb_menuEdit_Undo);
-        }
-         {fltk::Item* o = menuEdit_Redo = new fltk::Item("Redo");
-          o->shortcut(0x40079);
-          o->callback((fltk::Callback*)cb_menuEdit_Redo);
-        }
-         {fltk::Item* o = new fltk::Item("Show undo buffer viewer");
-          o->callback((fltk::Callback*)cb_Show);
-        }
          {fltk::ItemGroup* o = new fltk::ItemGroup("Optimize");
           o->begin();
            {fltk::Item* o = new fltk::Item("All objects");
@@ -1727,30 +1695,4 @@ child objects. Similar to the origin-move tool");
     o->end();
   }
   Initialize ();
-}
-
-inline void BackupViewerUI::cb_cmdSetBufferSize_i(fltk::Button*, void*) {
-  SetBufferSize();
-}
-void BackupViewerUI::cb_cmdSetBufferSize(fltk::Button* o, void* v) {
-  ((BackupViewerUI*)(o->parent()->user_data()))->cb_cmdSetBufferSize_i(o,v);
-}
-
-fltk::Window* BackupViewerUI::CreateUI() {
-  fltk::Window* w;
-   {fltk::Window* o = window = new fltk::Window(220, 220, "Undo buffer viewer");
-    w = o;
-    o->shortcut(0xff1b);
-    o->user_data((void*)(this));
-    o->begin();
-     {fltk::Button* o = cmdSetBufferSize = new fltk::Button(5, 5, 122, 25, "Set buffer size");
-      o->callback((fltk::Callback*)cb_cmdSetBufferSize);
-    }
-     {fltk::Browser* o = bufferView = new fltk::Browser(2, 34, 215, 185);
-      fltk::Group::current()->resizable(o);
-      fltk::Group::current()->resizable(o);
-    }
-    o->end();
-  }
-  return  w;
 }

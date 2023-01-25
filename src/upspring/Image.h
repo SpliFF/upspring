@@ -85,8 +85,6 @@ struct ImgFormat
 class Image : public Referenced
 {
 public:
-	CR_DECLARE(Image)
-
 	Image (const char *file);
 	Image ();
 	Image (int _w, int _h, const ImgFormat& fmt);

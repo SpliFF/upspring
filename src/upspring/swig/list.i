@@ -1,5 +1,3 @@
-%module upspring_list
-
 %{
 #include <list>
 

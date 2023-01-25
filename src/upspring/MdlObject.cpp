@@ -404,6 +404,8 @@ MdlObject* MdlObject::Clone()
 
 	for (uint a=0;a<childs.size();a++) {
 		MdlObject *ch = childs[a]->Clone();
+		cp->childs.push_back(ch);
+		ch->parent = cp;
 	}
 
 	cp->position=position;
@@ -534,15 +536,6 @@ void MdlObject::UpdateAnimation(float time)
 
 void MdlObject::InitAnimationInfo()
 {
-	animInfo.AddProperty(
-		AnimController::GetStructController(
-			AnimController::GetFloatController(), 
-			Vector3::StaticClass()
-		),
-		"position",
-		(long int) &((MdlObject*) this)->position
-	);
-
 	/*
 	animInfo.AddProperty(
 		AnimController::GetQuaternionController(),
@@ -559,21 +552,4 @@ void MdlObject::InitAnimationInfo()
 		(long int) &((MdlObject*) this)->rotation
 	);
 	*/
-	animInfo.AddProperty(
-		AnimController::GetStructController(
-			AnimController::GetFloatController(), 
-			Vector3::StaticClass()
-		),
-		"rotation",
-		(long int) &((MdlObject*) this)->rotation.euler
-	);
-
-	animInfo.AddProperty(
-		AnimController::GetStructController(
-			AnimController::GetFloatController(), 
-			Vector3::StaticClass()
-		),
-		"scale",
-		(long int) &((MdlObject*) this)->scale
-	);
 }

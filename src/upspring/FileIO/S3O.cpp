@@ -201,19 +201,19 @@ static void S3O_WritePrimitives(S3OPiece *p, FILE *f, PolyMesh* pm)
 		for (unsigned int a=0;a<pm->poly.size();a++) {
 			Poly *pl = pm->poly[a];
 			for (int b=0;b<4;b++) {
-				uint i=pl->verts[b];
+				int i=pl->verts[b];
 				write_result = fwrite (&i, 4,1,f);
 				if (write_result != (size_t)1) throw std::runtime_error ("Couldn't write poly.");
 			}
 		}
-		p->vertexTableSize = 4 * (uint)pm->poly.size();
+		p->vertexTableSize = 4 * (int)pm->poly.size();
 		p->primitiveType=2;
 	} else {
 		vector<Triangle> tris = pm->MakeTris ();
 		for (unsigned int a=0;a<tris.size();a++)
 		{
 			for (int b=0;b<3;b++) {
-				uint i=tris[a].vrt[b];
+				int i=tris[a].vrt[b];
 				write_result = fwrite (&i,4,1,f);
 				if (write_result != (size_t)1) throw std::runtime_error ("Couldn't write tri.");
 
@@ -246,7 +246,7 @@ static void S3O_SaveObject (FILE *f, MdlObject *obj)
 	{
 		S3O_WritePrimitives (&piece, f, pm);
 
-		piece.numVertices = (uint) pm->verts.size();
+		piece.numVertices = (int) pm->verts.size();
 		piece.vertices = ftell(f);
 		for (unsigned int a=0;a<pm->verts.size();a++)
 		{
@@ -266,17 +266,22 @@ static void S3O_SaveObject (FILE *f, MdlObject *obj)
 		delete pm;
 	}
 
-	piece.numChilds = (uint)obj->childs.size();
-	ulong *childpos=new ulong[piece.numChilds];
-	for (unsigned int a=0;a<obj->childs.size();a++)
-	{
-		childpos[a] = ftell(f);
-		S3O_SaveObject (f,obj->childs[a]);
+	piece.numChilds = (int) obj->childs.size();
+	if (obj->childs.size() > 0) {
+		int *childpos=new int[piece.numChilds];
+		for (unsigned int a=0;a<obj->childs.size();a++)
+		{
+			childpos[a] = ftell(f);
+			S3O_SaveObject (f,obj->childs[a]);
+		}
+		piece.childs=ftell(f);
+
+		write_result = fwrite (childpos,4,piece.numChilds,f);
+		if (write_result != (size_t)(piece.numChilds)) throw std::runtime_error ("Couldn't write child.");
+		delete[] childpos;
+	} else {
+		piece.childs = 0;
 	}
-	piece.childs=ftell(f);
-	write_result = fwrite (childpos,4,piece.numChilds,f);
-	if (write_result != (size_t)(piece.numChilds)) throw std::runtime_error ("Couldn't write child.");
-	delete[] childpos;
 
 	int endpos=ftell(f);
 	fseek (f,startpos,SEEK_SET);

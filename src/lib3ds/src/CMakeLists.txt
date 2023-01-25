@@ -2,7 +2,7 @@ IF(MSVC)
 	ADD_DEFINITIONS(-DLIB3DS_EXPORTS)
 ENDIF(MSVC)
 
-ADD_LIBRARY(3ds SHARED
+ADD_LIBRARY(3ds OBJECT
     lib3ds.h
     lib3ds_impl.h
     lib3ds_atmosphere.c

@@ -122,52 +122,9 @@ AnimController *AnimController::GetEulerAngleController ()
 	return &eac;
 }
 
-struct StructAnimController : public AnimController
-{
-	AnimController *subctl;
-	creg::Class *class_;
-
-	StructAnimController (AnimController *subctl, creg::Class *class_) :
-		subctl(subctl), class_(class_) {}
-
-	int GetSize () { return class_->binder->size; }
-	void Copy (void *src, void *dst) { memcpy (dst, src, class_->binder->size); }
-	void LinearInterp (void *a, void *b, float x, void *out) {
-		for (unsigned int m = 0; m < class_->members.size(); m ++)
-		{
-			int offset = class_->members[m]->offset;
-			subctl->LinearInterp ((char*)a + offset, (char*)b + offset, x, (char*)out + offset);
-		}
-	}
-	int GetNumMembers() { return (int)class_->members.size(); }
-	std::pair<AnimController*,void*> GetMemberCtl(int m, void *inst) {
-		return std::pair<AnimController*,void*>(subctl, (char*)inst + class_->members[m]->offset);
-	}
-	const char* GetMemberName (int m) { return class_->members[m]->name; }
-	AnimKeyType GetType() { return class_ == Vector3::StaticClass() ? ANIMKEY_Vector3 : ANIMKEY_Other; }
-};
-
-AnimController *AnimController::GetStructController (AnimController *subctl, creg::Class *class_)
-{
-	static vector <StructAnimController> ctls;
-	for (unsigned int a=0;a<ctls.size();a++) {
-		if (ctls[a].class_ == class_ && ctls[a].subctl == subctl)
-			return &ctls[a];
-	}
-	ctls.push_back (StructAnimController (subctl,class_));
-	return &ctls.back();
-}
-
 //-----------------------------------------------------------------------
 // AnimProperty - holds animation info for an object property
 //-----------------------------------------------------------------------
-
-CR_BIND(AnimProperty, ());
-
-CR_REG_METADATA(AnimProperty, (
-				CR_MEMBER(keyData),
-				CR_MEMBER(name)
-				));
 
 AnimProperty::AnimProperty(AnimController *ctl, const std::string& name, int offset) 
 	: offset (offset), name (name), controller(ctl)
@@ -261,54 +218,10 @@ AnimProperty* AnimProperty::Clone()
 // AnimationInfo
 //-----------------------------------------------------------------------
 
-CR_BIND(AnimationInfo, ());
-
-CR_REG_METADATA(AnimationInfo, CR_SERIALIZER(Serialize));
-
 AnimationInfo::~AnimationInfo()
 {
 	for (vector<AnimProperty*>::iterator i=properties.begin();i!=properties.end();++i)
 		delete *i;
-}
-
-// Because properties are only registered by the user object,
-// AnimationInfo is not compatible with the automated serialization, 
-// so it needs to be serialized manually. 
-// The anim properties are saved as if they are embedded in the animation info object
-void AnimationInfo::Serialize (creg::ISerializer& s)
-{
-	if (s.IsWriting ())
-	{
-		uint size = properties.size();
-		s.Serialize (&size,4);
-
-		for (vector<AnimProperty*>::iterator i = properties.begin(); i != properties.end(); ++i)
-			s.SerializeObjectInstance (*i, AnimProperty::StaticClass());
-	}
-	else
-	{
-		uint size;
-		s.Serialize (&size,4);
-
-		for (unsigned int a=0;a<size;a++) {
-			AnimProperty prop;
-			s.SerializeObjectInstance (&prop, AnimProperty::StaticClass());
-
-			AnimProperty *match = 0;
-
-			// rebind the animation properties to the current set of properties using the property name
-			for (vector<AnimProperty*>::iterator i = properties.begin(); i != properties.end(); ++i)
-			{
-				if ((*i)->name == prop.name)
-				{
-					match = *i;
-					break;
-				}
-			}
-			if (match)
-				match->keyData = prop.keyData;
-		}
-	}
 }
 
 void AnimationInfo::AddProperty (AnimController *ctl, const char *name, int offset)

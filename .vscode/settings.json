@@ -78,7 +78,8 @@
         "filesystem": "cpp",
         "*.def": "cpp",
         "*.inc": "cpp",
-        "*.rh": "cpp"
+        "*.rh": "cpp",
+        "shared_mutex": "cpp"
     },
     "cmake.useCMakePresets": "always",
     "C_Cpp.default.cppStandard": "c++17",

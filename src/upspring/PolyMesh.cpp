@@ -75,6 +75,7 @@ void Poly::RotateVerts ()
 	vector<int> n(verts.size());
 	for (uint a=0;a<verts.size();a++)
 		n[a]=verts[(a+1)%n.size()];
+	verts=n;
 }
 
 // ------------------------------------------------------------------------------------------------
