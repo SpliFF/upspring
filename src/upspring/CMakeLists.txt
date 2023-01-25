@@ -1,5 +1,5 @@
 add_executable (Upspring)
-add_dependencies(Upspring BuildFltk2 BuildLua)
+add_dependencies(Upspring BuildFltk2)
 
 find_package(X11 COMPONENTS Xft Xinerama Xcursor Xi Xext)
 if(X11_FOUND)
@@ -13,7 +13,9 @@ find_package(DevIL REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(Boost REQUIRED COMPONENTS regex)
 find_package(OpenGL REQUIRED)
-# find_package(Lua REQUIRED)
+find_package(Lua REQUIRED)
+
+add_subdirectory(swig)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../../data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../../scripts DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -43,21 +45,19 @@ target_link_libraries (Upspring
 
 target_link_libraries (Upspring
     ${Boost_LIBRARIES}
-    lua
+    ${LUA_LIBRARIES}
 )
 
 target_include_directories(Upspring 
     PRIVATE "${X11_INCLUDE_DIRS}"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" 
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../fltk2" 
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../lua/src"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../lib3ds/src"
 )
 
 target_link_directories(Upspring
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../fltk2/lib"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../lib3ds/lib"
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../lua/src"
 )
 
 target_sources(Upspring PRIVATE
@@ -104,5 +104,4 @@ target_sources(Upspring PRIVATE
     math/Mathlib.cpp
     nv_dds.cpp
     pch.cpp
-    swig/upspring_wrap.cxx
 )

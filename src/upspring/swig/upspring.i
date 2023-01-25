@@ -1,4 +1,6 @@
 %module upspring
+#pragma SWIG nowarn=509
+
 %{
 #include "EditorIncl.h"
 #include "EditorDef.h"
@@ -13,7 +15,7 @@
 %ignore CR_DECLARE_STRUCT;
 %ignore NO_SCRIPT;
 
-%include "vector.i"
+%include "std_vector.i"
 %rename(cppstring) string;
 %include "std_string.i"
 %include "list.i"

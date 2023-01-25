@@ -36,9 +36,13 @@
 #include "FileSearch.h"
 #include "MeshIterators.h"
 
-extern "C"{
-#include "lualib.h"
-}
+#ifdef __cplusplus
+  extern "C" {
+    #include "lua.h"
+    #include "lualib.h"
+    #include "lauxlib.h"
+  }
+#endif //__cplusplus
 
 #include "swig/ScriptInterface.h"
 
@@ -1408,7 +1412,7 @@ int main (int argc, char *argv[])
 		editor.LoadToolWindowSettings();
 
 		// Initialise Lua
-		lua_State *L = lua_open();
+		lua_State *L = luaL_newstate();
 		luaL_openlibs(L);
 		luaopen_upspring(L);
 
