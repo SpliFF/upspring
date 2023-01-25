@@ -1,3 +1,6 @@
+out/
+data/
+
 *.o
 *.a
 UpSpring

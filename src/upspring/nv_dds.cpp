@@ -187,6 +187,8 @@
 using namespace std;
 using namespace nv_dds;
 
+static constexpr unsigned int BASE_INT_FORMATS[] = {0, GL_RED, GL_RG, GL_RGB, GL_RGBA};
+
 ///////////////////////////////////////////////////////////////////////////////
 // static function pointers for uploading 3D textures and compressed 1D, 2D
 // and 3D textures.
@@ -633,6 +635,13 @@ void CDDSImage::clear()
     m_images.clear();
 }
 
+bool CDDSImage::is_compressed() const
+{
+	return ((m_format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ||
+		   (m_format == GL_COMPRESSED_RGBA_S3TC_DXT3_EXT) ||
+		   (m_format == GL_COMPRESSED_RGBA_S3TC_DXT5_EXT));
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // uploads a compressed/uncompressed 1D texture
 bool CDDSImage::upload_texture1D()
@@ -708,11 +717,11 @@ bool CDDSImage::upload_texture1D()
 //              the 2D texture such as a specific face of a cubemap
 //
 //              default: GL_TEXTURE_2D
-bool CDDSImage::upload_texture2D(unsigned int imageIndex, GLenum target)
+bool CDDSImage::upload_texture2D(unsigned int imageIndex, int target) const
 {
     assert(m_valid);
     assert(!m_images.empty());
-    /*assert(imageIndex >= 0);*/
+    assert(imageIndex >= 0);
     assert(imageIndex < m_images.size());
     assert(m_images[imageIndex]);
 
@@ -721,30 +730,19 @@ bool CDDSImage::upload_texture2D(unsigned int imageIndex, GLenum target)
     assert(image.get_height() > 0);
     assert(image.get_width() > 0);
     assert(target == GL_TEXTURE_2D || target == GL_TEXTURE_RECTANGLE_NV ||
-        (target >= GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB && 
-         target <= GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB));
+        (target >= GL_TEXTURE_CUBE_MAP_POSITIVE_X && 
+         target <= GL_TEXTURE_CUBE_MAP_NEGATIVE_Z));
     
     if (is_compressed())
     {
-        // load function pointer if needed
-        if (glCompressedTexImage2DARB == NULL)
-        {
-            GET_EXT_POINTER(glCompressedTexImage2DARB, 
-                            PFNGLCOMPRESSEDTEXIMAGE2DARBPROC);
-        }
-        
-        if (glCompressedTexImage2DARB == NULL)
-            return false;
-        
-        glCompressedTexImage2DARB(target, 0, m_format, image.get_width(), 
+        glCompressedTexImage2D(target, 0, m_format, image.get_width(), 
             image.get_height(), 0, image.get_size(), image);
         
         // load all mipmaps
         for (unsigned int i = 0; i < image.get_num_mipmaps(); i++)
         {
             const CSurface &mipmap = image.get_mipmap(i);
-
-            glCompressedTexImage2DARB(target, i+1, m_format, 
+            glCompressedTexImage2D(target, i+1, m_format, 
                 mipmap.get_width(), mipmap.get_height(), 0, 
                 mipmap.get_size(), mipmap);
         }
@@ -758,8 +756,8 @@ bool CDDSImage::upload_texture2D(unsigned int imageIndex, GLenum target)
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         }
 
-        glTexImage2D(target, 0, m_components, image.get_width(), 
-            image.get_height(), 0, m_format, GL_UNSIGNED_BYTE, 
+        glTexImage2D(target, 0, BASE_INT_FORMATS[m_components], image.get_width(),
+            image.get_height(), 0, m_format, GL_UNSIGNED_BYTE,
             image);
 
         // load all mipmaps
@@ -767,7 +765,7 @@ bool CDDSImage::upload_texture2D(unsigned int imageIndex, GLenum target)
         {
             const CSurface &mipmap = image.get_mipmap(i);
             
-            glTexImage2D(target, i+1, m_components, mipmap.get_width(), 
+            glTexImage2D(target, i+1, BASE_INT_FORMATS[m_components], mipmap.get_width(),
                 mipmap.get_height(), 0, m_format, GL_UNSIGNED_BYTE, mipmap); 
         }
 
@@ -777,6 +775,7 @@ bool CDDSImage::upload_texture2D(unsigned int imageIndex, GLenum target)
     
     return true;
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // uploads a compressed/uncompressed 3D texture

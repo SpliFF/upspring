@@ -1,0 +1,8 @@
+version: 0.1
+cli:
+  version: 0.18.1-beta
+plugins:
+  sources:
+    - id: trunk
+      ref: v0.0.8
+      uri: https://github.com/trunk-io/plugins

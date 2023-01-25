@@ -11,7 +11,7 @@ if(UNIX)
 endif(UNIX)
 
 ADD_SUBDIRECTORY(src)
-ADD_SUBDIRECTORY(examples)
+# ADD_SUBDIRECTORY(examples)
 
 # Install Rules
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/lib3ds.h" DESTINATION "include")

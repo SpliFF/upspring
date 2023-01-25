@@ -198,7 +198,7 @@ namespace nv_dds
             bool save(std::string filename, bool flipImage = true);
 
             bool upload_texture1D();
-            bool upload_texture2D(unsigned int imageIndex = 0, GLenum target = GL_TEXTURE_2D);
+            bool upload_texture2D(unsigned int imageIndex, int target) const;
             bool upload_texture3D();
             bool upload_textureRectangle();
             bool upload_textureCubemap();
@@ -211,12 +211,12 @@ namespace nv_dds
                 return m_images[0]; 
             }
 
-            inline unsigned int get_width() 
+            inline unsigned int get_width() const
             {
                 assert(m_valid);
                 assert(!m_images.empty());
-                
-                return m_images[0].get_width(); 
+
+                return m_images[0].get_width();
             }
 
             inline unsigned int get_height()
@@ -275,27 +275,19 @@ namespace nv_dds
             inline unsigned int get_format() { return m_format; }
             inline TextureType get_type() { return m_type; }
 
-            inline bool is_compressed() 
-            { 
-                if ((m_format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) || 
-                    (m_format == GL_COMPRESSED_RGBA_S3TC_DXT3_EXT) ||
-                    (m_format == GL_COMPRESSED_RGBA_S3TC_DXT5_EXT))
-                    return true; 
-                else
-                    return false;
-            }
-            
+            bool is_compressed() const;
+
             inline bool is_cubemap() { return (m_type == TextureCubemap); }
             inline bool is_volume() { return (m_type == Texture3D); }
             inline bool is_valid() { return m_valid; }
 
-            inline bool is_dword_aligned()
+            inline bool is_dword_aligned() const
             {
                 assert(m_valid);
 
                 int dwordLineSize = get_dword_aligned_linesize(get_width(), m_components*8);
                 int curLineSize = get_width() * m_components;
-                
+
                 return (dwordLineSize == curLineSize);
             }
             
@@ -306,7 +298,7 @@ namespace nv_dds
             inline void swap_endian(void *val);
 
             // calculates 4-byte aligned width of image
-            inline unsigned int get_dword_aligned_linesize(unsigned int width, unsigned int bpp)
+            inline unsigned int get_dword_aligned_linesize(unsigned int width, unsigned int bpp) const
             {
                 return ((width * bpp + 31) & -32) >> 3;
             }

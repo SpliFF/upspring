@@ -1,3 +1,13 @@
+January 25, 2023 [jochumdev]
+	Added cmake support
+
+	quick compilation guide:
+		$ cmake --preset debug-gcc 
+		$ cmake --build --preset debug-gcc
+		$ ./out/build/debug-gcc/src/upspring/Upspring
+
+	TODO: I don't like how I added the fltk2 and lua dependencies, need to look closer at it at another time.
+
 January 31, 2010 [SpliFF]
 	Replaced LuaJIT with Lua as its platform support (esp 64-bit) is limited
 	Upgraded lib3ds and fltk2 to fix build issues on x86_64

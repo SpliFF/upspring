@@ -25,7 +25,7 @@
 
 include makeinclude
 
-DIRS = src $(LOCALIMAGES) images OpenGL fluid glut test
+DIRS = src $(LOCALIMAGES) images OpenGL fluid glut
 
 all: makeinclude
 	for dir in $(DIRS); do\
