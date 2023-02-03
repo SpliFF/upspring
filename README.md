@@ -1,3 +1,8 @@
+February 3, 2023 [jochumdev]
+	Added support for MSYS2 Mingw64 builds
+
+	$ pacman -S mingw-w64-x86_64-toolchain mingw64/mingw-w64-x86_64-ninja mingw-w64-x86_64-cmake mingw64/mingw-w64-x86_64-glew mingw64/mingw-w64-x86_64-freeglut mingw64/mingw-w64-x86_64-devil mingw64/mingw-w64-x86_64-boost mingw64/mingw-w64-x86_64-lua mingw64/mingw-w64-x86_64-swig
+
 January 25, 2023 [jochumdev]
 	Added cmake support
 

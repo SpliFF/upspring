@@ -1,30 +1,61 @@
 {
-    "version": 6,
-    "cmakeMinimumRequired": {
+  "version": 6,
+  "cmakeMinimumRequired": {
       "major": 3,
       "minor": 23,
       "patch": 0
-    },
-    "configurePresets": [
-        {
-            "name": "debug-gcc",
-            "displayName": "GCC 12.2.1 x86_64-pc-linux-gnu",
-            "description": "Using compilers: C = /usr/bin/gcc, CXX = /usr/bin/g++",
-            "generator": "Ninja",
-            "binaryDir": "${sourceDir}/out/build/${presetName}",
-            "cacheVariables": {
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
-                "CMAKE_C_COMPILER": "/usr/bin/gcc",
-                "CMAKE_CXX_COMPILER": "/usr/bin/g++",
-                "CMAKE_BUILD_TYPE": "Debug"
-            }
-        }
-    ],
-    "buildPresets": [
-    {
-      "name": "debug-gcc",
-      "configurePreset": "debug-gcc"
-    }
+  },
+  "configurePresets": [
+      {
+          "name": "debug-gcc",
+          "displayName": "GCC",
+          "description": "Using compilers: C = /usr/bin/gcc, CXX = /usr/bin/g++",
+          "generator": "Ninja",
+          "binaryDir": "${sourceDir}/out/build/${presetName}",
+          "cacheVariables": {
+              "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+              "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+              "CMAKE_C_COMPILER": "gcc",
+              "CMAKE_CXX_COMPILER": "g++",
+              "CMAKE_BUILD_TYPE": "Debug"
+          }
+      },
+      {
+          "name": "msvc",
+          "generator": "Visual Studio 17 2022",
+          "toolset": "host=x64",
+          "architecture": "x64",
+          "binaryDir": "${sourceDir}/out/build/${presetName}",
+          "cacheVariables": {
+              "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+              "CMAKE_C_COMPILER": "cl.exe",
+              "CMAKE_CXX_COMPILER": "cl.exe"
+          }
+      },
+      {
+          "name": "msys2-mingw64-debug",
+          "binaryDir": "${sourceDir}/out/build/${presetName}",
+          "cacheVariables": {
+              "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+              "CMAKE_C_COMPILER": "gcc.exe",
+              "CMAKE_CXX_COMPILER": "g++.exe",
+              "CMAKE_BUILD_TYPE": "Debug"
+          }
+      }
+  ],
+  "buildPresets": [
+      {
+          "name": "debug-gcc",
+          "configurePreset": "debug-gcc"
+      },
+      {
+          "name": "msvc-debug",
+          "configurePreset": "msvc",
+          "configuration": "Debug"
+      },
+      {
+          "name": "msys2-mingw64-debug",
+          "configurePreset": "msys2-mingw64-debug"
+      }
   ]
 }

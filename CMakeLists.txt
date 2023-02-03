@@ -9,7 +9,8 @@ set(CXX_STANDARD_REQUIRED ON)
 set(CXX_STANDARD 20)
 
 if ((CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU") AND NOT CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -g -DUSE_IK -O2   -Wno-unused-parameter -Wno-unused-label -fno-strict-aliasing -Wno-deprecated -Wall -g -DUSE_IK -O2")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -g -DUSE_IK -Wno-unused-parameter -Wno-unused-label -fno-strict-aliasing -Wno-deprecated -O2")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -g -DUSE_IK -Wno-unused-parameter -Wno-unused-label -fno-strict-aliasing -Wno-deprecated -O2")
 
   IF (UPSPRING_ASAN)
     MESSAGE(STATUS "AddressSanitizer enabled")
@@ -35,4 +36,5 @@ endif()
 
 PROJECT ( Upspring LANGUAGES CXX )
 
+add_subdirectory(vendor)
 add_subdirectory(src)
