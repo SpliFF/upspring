@@ -7,6 +7,7 @@ package.path = package.path .. ";" .. script_path .. "?/init.lua" .. ";" .. scri
 
 lib = require("lib")
 
+LoadArchives()
 
 ---------------------------------
 -- Actual code

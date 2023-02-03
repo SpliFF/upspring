@@ -6,7 +6,6 @@
 #include "EditorIncl.h"
 #include "EditorDef.h"
 
-/*
 #ifdef USE_FLTK2_DEFAULT_FILECHOOSER
   #include <fltk/FileChooser.h>
 #else
@@ -15,12 +14,11 @@
     #include <FL/Fl_Native_File_Chooser.H>
   #else
     // relative to ./FLNativeFileChooser/
-    #include <fltk/NativeFileChooser.h>
+    #include <fltk/file_chooser.h>
   #endif
 #endif
-*/
 
-#include <fltk/file_chooser.h>
+// #include <fltk/NativeFileChooser.h>
 
 
 static std::string ConvertPattern(const char* p)
@@ -44,12 +42,11 @@ static std::string ConvertPattern(const char* p)
 
 bool SelectDirectory(const char* msg, std::string& dir)
 {
-	/*
 	#ifdef USE_FLTK2_DEFAULT_FILECHOOSER
 		// use FLTK 2.x's own FileChooser (doesn't work)
 		fltk::FileChooser fc(dir.c_str(), NULL, fltk::FileChooser::DIRECTORY, msg);
 
-		f.show();
+		fc.show();
 		if (fc.shown() != 0) {
 			dir = fc.directory();
 			return true;
@@ -61,19 +58,13 @@ bool SelectDirectory(const char* msg, std::string& dir)
 			Fl_Native_File_Chooser fc;
 			fc.type(Fl_Native_File_Chooser::BROWSE_SAVE_DIRECTORY);
 		#else
-			fltk::NativeFileChooser fc;
-			fc.type(fltk::NativeFileChooser::BROWSE_SAVE_DIRECTORY);
+			const char *newDir = fltk::dir_chooser(msg, "");
+			if (newDir != NULL) {
+				dir = newDir;
+				return true;
+			}
 		#endif
-
-		fc.title(msg);
-		fc.directory(dir.c_str());
-
-		if (fc.show() == 0) {
-			dir = fc.filename(); // no equivalent in FLTK2?
-			return true;
-		}
 	#endif
-	*/
 	return false;
 }
 
@@ -92,7 +83,6 @@ bool FileOpenDlg(const char* msg, const char* pattern, std::string& fn)
 
 bool FileSaveDlg(const char* msg, const char* ext, std::string& fn)
 {
-	/*
 	std::string convp = ConvertPattern(ext);
 
 	#ifdef USE_FLTK2_DEFAULT_FILECHOOSER
@@ -108,19 +98,21 @@ bool FileSaveDlg(const char* msg, const char* ext, std::string& fn)
 			Fl_Native_File_Chooser fc;
 			fc.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
 		#else
-			fltk::NativeFileChooser fc;
-			fc.type(fltk::NativeFileChooser::BROWSE_SAVE_FILE);
-		#endif
-
-		fc.title(msg);
-		fc.filter(convp.c_str());
-		fc.preset_file(fn.c_str());
-
-		if (fc.show() == 0) {
-			fn = fc.filename();
-			return true;
-		}
+			const char *newfile = fltk::file_chooser(msg, "*", fn.c_str());
+			if (newfile != NULL) {
+				fn = newfile;
+				return true;
+			}
 	#endif
-	*/
+
+		// fc.title(msg);
+		// fc.filter(convp.c_str());
+		// fc.preset_file(fn.c_str());
+
+		// if (fc.show() == 0) {
+		// 	fn = fc.filename();
+		// 	return true;
+		// }
+	#endif
 	return false;
 }

@@ -7,8 +7,8 @@ target_link_libraries (FLNativeFileChooser
 )
 
 target_include_directories(FLNativeFileChooser 
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../fltk2"
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}"
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../fltk2"
 )
 
 target_link_directories(FLNativeFileChooser

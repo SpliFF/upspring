@@ -13,11 +13,16 @@
 #include "Texture.h"
 
 #include <fstream>
+#include <iostream>
 #include <stdexcept>
+
+#include "math/hash.h"
 
 #include "CurvedSurface.h"
 
 #include "MeshIterators.h"
+
+#include <unordered_map>
 
 // ------------------------------------------------------------------------------------------------
 // Model
@@ -125,7 +130,7 @@ bool Model::Save(Model* mdl, const string& _fn, IProgressCtl& progctl)
 	} else if( !STRCASECMP(ext, ".3ds"))
 		r = Save3DSObject(fn, mdl->root,progctl);
 	else if( !STRCASECMP(ext, ".obj"))
-		r = SaveWavefrontObject(fn, mdl->root, progctl);
+		r = SaveWavefrontObject(fn, mdl->root);
 	else
 		fltk::message ("Unknown extension %s\n", fltk::filename_ext(fn));
 	if (!r) {
@@ -482,7 +487,7 @@ bool Model::ConvertToS3O(std::string textureName, int texw, int texh)
 
 			if (!cur) {
 				Texture *ct = new Texture ();
-				Image *cimg = new Image(1,1, ImgFormat(ImgFormat::RGB));
+				Image *cimg = new Image(1,1, ImgFormat(ImgFormat::RGBA));
 				cimg->SetPixel (0, 0, color << 8); // RGB to RGBA
 				ct->SetImage (cimg);
 				ct->name = SPrintf("Color%d", color);
@@ -494,7 +499,7 @@ bool Model::ConvertToS3O(std::string textureName, int texw, int texh)
 	}
 
 	TextureBinTree tree;
-	ImgFormat fmt (ImgFormat::RGB);
+	ImgFormat fmt (ImgFormat::RGBA);
 	tree.Init (texw,texh,&fmt);
 
 	std::map <Texture*, TextureBinTree::Node *> texToNode;
@@ -502,28 +507,38 @@ bool Model::ConvertToS3O(std::string textureName, int texw, int texh)
 	for (std::set<Texture*>::iterator ti = textures.begin(); ti != textures.end(); ++ti)
 	{
 		Image conv;
-		conv.format = ImgFormat(ImgFormat::RGB);
-		(*ti)->image->Convert (&conv);
-		//conv.Save ( (textureLocation + (*ti)->name + "_test.bmp").c_str());
+		conv.format = ImgFormat(ImgFormat::RGBA);
+		auto id = (*ti)->image->ToIL();
+		conv.FromIL(id);
+		conv.DeleteIL(id);
+
 		TextureBinTree::Node *node = tree.AddNode (&conv);
 
 		if (!node) {
-			fltk::message ("Not enough texture space for all 3DO textures.");
+			std::cout << "-- Not enough texture space for all 3DO textures." << std::endl;
 			return false;
 		}
 
 		texToNode [*ti] = node;
 	}
 	
-	Image *res = tree.GetResult();
-	res->Save ( textureName.c_str() );
+	auto img = tree.GetResult()->Clone();
+	auto img2 = tree.GetResult()->Clone();
 
-	mapping = MAPPING_S3O;
-	Texture *nt = new Texture();
-	nt->SetImage (res->Clone());
-	nt->name = textureName;
+	img->Save((textureName + "1.bmp").c_str());
 
-	SetTexture(0, nt);
+	img2->FillAlpha();
+	img2->Save((textureName + "2.png").c_str());
+
+	auto tex1 = new Texture();
+	tex1->SetImage(img);
+	tex1->name = textureName + "1.bmp";
+	SetTexture(0, tex1);
+
+	auto tex2 = new Texture();
+	tex2->SetImage(img2->Clone());
+	tex2->name = textureName + "2.png";
+	SetTexture(1, tex2);
 
 	// now set new texture coordinates. 
 	// Vertices might need to be split, so vertices are calculated per frame and then optimized again
@@ -547,6 +562,7 @@ bool Model::ConvertToS3O(std::string textureName, int texw, int texh)
 					// convert to texturebintree UV coords:
 					vrt.tc[0].x = tree.GetU (tnode, tc[v*2+0]);
 					vrt.tc[0].y = tree.GetV (tnode, tc[v*2+1]);
+					vrt.tc[1] = vrt.tc[0];
 
 					pl->verts[v] = vertices.size()-1;
 				}
@@ -556,6 +572,7 @@ bool Model::ConvertToS3O(std::string textureName, int texw, int texh)
 					vertices.push_back (pm->verts [pl->verts[v]]);
 					Vertex& vrt = vertices.back();
 					vrt.tc[0].x = vrt.tc[0].y = 0.0f;
+					vrt.tc[1].x = vrt.tc[1].y = 0.0f;
 					pl->verts[v] = vertices.size()-1;
 				}
 			}
@@ -564,7 +581,89 @@ bool Model::ConvertToS3O(std::string textureName, int texw, int texh)
 		pm->verts = vertices;
 		pm->Optimize (&PolyMesh::IsEqualVertexTC);
 	}
+
+	mapping = MAPPING_S3O;
+
 	return true;
 }
 
+void removeDuplicatedChildPolys(MdlObject* pObj, std::unordered_map<std::size_t, MdlObject **>& knownHashes) {
+	for (auto &obj: pObj->childs) {
+		if (!obj->GetPolyMesh()) {
+			std::cout << "-- Found object without Mesh" << std::endl;
+			continue;
+		}
+		
+		auto pm = obj->GetPolyMesh();
+		if (pm->verts.size() < 0) {
+			std::cout << "-- Found empty Mesh" << std::endl;
+			continue;
+		}
 
+		std:size_t hash = HASH_SEED;
+		// Add the position to the hash
+		hash_combine<float>(hash, obj->position.x, obj->position.y, obj->position.z);
+
+		for (auto const &vert : pm->verts) {
+			// Add all vertexes with theier normals to the hash.
+			hash_combine<float>(hash, vert.pos.x, vert.pos.y, vert.pos.z, vert.normal.x, vert.normal.y, vert.normal.z);
+		}
+
+		const auto &phi = knownHashes.find(hash);
+		if (phi != knownHashes.end()) {
+			std::cout << "-- Delete object: '" << (*phi->second)->name << "' " << std::endl;
+			*phi->second = nullptr;
+			
+			knownHashes.erase(phi);
+		}
+
+		knownHashes.insert({hash, &obj});
+
+		// Child of childs
+		removeDuplicatedChildPolys(obj, knownHashes);
+	}
+}
+
+void removeInvalidChilds(MdlObject *obj) {
+	auto oit = obj->childs.begin();
+	while (oit != obj->childs.end()) {
+		auto &oChild = *oit;
+
+		if (oChild == nullptr) {
+			oit = obj->childs.erase(oit);
+			continue;
+		}
+
+		auto pm = oChild->GetPolyMesh();
+		if (!pm) {
+			oit = obj->childs.erase(oit);
+			continue;
+		}
+		if (pm->verts.size() < 3) {
+			oit = obj->childs.erase(oit);
+			continue;
+		}
+
+		std::cout << "-- Found object: '" << oChild->name << std::endl;
+		removeInvalidChilds(oChild);
+		++oit;
+	}
+}
+
+void Model::Cleanup3DO() {
+	if (!root) {
+		std::cout << "Cleanup3DO() can only be run on the root object." << std::endl;
+		return;
+	}
+
+	// Remove base.
+	root = root->childs[0];
+
+// 	// // The actual removeall.
+// 	std::unordered_map<std::size_t, MdlObject **> knownHashes;
+// 	removeDuplicatedChildPolys(root, knownHashes);
+// 	knownHashes.clear();
+
+// 	// // Cleanup nullptr from the removeall
+// 	removeInvalidChilds(root);
+}

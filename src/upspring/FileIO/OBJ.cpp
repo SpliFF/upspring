@@ -357,7 +357,7 @@ wf_object *ReadWFObject (char *fname, IProgressCtl& progctl)
 	return obj;
 }
 
-bool SaveWavefrontObject (const char *fn, MdlObject *src, IProgressCtl& /*progctl*/)
+bool SaveWavefrontObject (const char *fn, MdlObject *src)
 {
 	MdlObject *obj = src->Clone();
 	obj->FullMerge();

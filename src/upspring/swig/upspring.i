@@ -17,11 +17,12 @@
 %{
 #include "EditorIncl.h"
 #include "EditorDef.h"
-
 #include "ScriptInterface.h"
 #include "../Model.h"
 #include "DebugTrace.h"
-//#include "../Fltk.h"
+#include "Texture.h"
+
+#include <iostream>
 %}
 
 %ignore CR_DECLARE;
@@ -98,3 +99,31 @@ void upsUpdateViews() { upsGetEditor()->Update(); }
 bool _upsFileSaveDlg (const char *msg, const char *pattern, string& fn) { return FileSaveDlg(msg, pattern, fn); }
 bool _upsFileOpenDlg (const char *msg, const char *pattern, string& fn) { return FileOpenDlg(msg, pattern, fn); }
 %}
+
+inline %{
+#include "../Model.h"
+
+namespace UpsScript {
+	TextureHandler *textureHandler = new TextureHandler();
+
+
+	void LoadArchives() {
+		ArchiveList archives;
+		archives.Load();
+
+		for (auto it = archives.archives.begin(); it !=archives.archives.end(); ++it) {
+			std::cout << "Loading archive: " << it->c_str() << std::endl;
+			textureHandler->Load (it->c_str());
+		}
+	};
+
+	void TexturesToModel(Model *pModel) {
+		pModel->root->Load3DOTextures(textureHandler);
+	}
+}
+%}
+
+namespace UpsScript {
+	void LoadArchives() {};
+	void TexturesToModel(Model *pModel) {};
+}

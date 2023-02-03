@@ -345,6 +345,7 @@ struct Model {
 	void SetTexture(uint index, Texture* tex);
 
 	bool ConvertToS3O(std::string texName, int texw, int texh);
+	void Cleanup3DO();
 
 	float radius;		//radius of collision sphere
 	float height;		//height of whole object
@@ -369,7 +370,7 @@ private:
 MdlObject* Load3DSObject(const char *filename, IProgressCtl& progctl);
 bool Save3DSObject(const char *filename, MdlObject *obj, IProgressCtl& progctl);
 MdlObject* LoadWavefrontObject(const char *fn, IProgressCtl& progctl);
-bool SaveWavefrontObject(const char *fn, MdlObject *obj, IProgressCtl& progctl);
+bool SaveWavefrontObject(const char *fn, MdlObject *obj);
 
 void GenerateUniqueVectors(const std::vector<Vertex>& verts,
 						   std::vector<Vector3>& vertPos,

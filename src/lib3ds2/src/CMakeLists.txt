@@ -32,6 +32,13 @@ IF(WIN32)
         DEBUG_POSTFIX "d")
 ENDIF(WIN32)
 
+target_link_directories(3ds 
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../lib
+)
+target_include_directories(3ds 
+    PUBLIC $<BUILD_INTERFACE:${CURRENT_SOURCE_DIR}>
+)
+
 SET_TARGET_PROPERTIES(3ds
     PROPERTIES VERSION 2.0)
 

@@ -28,7 +28,6 @@ target_link_libraries (Upspring
     ${X11_Xcursor_LIB}
     ${X11_Xi_LIB}
 
-    FLNativeFileChooser
     fltk2
     fltk2_gl
     fltk2_images
@@ -42,7 +41,7 @@ target_link_libraries (Upspring
     GLEW::GLEW
     OpenGL::GL
     OpenGL::GLU
-    3ds
+    lib3ds
 )
 
 target_link_libraries (Upspring
@@ -54,13 +53,11 @@ target_link_libraries (Upspring
 target_include_directories(Upspring 
     PRIVATE "${X11_INCLUDE_DIRS}"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" 
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../FLNativeFileChooser"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../fltk2" 
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../lib3ds/src"
 )
 
 target_link_directories(Upspring
-    PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../FLNativeFileChooser"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../fltk2/lib"
     PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../lib3ds/lib"
 )

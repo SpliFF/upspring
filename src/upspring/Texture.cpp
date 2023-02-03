@@ -18,6 +18,10 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 // ------------------------------------------------------------------------------------------------
 // Texture
 // ------------------------------------------------------------------------------------------------
@@ -43,15 +47,18 @@ bool Texture::Load (const string& fn, const string& hintpath)
 	glIdent = 0;
 
 	vector<string> paths;
-	paths.push_back ("");
-	if (!hintpath.empty()) paths.push_back (hintpath);
-	if (!textureLoadDir.empty ()) paths.push_back (textureLoadDir + "/");
+	paths.push_back(fn);
+	if (!hintpath.empty()) {
+		paths.push_back (fs::path(hintpath).parent_path().append("unittextures").append(fn).string());
+		paths.push_back (fs::path(hintpath).append(fn).string());
+	}
+	if (!textureLoadDir.empty ()) paths.push_back (fs::path(textureLoadDir).append(fn).string());
 
 	bool succes=true;
 	for(uint a=0;a<paths.size();a++) {
 		Image *img = new Image;
 		try {
-			img->Load ( (paths[a] + fn).c_str());
+			img->Load(paths[a].c_str());
 			succes = true;
 		} catch(content_error& e) {
 			logger.Print ("Failed to load texture: %s\n", e.errMsg.c_str());
@@ -159,7 +166,7 @@ Texture* TextureHandler::GetTexture(const char *name)
 	string tmp = name;
 	transform(tmp.begin(), tmp.end(), tmp.begin(), ::tolower);
 
-	map<string,TexRef>::iterator ti = textures.find(tmp);
+	auto ti = textures.find(tmp);
 	if (ti == textures.end()) {
 		tmp += "00";
 		ti = textures.find(tmp);

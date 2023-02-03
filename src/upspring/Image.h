@@ -94,13 +94,15 @@ public:
 
 	void Free ();	// free image data
 	void Load(const char *file, bool IsGrayscale=false);
+
+	bool Save(const char *file);
 	void SaveTGA(const char *file);
+
 	void LoadFromMemory (void *data, int len);
 	void LoadGrayscale (void *data, int len);
 	void FromIL(uint id);
-	uint ConvertToILFormat ();
 	uint ToIL();
-	bool Save(const char *file);
+	void DeleteIL(uint id);
 
 	Image* Clone();
 	void FillAlpha ();

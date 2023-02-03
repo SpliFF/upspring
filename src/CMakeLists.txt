@@ -1,4 +1,3 @@
 add_subdirectory(fltk2)
-add_subdirectory(FLNativeFileChooser)
 add_subdirectory(lib3ds)
 add_subdirectory(upspring)

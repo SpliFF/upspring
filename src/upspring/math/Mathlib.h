@@ -84,7 +84,6 @@ public:
 #endif
 };
 
-
 class Vector2 {
 public:
 	Vector2(float X,float Y):x(X),y(Y) {}

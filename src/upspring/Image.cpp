@@ -13,6 +13,11 @@
 #include <IL/il.h>
 #include <IL/ilu.h>
 
+#include <iostream>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 struct DevILInitializer
 {
 	DevILInitializer()
@@ -325,6 +330,11 @@ void Image::LoadFromMemory (void *buf, int len)
 	iluDeleteImage(id);
 }
 
+void Image::DeleteIL(uint id)
+{
+	iluDeleteImage(id);
+}
+
 void Image::FromIL(uint id)
 {
 	ilBindImage(id);
@@ -370,25 +380,13 @@ uint Image::ToIL()
 	ilGenImages(1,&id);
 	ilBindImage(id);
 
-	Image dst;
-	if (format.bytesPerPixel == 3)
-		dst.format=ImgFormat(ImgFormat::RGB);
-	else
-		dst.format=ImgFormat(ImgFormat::RGBA);
-	Convert(&dst);
+	if (format.bytesPerPixel == 3) {
+		ilTexImage(w,h,1, 3, IL_RGB, IL_UNSIGNED_BYTE, data);
+		ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+	} else {
+		ilTexImage(w,h,1, 4, IL_RGBA, IL_UNSIGNED_BYTE, data);
+	}
 
-	uint fmt;
-	if (format.bytesPerPixel == 4)
-		fmt = IL_RGBA;
-	else 
-		fmt = IL_RGB;
-
-	if (format.bytesPerPixel == 3)
-		ilTexImage(w,h,1, 3, fmt, IL_UNSIGNED_BYTE, dst.data);
-	else
-		ilTexImage(w,h,1, 4, fmt, IL_UNSIGNED_BYTE, dst.data);
-
-	assert (ilGetInteger(IL_IMAGE_BYTES_PER_PIXEL) == 3);
 	return id;
 }
 
@@ -403,6 +401,7 @@ bool Image::Save(const char *file)
 	iluDeleteImage(id);
 	return r;
 }
+
 
 #endif
 

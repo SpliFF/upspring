@@ -264,10 +264,10 @@ void MdlObject::Load3DOTextures (TextureHandler *th)
 		{
 			if (!p->texture && !p->texname.empty()) {
 				p->texture = th->GetTexture (p->texname.c_str());
-				if (p->texture) 
-					p->texture->VideoInit();
-				else
-					p->texname.clear();
+				// if (p->texture) 
+				// 	p->texture->VideoInit();
+				// else
+				// 	p->texname.clear();
 			}
 		}
 		bTexturesLoaded=true;

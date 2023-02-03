@@ -35,7 +35,7 @@ static void MirrorX(MdlObject *o)
 		MirrorX(o->childs[a]);
 }
 
-static MdlObject *S3O_LoadObject (FILE *f, ulong offset)
+static MdlObject *S3O_LoadObject (FILE *f, int offset)
 {
 	size_t read_result;
 	int oldofs = ftell(f);
@@ -54,10 +54,10 @@ static MdlObject *S3O_LoadObject (FILE *f, ulong offset)
 	obj->position.set(piece.xoffset,piece.yoffset,piece.zoffset);
 
 	// Read child objects
-	fseek (f, piece.childs, SEEK_SET);
-	for (unsigned int a=0;a<piece.numChilds;a++) {
-		ulong chOffset;
-		read_result = fread (&chOffset, sizeof(ulong), 1, f);
+	fseek (f, piece.children, SEEK_SET);
+	for (unsigned int a=0;a<piece.numchildren;a++) {
+		int chOffset;
+		read_result = fread (&chOffset, sizeof(int), 1, f);
 		if (read_result != 1) throw std::runtime_error ("Couldn't read child object.");
 		MdlObject *child = S3O_LoadObject (f, chOffset);
 		if (child) {
@@ -83,7 +83,7 @@ static MdlObject *S3O_LoadObject (FILE *f, ulong offset)
 	switch (piece.primitiveType) { 
 		case 0: { // triangles
 			for (unsigned int i=0;i<piece.vertexTableSize;i+=3) {
-				ulong index;
+				int index;
                 Poly *pl = new Poly;
 				pl->verts.resize(3);
 				for (int a=0;a<3;a++) {
@@ -95,7 +95,7 @@ static MdlObject *S3O_LoadObject (FILE *f, ulong offset)
 			}
 			break;}
 		case 1: { // tristrips
-			ulong *data=new ulong[piece.vertexTableSize];
+			int *data=new int[piece.vertexTableSize];
 			read_result = fread (data,4,piece.vertexTableSize, f);
 			if (read_result != piece.vertexTableSize) throw std::runtime_error ("Couldn't read tristrip.");
 			for (unsigned int i=0;i<piece.vertexTableSize;) {
@@ -116,7 +116,7 @@ static MdlObject *S3O_LoadObject (FILE *f, ulong offset)
 			break;}
 		case 2: { // quads
 			for (unsigned int i=0;i<piece.vertexTableSize;i+=4) {
-				ulong index;
+				int index;
                 Poly *pl = new Poly;
 				pl->verts.resize(4);
 				for (int a=0;a<4;a++) {
@@ -183,6 +183,7 @@ bool Model::LoadS3O(const char *filename, IProgressCtl& /*progctl*/) {
 	mapping = MAPPING_S3O;
 
 	fclose (file);
+
 	return true;
 }
 
@@ -266,21 +267,21 @@ static void S3O_SaveObject (FILE *f, MdlObject *obj)
 		delete pm;
 	}
 
-	piece.numChilds = (int) obj->childs.size();
+	piece.numchildren = (int) obj->childs.size();
 	if (obj->childs.size() > 0) {
-		int *childpos=new int[piece.numChilds];
+		int *childpos=new int[piece.numchildren];
 		for (unsigned int a=0;a<obj->childs.size();a++)
 		{
 			childpos[a] = ftell(f);
 			S3O_SaveObject (f,obj->childs[a]);
 		}
-		piece.childs=ftell(f);
+		piece.children=ftell(f);
 
-		write_result = fwrite (childpos,4,piece.numChilds,f);
-		if (write_result != (size_t)(piece.numChilds)) throw std::runtime_error ("Couldn't write child.");
+		write_result = fwrite (childpos,4,piece.numchildren,f);
+		if (write_result != (size_t)(piece.numchildren)) throw std::runtime_error ("Couldn't write child.");
 		delete[] childpos;
 	} else {
-		piece.childs = 0;
+		piece.children = 0;
 	}
 
 	int endpos=ftell(f);

@@ -219,6 +219,9 @@ bool Model::Load3DO(const char *filename, IProgressCtl& /*progctl*/)
 	mapping = MAPPING_3DO;
 
 	fclose(f);
+
+	Cleanup3DO();
+
 	return true;
 }
 
