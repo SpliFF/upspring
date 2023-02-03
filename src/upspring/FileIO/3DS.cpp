@@ -136,7 +136,7 @@ static MdlObject *Convert3DSToObj (Lib3dsMesh *mesh)
 		pm->poly[i] = pl;
 	}
 
-	delete face_normals;
+	free(face_normals);
 
 	obj->name = mesh->name;
 

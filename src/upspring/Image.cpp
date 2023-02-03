@@ -411,7 +411,7 @@ void Image::Load (const char *file, bool /*IsGrayscale*/)
 	FileReader fr (file);
 
 	if (!fr.Exists())
-		throw content_error("Failed to open file " + String(file));
+		throw content_error("Failed to open file " + std::string(file));
 
 	uint len = fr.Length();
 	uchar *buf = new uchar[len];*/
@@ -419,7 +419,7 @@ void Image::Load (const char *file, bool /*IsGrayscale*/)
 	FILE *f = fopen (file,  "rb");
 
 	if (!f) 
-		throw content_error("Failed to open file " + string(file));
+		throw content_error("Failed to open file " + std::string(file));
 
 	fseek(f, 0, SEEK_END);
 	int len=ftell(f);

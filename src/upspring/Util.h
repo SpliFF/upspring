@@ -99,7 +99,7 @@ struct InputBuffer
 };
 
 
-std::string ReadString (int offset, FILE *f);
+std::string Readstring (int offset, FILE *f);
 std::string ReadZStr (FILE*f);
 void WriteZStr (FILE *f, const std::string& s);
 std::string GetFilePath (const std::string& fn);

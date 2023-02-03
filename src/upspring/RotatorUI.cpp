@@ -17,7 +17,7 @@ RotatorUI::~RotatorUI()
 
 void RotatorUI::ApplyRotation(bool absolute, int axis, fltk::Input* o)
 {
-	vector<MdlObject*> selection = editorCallback->GetMdl()->GetSelectedObjects();
+	std::vector<MdlObject*> selection = editorCallback->GetMdl()->GetSelectedObjects();
 
 	if(selection.size()!=1)
 		return;
@@ -38,7 +38,7 @@ void RotatorUI::ApplyRotation(bool absolute, int axis, fltk::Input* o)
 
 void RotatorUI::Update()
 {
-	vector<MdlObject*> selection = editorCallback->GetMdl()->GetSelectedObjects();
+	std::vector<MdlObject*> selection = editorCallback->GetMdl()->GetSelectedObjects();
 
 	fltk::Input* inputs[] = { inputAbsX, inputAbsY, inputAbsZ, inputRelX, inputRelY, inputRelZ, 0 };
 	if(selection.size()!=1) {
@@ -69,7 +69,7 @@ void RotatorUI::Hide()
 
 void RotatorUI::ResetRotation()
 {
-	vector<MdlObject*> selection = editorCallback->GetMdl()->GetSelectedObjects();
+	std::vector<MdlObject*> selection = editorCallback->GetMdl()->GetSelectedObjects();
 
 	if(selection.size()!=1)
 		return;
@@ -82,7 +82,7 @@ void RotatorUI::ResetRotation()
 
 void RotatorUI::ApplyRotationToGeom()
 {
-	vector<MdlObject*> selection = editorCallback->GetMdl()->GetSelectedObjects();
+	std::vector<MdlObject*> selection = editorCallback->GetMdl()->GetSelectedObjects();
 
 	if(selection.size()!=1) return;
 	MdlObject *obj = selection.front();

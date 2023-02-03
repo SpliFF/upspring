@@ -10,7 +10,7 @@
 
 
 // this keeps a list of implemented value types
-vector<CfgValueClass*> CfgValue::classes;
+std::vector<CfgValueClass*> CfgValue::classes;
 
 
 
@@ -45,7 +45,7 @@ CfgWriter& CfgWriter::operator <<(char c)
 	return *this;
 }
 
-CfgWriter&  CfgWriter::operator<<(const string& s)
+CfgWriter&  CfgWriter::operator<<(const std::string& s)
 {
 	fputs (s.c_str(),out);
 	if (!s.empty()) MakeIndent(s.at(s.size()-1));
@@ -139,7 +139,7 @@ void CfgValue::Write (CfgWriter& /*w*/) {}
 
 CfgList* CfgValue::LoadNestedFile (InputBuffer& buf)
 {
-	string s;
+	std::string s;
 	buf.SkipKeyword ("file");
 
 	buf.SkipWhitespace ();
@@ -216,7 +216,7 @@ char CfgValue::Lookahead (InputBuffer& buf)
 bool CfgNumeric::Parse (InputBuffer& buf)
 {
 	bool dot=*buf=='.';
-	string str;
+	std::string str;
 	str+=*buf;
 	++buf;
 	while (1) {
@@ -249,7 +249,7 @@ void CfgNumeric::Write (CfgWriter &w)
 }
 
 //-------------------------------------------------------------------------
-// CfgLiteral - parses string constants
+// CfgLiteral - parses std::string constants
 //-------------------------------------------------------------------------
 bool CfgLiteral::Parse (InputBuffer& buf)
 {
@@ -369,7 +369,7 @@ void CfgList::Write (CfgWriter &w, bool root)
 		w << '{';
 		w.IncIndent (); w << "\n";
 	}
-	for(list<CfgListElem>::iterator i = childs.begin(); i != childs.end();++i)
+	for(std::list<CfgListElem>::iterator i = childs.begin(); i != childs.end();++i)
 		i->Write (w);
 	if (!root) {
 		w << '}';
@@ -379,7 +379,7 @@ void CfgList::Write (CfgWriter &w, bool root)
 
 CfgValue* CfgList::GetValue (const char *name)
 {
-	for (list<CfgListElem>::iterator i = childs.begin();i != childs.end(); ++i)
+	for (std::list<CfgListElem>::iterator i = childs.begin();i != childs.end(); ++i)
 		if (!STRCASECMP (i->name.c_str(), name))
 			return i->value;
 	return 0;
@@ -413,7 +413,7 @@ void CfgList::dbgPrint(int depth)
 	if (depth) 
 		logger.Trace (NL_Debug, "list of %d elements\n", childs.size());
 
-	for (list<CfgListElem>::iterator i = childs.begin(); i != childs.end(); ++i)
+	for (std::list<CfgListElem>::iterator i = childs.begin(); i != childs.end(); ++i)
 	{
 		for (int a=0;a<depth;a++) logger.Trace (NL_Debug, "  ");
 		logger.Trace (NL_Debug, "List element(%d): %s", n++, i->name.c_str());

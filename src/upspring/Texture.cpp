@@ -26,27 +26,27 @@ namespace fs = std::filesystem;
 // Texture
 // ------------------------------------------------------------------------------------------------
 
-string Texture::textureLoadDir;
+std::string Texture::textureLoadDir;
 
 Texture::Texture() 
 {
 	glIdent = 0;
 }
 
-Texture::Texture (const string& fn) {
-	Load (fn, string());
+Texture::Texture (const std::string& fn) {
+	Load (fn, std::string());
 }
 
-Texture::Texture (const string& fn, const string& hintpath) {
+Texture::Texture (const std::string& fn, const std::string& hintpath) {
 	Load (fn, hintpath);
 }
 
-bool Texture::Load (const string& fn, const string& hintpath)
+bool Texture::Load (const std::string& fn, const std::string& hintpath)
 {
 	name = fltk::filename_name(fn.c_str());
 	glIdent = 0;
 
-	vector<string> paths;
+	std::vector<std::string> paths;
 	paths.push_back(fn);
 	if (!hintpath.empty()) {
 		paths.push_back (fs::path(hintpath).parent_path().append("unittextures").append(fn).string());
@@ -163,7 +163,7 @@ TextureHandler::~TextureHandler ()
 
 Texture* TextureHandler::GetTexture(const char *name)
 {
-	string tmp = name;
+	std::string tmp = name;
 	transform(tmp.begin(), tmp.end(), tmp.begin(), ::tolower);
 
 	auto ti = textures.find(tmp);
@@ -234,7 +234,7 @@ static char* FixTextureName(char* temp) {
 		i--;
 	}
 
-	string fn;
+	std::string fn;
 
 	i = strlen(temp) - 1;
 	while (i > 0) {
@@ -328,7 +328,7 @@ bool TextureGroupHandler::Load(const char *fn)
 	if (!cfg) 
 		return false;
 
-	for (list<CfgListElem>::iterator li = cfg->childs.begin(); li != cfg->childs.end(); ++li) {
+	for (std::list<CfgListElem>::iterator li = cfg->childs.begin(); li != cfg->childs.end(); ++li) {
 		CfgList *gc = dynamic_cast<CfgList*>(li->value);
 		if (!gc) continue;
 
@@ -370,7 +370,7 @@ TextureGroup* TextureGroupHandler::LoadGroup (CfgList *gc) {
 	TextureGroup *texGroup=new TextureGroup;
 	texGroup->name = gc->GetLiteral("name", "unnamed");
 
-	for (list<CfgListElem>::iterator i=texlist->childs.begin();i!=texlist->childs.end();i++) {
+	for (std::list<CfgListElem>::iterator i=texlist->childs.begin();i!=texlist->childs.end();i++) {
 		CfgLiteral *l=dynamic_cast<CfgLiteral*>(i->value);
 		if (l && !l->value.empty()) {
 			Texture *texture = textureHandler->GetTexture(l->value.c_str());
@@ -392,7 +392,7 @@ CfgList* TextureGroupHandler::MakeConfig (TextureGroup *tg)
 
 	CfgList *texlist=new CfgList;
 	int index=0;
-	for (set<Texture*>::iterator t=tg->textures.begin();t!=tg->textures.end();++t) {
+	for (std::set<Texture*>::iterator t=tg->textures.begin();t!=tg->textures.end();++t) {
 		sprintf (n,"tex%d", index++);
 		texlist->AddLiteral (n, (*t)->name.c_str());
 	}

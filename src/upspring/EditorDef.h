@@ -18,8 +18,6 @@
 #pragma warning(disable: 4312 4311)
 #endif 
 
-using namespace std;
-
 typedef unsigned char uchar;
 typedef unsigned int uint;
 typedef unsigned short ushort;
@@ -76,8 +74,8 @@ typedef unsigned short ushort;
 			size_t operator() (const void* __s) const { return (size_t)(__s); }
 		};
 
-// 		template<> struct hash<String> {
-// 			size_t operator() (const String& __s) const { return hash<const char*>()(__s.c_str()); }
+// 		template<> struct hash<std::string> {
+// 			size_t operator() (const std::string& __s) const { return hash<const char*>()(__s.c_str()); }
 // 		};
 		template<> struct hash<std::string> {
 			size_t operator() (const std::string& __s) const { return hash<const char*>()(__s.c_str()); }
@@ -136,28 +134,28 @@ struct ArchiveList {
 	bool Load();
 	bool Save();
 
-	set<string> archives;
+	std::set<std::string> archives;
 };
 
 class content_error: public std::exception {
 	public:
-		content_error(const string& s): errMsg(s) {}
+		content_error(const std::string& s): errMsg(s) {}
 		// NOTE: g++ demands null-bodies
 		~content_error() throw() {};
 
 	std::string errMsg;
 };
 
-inline void stringlwr(string& str) {
+inline void stringlwr(std::string& str) {
 	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 }
 
 
-bool FileSaveDlg(const char *msg, const char *pattern, string& fn);
-bool FileOpenDlg(const char *msg, const char *pattern, string& fn);
+bool FileSaveDlg(const char *msg, const char *pattern, std::string& fn);
+bool FileOpenDlg(const char *msg, const char *pattern, std::string& fn);
 bool SelectDirectory(const char *msg, std::string& dir);
 
-extern string applicationPath;
+extern std::string applicationPath;
 
 
 template<typename InputIterator, typename EqualityComparable>

@@ -44,15 +44,6 @@
 # include <stdarg.h> /* for va_list */
 # include <stdio.h> /* for sprintf, vsprintf, snprintf and vsnprintf */
 
-/* Windows has equivalent functions, but being Microsoft they added
-   gratuitoius changes to the names to stop code from being portable: */
-#if (defined(_WIN32) && !defined(__CYGWIN__)) || defined(__EMX__)
-# define strcasecmp(s,t)	_stricmp(s, t)
-# define strncasecmp(s,t,n)	_strnicmp(s, t, n)
-# define vsnprintf		_vsnprintf
-# define snprintf		_snprintf
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif

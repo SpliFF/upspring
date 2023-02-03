@@ -31,7 +31,7 @@ void d_trace(const char *fmt, ...)
 }
 
 /*
-d_puts - writes a string of any length to the debug output
+d_puts - writes a std::string of any length to the debug output
 	(as opposed to d_trace, which is limited by the buffer)
 */
 void d_puts (const char *buf)

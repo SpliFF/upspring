@@ -184,7 +184,6 @@
 #include <assert.h>
 #include "nv_dds.h"
 
-using namespace std;
 using namespace nv_dds;
 
 static constexpr unsigned int BASE_INT_FORMATS[] = {0, GL_RED, GL_RG, GL_RGB, GL_RGBA};
@@ -302,7 +301,7 @@ void CDDSImage::create_textureCubemap(unsigned int format, unsigned int componen
 //
 // filename - fully qualified name of DDS image
 // flipImage - specifies whether image is flipped on load, default is true
-bool CDDSImage::load(string filename, bool flipImage)
+bool CDDSImage::load(std::string filename, bool flipImage)
 {
     assert(filename.length() != 0);
     

@@ -54,7 +54,7 @@ void AnimTrackEditorUI::cmdAutoFitView()
 	float maxY = -100000.0f;
 	float minY = -maxY;
 
-	for (list<AnimTrackEditorUI::AnimObject>::iterator oi = objects.begin(); oi != objects.end(); ++oi)
+	for (std::list<AnimTrackEditorUI::AnimObject>::iterator oi = objects.begin(); oi != objects.end(); ++oi)
 	{
 		for (unsigned int p = 0; p < oi->props.size(); p ++) {
 			if (!oi->props [p].display) continue;
@@ -82,7 +82,7 @@ void AnimTrackEditorUI::cmdAutoFitTime()
 	float minTime=10000;
 	float maxTime=-10000;
 	bool keys=false;
-	for (list<AnimTrackEditorUI::AnimObject>::iterator oi = objects.begin(); oi != objects.end(); ++oi)
+	for (std::list<AnimTrackEditorUI::AnimObject>::iterator oi = objects.begin(); oi != objects.end(); ++oi)
 	{
 		for (unsigned int p = 0; p < oi->props.size(); p ++) {
 			if (!oi->props [p].display) continue;
@@ -126,28 +126,28 @@ void AnimTrackEditorUI::UpdateBrowser()
 	Model *mdl = callback->GetMdl();
 
 	if (chkLockObjects->value()) {
-		vector<MdlObject*> obj = mdl->GetObjectList ();
+		std::vector<MdlObject*> obj = mdl->GetObjectList ();
 		// look for non-existant objects that are still in the browser
-		list<AnimObject>::iterator ai=objects.begin();
+		std::list<AnimObject>::iterator ai=objects.begin();
 		while (ai != objects.end()) {
-			list<AnimObject>::iterator i = ai++;
+			std::list<AnimObject>::iterator i = ai++;
 			if (find(obj.begin(),obj.end(),i->obj) == obj.end()) 
 				objects.erase (i);
 		}
 	} else {
-		vector<MdlObject*> selObj = mdl->GetSelectedObjects ();
+		std::vector<MdlObject*> selObj = mdl->GetSelectedObjects ();
 
 		// look for objects in the view that shouldn't be there because of the new selection
-		list<AnimObject>::iterator ai=objects.begin();
+		std::list<AnimObject>::iterator ai=objects.begin();
 		while (ai != objects.end()) {
-			list<AnimObject>::iterator i = ai++;
+			std::list<AnimObject>::iterator i = ai++;
 			if (find(selObj.begin(),selObj.end(),i->obj) == selObj.end()) 
 				objects.erase (i);
 		}
 
 		// look for objects that aren't currently in the view and add them
-		for (vector<MdlObject*>::iterator i=selObj.begin();i!=selObj.end();++i) {
-			list<AnimObject>::iterator co = objects.begin();
+		for (std::vector<MdlObject*>::iterator i=selObj.begin();i!=selObj.end();++i) {
+			std::list<AnimObject>::iterator co = objects.begin();
 			for (; co != objects.end(); ++co)
 				if (co->obj == *i) break;
 			if (co == objects.end())
@@ -165,9 +165,9 @@ void AnimTrackEditorUI::AddObject (MdlObject *o)
 
 	// add properties from the object
 	AnimationInfo& ai = o->animInfo;
-	for (vector<AnimProperty*>::iterator ap=ai.properties.begin();ap!=ai.properties.end();++ap)
+	for (std::vector<AnimProperty*>::iterator ap=ai.properties.begin();ap!=ai.properties.end();++ap)
 	{
-		vector<Property>& props = objects.back().props;
+		std::vector<Property>& props = objects.back().props;
 
 		if ((*ap)->controller->GetNumMembers () > 0)  {
 			for (int a = 0; a < (*ap)->controller->GetNumMembers (); a++) {
@@ -187,7 +187,7 @@ void AnimTrackEditorUI::AddObject (MdlObject *o)
 
 void AnimTrackEditorUI::UpdateKeySel ()
 {
-	for (list<AnimTrackEditorUI::AnimObject>::iterator oi = objects.begin(); oi != objects.end(); ++oi)
+	for (std::list<AnimTrackEditorUI::AnimObject>::iterator oi = objects.begin(); oi != objects.end(); ++oi)
 	{
 		for (unsigned int i = 0; i < oi->props.size(); i++) {
 			Property *p = &oi->props[i];
@@ -208,14 +208,14 @@ void AnimTrackEditorUI::UpdateKeySel ()
 
 float AnimTrackEditorUI::Property::EvaluateY (float time, int& lastkey)
 {
-	static vector<char> valbuf;
+	static std::vector<char> valbuf;
 
 	unsigned int neededBufSize = prop->controller->GetSize();
 	if (neededBufSize > valbuf.size())
 		valbuf.resize(neededBufSize);
 
 	// get the right member out of the value
-	pair<AnimController*,void*> memctl = prop->controller->GetMemberCtl (member, &valbuf.front());
+	std::pair<AnimController*,void*> memctl = prop->controller->GetMemberCtl (member, &valbuf.front());
 
 	// only evaluate when it is actually usable
 	if (memctl.first->CanConvertToFloat())
@@ -342,7 +342,7 @@ void AnimKeyTrackView::draw()
 	fltk::setcolor(fltk::WHITE);
 
 	float step = (maxTime-minTime)/w();
-	for (list<AnimTrackEditorUI::AnimObject>::iterator oi = trackUI->objects.begin(); oi != trackUI->objects.end(); ++oi)
+	for (std::list<AnimTrackEditorUI::AnimObject>::iterator oi = trackUI->objects.begin(); oi != trackUI->objects.end(); ++oi)
 	{
 		for (unsigned int i = 0; i < oi->props.size();i ++) {
 			AnimTrackEditorUI::Property *p = &oi->props[i];
@@ -385,7 +385,7 @@ void AnimKeyTrackView::SelectKeys (int mx, int my)
 
 	float epsilon=0.5f;
 
-	for (list<AnimTrackEditorUI::AnimObject>::iterator oi = trackUI->objects.begin(); oi != trackUI->objects.end(); ++oi)
+	for (std::list<AnimTrackEditorUI::AnimObject>::iterator oi = trackUI->objects.begin(); oi != trackUI->objects.end(); ++oi)
 	{
 		for (unsigned int i = 0; i < oi->props.size();i ++) {
 			AnimTrackEditorUI::Property *p = &oi->props[i];

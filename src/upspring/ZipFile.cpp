@@ -51,7 +51,7 @@ struct ZipFile::TZipLocalHeader
   dword   crc32;
   dword   cSize;
   dword   ucSize;
-  word    fnameLen;         // filename string follows header.
+  word    fnameLen;         // filename std::string follows header.
   word    xtraLen;          // Extra field follows filename.
 };
 
@@ -93,7 +93,7 @@ struct ZipFile::TZipDirFileHeader
   dword   crc32;
   dword   cSize;            // Compressed size
   dword   ucSize;           // Uncompressed size
-  word    fnameLen;         // filename string follows header.
+  word    fnameLen;         // filename std::string follows header.
   word    xtraLen;          // Extra field follows filename.
   word    cmntLen;          // Comment field follows extra field.
   word    diskStart;

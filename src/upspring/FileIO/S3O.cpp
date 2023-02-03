@@ -50,7 +50,7 @@ static MdlObject *S3O_LoadObject (FILE *f, int offset)
 	if (read_result != 1) throw std::runtime_error ("Couldn't read piece header.");
 
 	// Read name
-	obj->name = ReadString (piece.name, f);
+	obj->name = Readstring (piece.name, f);
 	obj->position.set(piece.xoffset,piece.yoffset,piece.zoffset);
 
 	// Read child objects
@@ -164,7 +164,7 @@ bool Model::LoadS3O(const char *filename, IProgressCtl& /*progctl*/) {
 	root = S3O_LoadObject (file, header.rootPiece);
 	MirrorX(root);
 
-	string mdlPath = GetFilePath (filename);
+	std::string mdlPath = GetFilePath (filename);
 
 	// load textures
 	for (int tex=0;tex<2;tex++) {
@@ -174,7 +174,7 @@ bool Model::LoadS3O(const char *filename, IProgressCtl& /*progctl*/) {
 		texBindings.push_back(TextureBinding());
 		TextureBinding &tb = texBindings.back ();
 
-		tb.name = ReadString (tex ? header.texture2 : header.texture1, file);
+		tb.name = Readstring (tex ? header.texture2 : header.texture1, file);
 		tb.texture = new Texture (tb.name, mdlPath);
 		if (!tb.texture->IsLoaded ())
 			tb.texture = 0;
@@ -210,7 +210,7 @@ static void S3O_WritePrimitives(S3OPiece *p, FILE *f, PolyMesh* pm)
 		p->vertexTableSize = 4 * (int)pm->poly.size();
 		p->primitiveType=2;
 	} else {
-		vector<Triangle> tris = pm->MakeTris ();
+		std::vector<Triangle> tris = pm->MakeTris ();
 		for (unsigned int a=0;a<tris.size();a++)
 		{
 			for (int b=0;b<3;b++) {

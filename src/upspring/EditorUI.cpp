@@ -73,7 +73,7 @@ void ArchiveListUI::cb_Browse(fltk::Button* o, void* v) {
 
 inline void ArchiveListUI::cb_archlist_i(fltk::Browser*, void*) {
   fltk::Widget *w=selected();
-  if (w) edit->value( ((string*)w->user_data())->c_str() );
+  if (w) edit->value( ((std::string*)w->user_data())->c_str() );
 }
 void ArchiveListUI::cb_archlist(fltk::Browser* o, void* v) {
   ((ArchiveListUI*)(o->parent()->user_data()))->cb_archlist_i(o,v);
@@ -82,7 +82,7 @@ void ArchiveListUI::cb_archlist(fltk::Browser* o, void* v) {
 inline void ArchiveListUI::cb_Remove_i(fltk::Button*, void*) {
   fltk::Widget *w=selected();
   if (w) {
-  settings.archives.erase(*(string*)w->user_data());
+  settings.archives.erase(*(std::string*)w->user_data());
   archlist->remove(w);
   archlist->redraw();
   }
@@ -135,7 +135,7 @@ ArchiveListUI::ArchiveListUI(const ArchiveList& s) {
     o->resizable(o);
   }
   settings=s;
-	for (set<string>::iterator i=settings.archives.begin();i!=settings.archives.end();++i) {
+	for (std::set<std::string>::iterator i=settings.archives.begin();i!=settings.archives.end();++i) {
 		// NOTE: cast to void* to fix "invalid conversion from const void*"
 		archlist->add(i->c_str(), (void*) &(*i));
 	}

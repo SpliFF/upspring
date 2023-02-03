@@ -83,6 +83,6 @@ struct CopyBuffer
 	void Paste (Model *mdl, MdlObject *where);
 	void Clear ();
 
-	vector <MdlObject *> buffer;
+	std::vector<MdlObject *> buffer;
 };
 

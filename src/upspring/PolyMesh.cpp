@@ -12,7 +12,7 @@
 float Poly::Selector::Score(Vector3 &pos, float /*camdis*/)
 {
 	assert (mesh);
-	const vector<Vertex>& v=mesh->verts;
+	const std::vector<Vertex>& v=mesh->verts;
 	Plane plane;
 
 	Vector3 vrt[3];
@@ -57,14 +57,14 @@ Poly* Poly::Clone()
 
 void Poly::Flip()
 {
-	vector<int> nv;
+	std::vector<int> nv;
 	nv.resize(verts.size());
 	for (uint a=0;a<verts.size();a++)
 		nv[verts.size()-a-1]=verts[(a+2)%verts.size()];
 	verts=nv;
 }
 
-Plane Poly::CalcPlane (const vector<Vertex>& vrt) {
+Plane Poly::CalcPlane (const std::vector<Vertex>& vrt) {
 	Plane plane;
 	plane.MakePlane (vrt[verts[0]].pos,vrt[verts[1]].pos,vrt[verts[2]].pos);
 	return plane;
@@ -72,7 +72,7 @@ Plane Poly::CalcPlane (const vector<Vertex>& vrt) {
 
 void Poly::RotateVerts ()
 {
-	vector<int> n(verts.size());
+	std::vector<int> n(verts.size());
 	for (uint a=0;a<verts.size();a++)
 		n[a]=verts[(a+1)%n.size()];
 	verts=n;
@@ -148,9 +148,9 @@ bool PolyMesh::IsEqualVertexTCNormal (Vertex& a, Vertex& b)
 
 void PolyMesh::OptimizeVertices (PolyMesh::IsEqualVertexCB cb)
 {
-	vector <int> old2new;
-	vector <int> usage;
-	vector <Vertex> nv;
+	std::vector<int> old2new;
+	std::vector<int> usage;
+	std::vector<Vertex> nv;
 
 	old2new.resize(verts.size());
 	usage.resize (verts.size());
@@ -202,7 +202,7 @@ void PolyMesh::Optimize (PolyMesh::IsEqualVertexCB cb)
 	OptimizeVertices(cb);
 
 	// remove double linked vertices
-	vector<Poly*> npl;
+	std::vector<Poly*> npl;
 	for (uint a=0;a<poly.size();a++) {
 		Poly *pl=poly[a];
 
@@ -238,9 +238,9 @@ void PolyMesh::CalculateRadius(float& radius, const Matrix &tr, const Vector3& m
 }
 
 
-vector<Triangle> PolyMesh::MakeTris ()
+std::vector<Triangle> PolyMesh::MakeTris ()
 {
-	vector<Triangle> tris;
+	std::vector<Triangle> tris;
 
 	for (uint a=0;a<poly.size();a++) {
 		Poly *p = poly[a];
@@ -289,11 +289,11 @@ struct FaceVert {
 void PolyMesh::CalculateNormals2(float maxSmoothAngle)
 {
 	float ang_c = cosf (M_PI * maxSmoothAngle / 180.0f);
-	vector<Vector3> vertPos;
-	vector<int> old2new;
+	std::vector<Vector3> vertPos;
+	std::vector<int> old2new;
 	GenerateUniqueVectors(verts, vertPos, old2new);
 
-	vector<vector<int> > new2old;
+	std::vector<std::vector<int> > new2old;
 	new2old.resize(vertPos.size());
 	for (uint a=0;a<old2new.size();a++)
 		new2old[old2new[a]].push_back(a);
@@ -387,16 +387,16 @@ void PolyMesh::CalculateNormals2(float maxSmoothAngle)
 //  - doesn't allow the same poly normal to be added to the same vertex twice
 void PolyMesh::CalculateNormals()
 {
-	vector<Vector3> vertPos;
-	vector<int> old2new;
+	std::vector<Vector3> vertPos;
+	std::vector<int> old2new;
 	GenerateUniqueVectors(verts, vertPos, old2new);
 	
-	vector<vector<int> > new2old;
+	std::vector<std::vector<int> > new2old;
 	new2old.resize(vertPos.size());
 	for (uint a=0;a<old2new.size();a++)
 		new2old[old2new[a]].push_back(a);
 
-	vector<std::vector<Vector3> > normals;
+	std::vector<std::vector<Vector3> > normals;
 	normals.resize(vertPos.size());
 
 	for (uint a=0;a<poly.size();a++) {
@@ -410,7 +410,7 @@ void PolyMesh::CalculateNormals()
 
 		Vector3 plnorm = plane.GetVector();
 		for (uint b=0;b<pl->verts.size();b++) {
-			vector<Vector3>& norms = normals[old2new[pl->verts[b]]];
+			std::vector<Vector3>& norms = normals[old2new[pl->verts[b]]];
 			uint c;
 			for (c=0;c<norms.size();c++)
 				if (norms[c] == plnorm) break;
@@ -422,14 +422,14 @@ void PolyMesh::CalculateNormals()
 
 	for (uint a=0;a<normals.size();a++) {
 		Vector3 sum;
-		vector<Vector3>& vn = normals[a];
+		std::vector<Vector3>& vn = normals[a];
 		for (uint b=0;b<vn.size();b++)
 			sum+=vn[b];
 
 		if (sum.length()>0.0f)
 			sum.normalize ();
 
-		vector<int>& vlist=new2old[a];
+		std::vector<int>& vlist=new2old[a];
 		for (uint b=0;b<vlist.size();b++)
 			verts[vlist[b]].normal = sum;
 	}

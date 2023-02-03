@@ -387,7 +387,7 @@ void MdlObject::Transform (const Matrix& transform)
 {
 	TransformVertices (transform);
 	
-	for (vector<MdlObject*>::iterator i=childs.begin();i!=childs.end();++i) {
+	for (std::vector<MdlObject*>::iterator i=childs.begin();i!=childs.end();++i) {
 		Matrix subObjTr;
 		(*i)->GetTransform (subObjTr);
 		subObjTr *= transform;
@@ -463,13 +463,13 @@ void MdlObject::LinkToParent(MdlObject *p)
 	parent = p;
 }
 
-vector<MdlObject*> MdlObject::GetChildObjects()
+std::vector<MdlObject*> MdlObject::GetChildObjects()
 {
-	vector<MdlObject*> objects;
+	std::vector<MdlObject*> objects;
 
 	for (uint a=0;a<childs.size();a++)  {
 		if (!childs[a]->childs.empty ()) {
-			vector <MdlObject *> sub = childs[a]->GetChildObjects();
+			std::vector<MdlObject *> sub = childs[a]->GetChildObjects();
 			objects.insert (objects.end(), sub.begin(), sub.end());
 		}
 		objects.push_back (childs[a]);
@@ -480,7 +480,7 @@ vector<MdlObject*> MdlObject::GetChildObjects()
 
 void MdlObject::FullMerge ()
 {
-	vector <MdlObject *> ch=childs;
+	std::vector<MdlObject *> ch=childs;
 	for (uint a=0;a<ch.size();a++) {
 		ch[a]->FullMerge ();
 		MergeChild (ch[a]);

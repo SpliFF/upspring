@@ -45,7 +45,7 @@ void IK_UI::AnimateToPos ()
 void IK_UI::JointType (IKJointType jt)
 {
 	Model *mdl = callback->GetMdl ();
-	vector<MdlObject*> sel = mdl->GetSelectedObjects ();
+	std::vector<MdlObject*> sel = mdl->GetSelectedObjects ();
 
 	for (uint a=0;a<sel.size();a++) {
 		IKinfo& ik = sel[a]->ikInfo;
@@ -70,7 +70,7 @@ void IK_UI::Update ()
 		return;
 
 	Model *mdl = callback->GetMdl ();
-	vector<MdlObject*> sel = mdl->GetSelectedObjects ();
+	std::vector<MdlObject*> sel = mdl->GetSelectedObjects ();
 
 	const char *mt = "<multiple types>";
 	selJointType->remove(mt);

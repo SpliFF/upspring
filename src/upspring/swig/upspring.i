@@ -34,10 +34,10 @@
 %include "std_string.i"
 %include "list.i"
 namespace std{ 
-	%template(IntArray) vector<int>; 
-	%template(FloatArray) vector<float>;
-	%template(CharArray) vector<char>;
-	%template(ShortArray) vector<short>;
+	%template(IntArray) std::vector<int>; 
+	%template(FloatArray) std::vector<float>;
+	%template(CharArray) std::vector<char>;
+	%template(ShortArray) std::vector<short>;
 }
 
 %include "../DebugTrace.h"
@@ -56,18 +56,18 @@ namespace std{
 %newobject Poly::Clone();
 
 namespace std{
-	%template(PolyRefArray) vector<Poly*>;
-	%template(VertexArray) vector<Vertex>;
-	%template(TriArray) vector<Triangle>;
-	%template(ObjectRefArray) vector<MdlObject*>;
-	%template(AnimationInfoRefArray) vector<AnimationInfo*>;
-	%template(AnimationInfoList) list<AnimationInfo>;
+	%template(PolyRefArray) std::vector<Poly*>;
+	%template(VertexArray) std::vector<Vertex>;
+	%template(TriArray) std::vector<Triangle>;
+	%template(ObjectRefArray) std::vector<MdlObject*>;
+	%template(AnimationInfoRefArray) std::vector<AnimationInfo*>;
+	%template(AnimationInfoList) std::list<AnimationInfo>;
 	%template(AnimInfoListIt)  list_iterator<AnimationInfo>;
 	%template(AnimInfoListRevIt)  list_reverse_iterator<AnimationInfo>;
-	%template(AnimPropertyList) list<AnimProperty>;
+	%template(AnimPropertyList) std::list<AnimProperty>;
 	%template(AnimPropListIt) list_iterator<AnimProperty>;
 	%template(AnimPropListRevIt) list_reverse_iterator<AnimProperty>;
-	%template(AnimPropertyRefArray) vector<AnimProperty*>;
+	%template(AnimPropertyRefArray) std::vector<AnimProperty*>;
 }
 
 namespace fltk{
@@ -96,8 +96,8 @@ const char* input(const char *label, const char *def);
 Model* upsGetModel() { return upsGetEditor()->GetMdl(); }
 MdlObject* upsGetRootObj() { return upsGetEditor()->GetMdl()->root; }
 void upsUpdateViews() { upsGetEditor()->Update(); }
-bool _upsFileSaveDlg (const char *msg, const char *pattern, string& fn) { return FileSaveDlg(msg, pattern, fn); }
-bool _upsFileOpenDlg (const char *msg, const char *pattern, string& fn) { return FileOpenDlg(msg, pattern, fn); }
+bool _upsFileSaveDlg (const char *msg, const char *pattern, std::string& fn) { return FileSaveDlg(msg, pattern, fn); }
+bool _upsFileOpenDlg (const char *msg, const char *pattern, std::string& fn) { return FileOpenDlg(msg, pattern, fn); }
 %}
 
 inline %{

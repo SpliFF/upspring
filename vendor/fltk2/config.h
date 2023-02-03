@@ -182,8 +182,8 @@
 /* #undef HAVE_SYS_NDIR_H */
 /* #undef HAVE_SYS_DIR_H */
 /* #undef HAVE_NDIR_H */
-#define HAVE_SCANDIR 1
-#define HAVE_SCANDIR_POSIX 1
+// #define HAVE_SCANDIR 1
+// #define HAVE_SCANDIR_POSIX 0
 
 /* If not set fltk will define it's own versions of these string
    functions. By including the fltk/string.h header file you will

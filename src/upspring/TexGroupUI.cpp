@@ -15,7 +15,7 @@ TexGroupUI::TexGroupUI(TextureGroupHandler *tgh, TextureHandler *th)
 {
 	CreateUI ();
 
-	for (map<string, TextureHandler::TexRef>::iterator ti=th->textures.begin();ti != th->textures.end(); ++ti)
+	for (auto ti=th->textures.begin();ti != th->textures.end(); ++ti)
 		texBrowser->AddTexture (ti->second.texture.Get());
 
 	texBrowser->UpdatePositions();
@@ -44,7 +44,7 @@ void TexGroupUI::InitGroupTexBrowser()
 {
 	groupTexBrowser->clear();
 	if (!current) return;
-	for (set<Texture*>::iterator i=current->textures.begin();i!=current->textures.end();++i)
+	for (std::set<Texture*>::iterator i=current->textures.begin();i!=current->textures.end();++i)
 		groupTexBrowser->AddTexture(*i);
 	groupTexBrowser->UpdatePositions();
 	groupTexBrowser->redraw();
@@ -52,7 +52,7 @@ void TexGroupUI::InitGroupTexBrowser()
 
 void TexGroupUI::RemoveFromGroup()
 {
-	vector<Texture*> sel=groupTexBrowser->GetSelection();
+	std::vector<Texture*> sel=groupTexBrowser->GetSelection();
 
 	for (uint a=0;a<sel.size();a++) {
 		groupTexBrowser->RemoveTexture(sel[a]);
@@ -99,7 +99,7 @@ void TexGroupUI::AddToGroup()
 	if (!current)
 		return;
 
-	vector <Texture *> sel = texBrowser->GetSelection();
+	std::vector<Texture *> sel = texBrowser->GetSelection();
 	for (uint a=0;a<sel.size();a++) {
 		if (current->textures.find(sel[a])==current->textures.end()) {
 			current->textures.insert(sel[a]);

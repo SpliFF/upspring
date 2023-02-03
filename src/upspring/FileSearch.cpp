@@ -79,9 +79,9 @@ std::list<std::string>* FindFiles(const std::string& searchPattern, bool recursi
 /**
  * @brief quote macro
  * @param c Character to test
- * @param str string currently being built
+ * @param str std::string currently being built
  *
- * Given a string str that we're assembling,
+ * Given a std::string str that we're assembling,
  * and an upcoming character c, will append
  * an extra '\\' to quote the character if necessary.
  */
@@ -95,8 +95,8 @@ std::list<std::string>* FindFiles(const std::string& searchPattern, bool recursi
 
 /**
  * @brief glob to regex
- * @param glob string containing glob
- * @return string containing regex
+ * @param glob std::string containing glob
+ * @return std::string containing regex
  *
  * Converts a glob expression to a regex
  */

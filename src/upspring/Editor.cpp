@@ -4,6 +4,10 @@
 //  This code is released under GPL license, see LICENSE.HTML for info.
 //-----------------------------------------------------------------------
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include <iostream>
 
 #include "EditorIncl.h"
@@ -12,10 +16,6 @@
 
 #include <IL/il.h>
 #include <IL/ilut.h>
-
-#ifdef WIN32
-#include <windows.h>
-#endif
 
 #include <fltk/run.h>
 #include <fltk/file_chooser.h>
@@ -50,7 +50,7 @@ const char* ViewSettingsFile="data/views.cfg";
 const char* ArchiveListFile="data/archives.cfg";
 const char* TextureGroupConfig="data/texgroups.cfg";
 
-string applicationPath;
+std::string applicationPath;
 
 /*
  * 	"All Supported (*.{bmp,gif,jpg,png})"
@@ -69,7 +69,7 @@ const char* FileChooserPattern=
 // ------------------------------------------------------------------------------------------------
 
 bool ArchiveList::Load () {
-	string fn=applicationPath + ArchiveListFile;
+	std::string fn=applicationPath + ArchiveListFile;
 	CfgList *cfg=CfgValue::LoadFile ( fn.c_str() );
 
 	if (!cfg)
@@ -77,7 +77,7 @@ bool ArchiveList::Load () {
 
 	CfgList *archs = dynamic_cast<CfgList*>(cfg->GetValue("Archives"));
 	if (archs) {
-		for (list<CfgListElem>::iterator i=archs->childs.begin();i!=archs->childs.end();++i) {
+		for (std::list<CfgListElem>::iterator i=archs->childs.begin();i!=archs->childs.end();++i) {
 			CfgLiteral *lit = dynamic_cast<CfgLiteral*>(i->value);
 			if (lit) archives.insert (lit->value);
 		}
@@ -87,7 +87,7 @@ bool ArchiveList::Load () {
 }
 
 bool ArchiveList::Save () {
-	string fn=applicationPath + ArchiveListFile;
+	std::string fn=applicationPath + ArchiveListFile;
 	CfgWriter writer (fn.c_str());
 	if (writer.IsFailed())
 		return false;
@@ -96,7 +96,7 @@ bool ArchiveList::Save () {
 	CfgList *archs=new CfgList;
 	cfg.AddValue ("Archives", archs);
 	int index=0;
-	for (set<string>::iterator s=archives.begin();s!=archives.end();++s, index++) {
+	for (std::set<std::string>::iterator s=archives.begin();s!=archives.end();++s, index++) {
 		char tmp[20];
 		sprintf (tmp, "arch%d", index);
 		archs->AddLiteral (tmp,s->c_str());
@@ -109,9 +109,9 @@ bool ArchiveList::Save () {
 // ------------------------------------------------------------------------------------------------
 
 
-vector<EditorViewWindow *> EditorUI::EditorCB::GetViews ()
+std::vector<EditorViewWindow *> EditorUI::EditorCB::GetViews ()
 {
-	vector<EditorViewWindow *> vl;
+	std::vector<EditorViewWindow *> vl;
 	for (int a=0;a<ui->viewsGroup->children();++a)
 		vl.push_back( (EditorViewWindow *)ui->viewsGroup->child(a));
 	return vl;
@@ -198,7 +198,7 @@ void EditorUI::Initialize ()
 
 	textureHandler = new TextureHandler ();
 
-	for (set<string>::iterator arch=archives.archives.begin();arch!=archives.archives.end();++arch)
+	for (std::set<std::string>::iterator arch=archives.archives.begin();arch!=archives.archives.end();++arch)
 		textureHandler->Load (arch->c_str());
 
 	textureGroupHandler = new TextureGroupHandler (textureHandler);
@@ -288,7 +288,7 @@ void EditorUI::uiSetRenderMethod(RenderMethod rm)
 	viewsGroup->redraw();
 }
 
-static void CollectTextures(MdlObject *o, set<Texture*>& textures) {
+static void CollectTextures(MdlObject *o, std::set<Texture*>& textures) {
 	PolyMesh* pm = o->GetPolyMesh();
 	if (pm) {
 		for (unsigned int a=0;a<pm->poly.size();a++) {
@@ -324,7 +324,7 @@ void EditorUI::uiCopy ()
 
 void EditorUI::uiPaste ()
 {
-	vector<MdlObject*> sel = model->GetSelectedObjects();
+	std::vector<MdlObject*> sel = model->GetSelectedObjects();
 	MdlObject *where=0;
 	if (!sel.empty()) {
 		if (sel.size()==1)
@@ -366,13 +366,13 @@ void EditorUI::uiAddObject ()
 void EditorUI::uiDeleteSelection()
 {
 	if (currentTool->needsPolySelect ()) {
-		vector <MdlObject *> objects=model->GetObjectList ();
+		std::vector<MdlObject *> objects=model->GetObjectList ();
 		for (unsigned int a=0;a<objects.size();a++) {
 			PolyMesh *pm = objects[a]->GetPolyMesh();
 
 			if (pm)
 			{
-				vector <Poly *> polygons;
+				std::vector<Poly *> polygons;
 				for (unsigned int b=0;b<pm->poly.size();b++) {
 					Poly *pl = pm->poly[b];
 					if (!pl->isSelected) polygons.push_back (pl);
@@ -383,8 +383,8 @@ void EditorUI::uiDeleteSelection()
 		}
 		
 	} else {
-		vector <MdlObject *> objects=model->GetSelectedObjects ();
-		vector <MdlObject *> filtered;
+		std::vector<MdlObject *> objects=model->GetSelectedObjects ();
+		std::vector<MdlObject *> filtered;
 		for (unsigned int a=0;a<objects.size();a++) {
 			if (objects[a]->HasSelectedParent ())
 				continue;
@@ -401,7 +401,7 @@ void EditorUI::uiDeleteSelection()
 void EditorUI::uiApplyTransform()
 {
 	// apply the transformation of each object onto itself, and remove the orientation+offset
-	vector<MdlObject*>sel = model->GetSelectedObjects();
+	std::vector<MdlObject*>sel = model->GetSelectedObjects();
 	for (unsigned int a=0;a<sel.size();a++)
 	{
 		MdlObject *o=sel[a];
@@ -413,7 +413,7 @@ void EditorUI::uiApplyTransform()
 
 void EditorUI::uiUniformScale()
 {
-	vector<MdlObject*> sel=model->GetSelectedObjects();
+	std::vector<MdlObject*> sel=model->GetSelectedObjects();
 	if (sel.empty()) return;
 
 	const char *scalestr = fltk::input("Scale selected objects with this factor", "1");
@@ -437,8 +437,8 @@ void EditorUI::uiRotate3DOTex ()
 	if (!currentTool->needsPolySelect())
 		fltk::message ("Use the polygon selection tool first to select the polygons");
 	else {
-		vector<MdlObject*> obj = model->GetObjectList ();
-		for(vector<MdlObject*>::iterator o=obj.begin();o!=obj.end();++o) {
+		std::vector<MdlObject*> obj = model->GetObjectList ();
+		for(std::vector<MdlObject*>::iterator o=obj.begin();o!=obj.end();++o) {
 			PolyMesh* pm = (*o)->GetPolyMesh();
 
 			if(pm) 
@@ -455,7 +455,7 @@ void EditorUI::uiRotate3DOTex ()
 
 void EditorUI::uiSwapObjects()
 {
-	vector<MdlObject*> sel = model->GetSelectedObjects ();
+	std::vector<MdlObject*> sel = model->GetSelectedObjects ();
 	if (sel.size ()!=2) {
 		fltk::message ("2 objects have to be selected for object swapping");
 		return;
@@ -537,7 +537,7 @@ void EditorUI::uiCalculateRadius ()
 
 void EditorUI::menuObjectApproxOffset()
 {
-	vector<MdlObject*> sel = model->GetSelectedObjects();
+	std::vector<MdlObject*> sel = model->GetSelectedObjects();
 	for (unsigned int a=0;a<sel.size();a++)
 		sel[a]->ApproximateOffset ();
 	
@@ -550,7 +550,7 @@ void EditorUI::browserSetObjectName (MdlObject *obj)
 
 	const char *r = fltk::input("Set object name", obj->name.c_str());
 	if (r) {
-		string prev = obj->name;
+		std::string prev = obj->name;
 		obj->name = r;
 		objectTree->redraw();
 	}
@@ -559,7 +559,7 @@ void EditorUI::browserSetObjectName (MdlObject *obj)
 
 void EditorUI::SelectionUpdated()
 {
-	vector<MdlObject*> sel =model->GetSelectedObjects ();
+	std::vector<MdlObject*> sel =model->GetSelectedObjects ();
 	char label[128];
 	if (sel.size () == 1) {
 		MdlObject *f = sel.front();
@@ -593,7 +593,7 @@ void EditorUI::Update ()
 	uiRotator->Update();
 
 	// update object inputs
-	vector<MdlObject*> sel = model->GetSelectedObjects();
+	std::vector<MdlObject*> sel = model->GetSelectedObjects();
 	fltk::Input *inputs[] = {
 		inputPosX,inputPosY, inputPosZ,
 			inputScaleX,inputScaleY,inputScaleZ,
@@ -635,7 +635,7 @@ void EditorUI::RenderScene (IView *view)
 // get a single selected object and abort when multiple are selected
 MdlObject* EditorUI::GetSingleSel ()
 {
-	vector <MdlObject*> sel = model->GetSelectedObjects ();
+	std::vector<MdlObject*> sel = model->GetSelectedObjects ();
 
 	if (sel.size () != 1) {
 		fltk::message ("Select a single object");
@@ -761,7 +761,7 @@ void EditorUI::UpdateTitle ()
 {
 	const char *baseTitle="Upspring Model Editor - ";
 
-	if (filename.empty()) windowTitle=baseTitle+string("unnamed model");
+	if (filename.empty()) windowTitle=baseTitle+std::string("unnamed model");
 	else windowTitle = baseTitle + filename;
 
 	window->label (windowTitle.c_str());
@@ -803,14 +803,14 @@ void EditorUI::InitTexBrowser()
 
 	TextureGroup *tg = GetCurrentTexGroup();
 	if(!tg) return;
-	for (set<Texture*>::iterator t=tg->textures.begin();t!=tg->textures.end();++t)
+	for (std::set<Texture*>::iterator t=tg->textures.begin();t!=tg->textures.end();++t)
 		texBrowser->AddTexture(*t);
 	texBrowser->UpdatePositions();
 	texBrowser->redraw();
 }
 
 
-bool EditorUI::Load (const string& fn)
+bool EditorUI::Load (const std::string& fn)
 {
 	Model *mdl = Model::Load(fn, optimizeOnLoad);
 
@@ -884,7 +884,7 @@ void EditorUI::menuObjectReplace()
 
 void EditorUI::menuObjectMerge()
 {
-	vector <MdlObject*> sel = model->GetSelectedObjects ();
+	std::vector<MdlObject*> sel = model->GetSelectedObjects ();
 
 	for (unsigned int a=0;a<sel.size();a++) {
 		MdlObject *parent = sel [a]->parent;
@@ -896,7 +896,7 @@ void EditorUI::menuObjectMerge()
 
 void EditorUI::menuObjectFlipPolygons()
 {
-	vector <MdlObject*> sel=model->GetSelectedObjects();
+	std::vector<MdlObject*> sel=model->GetSelectedObjects();
 	for (unsigned int a=0;a<sel.size();a++) {
 		for (PolyIterator pi(sel[a]); !pi.End(); pi.Next()) 
 			pi->Flip();
@@ -909,7 +909,7 @@ void EditorUI::menuObjectFlipPolygons()
 
 void EditorUI::menuObjectRecalcNormals()
 {
-	vector <MdlObject*> sel=model->GetSelectedObjects();
+	std::vector<MdlObject*> sel=model->GetSelectedObjects();
 	for (unsigned int a=0;a<sel.size();a++) {
 		PolyMesh *pm = sel[a]->GetPolyMesh();
 		if (pm) pm->CalculateNormals();
@@ -922,7 +922,7 @@ void EditorUI::menuObjectRecalcNormals()
 
 void EditorUI::menuObjectResetScaleRot()
 {
-	vector<MdlObject*> sel=model->GetSelectedObjects();
+	std::vector<MdlObject*> sel=model->GetSelectedObjects();
 	for (unsigned int a=0;a<sel.size();a++) 	{
         sel[a]->rotation=Rotator();
 		sel[a]->scale.set(1,1,1);
@@ -932,7 +932,7 @@ void EditorUI::menuObjectResetScaleRot()
 
 void EditorUI::menuObjectResetTransform()
 {
-	vector<MdlObject*> sel=model->GetSelectedObjects();
+	std::vector<MdlObject*> sel=model->GetSelectedObjects();
 	for (unsigned int a=0;a<sel.size();a++) 	{
         sel[a]->position=Vector3();
         sel[a]->rotation=Rotator();
@@ -944,7 +944,7 @@ void EditorUI::menuObjectResetTransform()
 
 void EditorUI::menuObjectResetPos()
 {
-	vector<MdlObject*> sel=model->GetSelectedObjects();
+	std::vector<MdlObject*> sel=model->GetSelectedObjects();
 	for (unsigned int a=0;a<sel.size();a++)
         sel[a]->position=Vector3();
 	
@@ -959,7 +959,7 @@ void EditorUI::menuObjectShowAnimWindows()
 
 void EditorUI::menuObjectGenCSurf()
 {
-	vector<MdlObject*> sel=model->GetSelectedObjects();
+	std::vector<MdlObject*> sel=model->GetSelectedObjects();
 	for (unsigned int a=0;a<sel.size();a++) {
 		delete sel[a]->csurfobj;
 
@@ -971,7 +971,7 @@ void EditorUI::menuObjectGenCSurf()
 
 void EditorUI::menuEditOptimizeAll()
 {
-	vector<MdlObject *> objects = model->GetObjectList();
+	std::vector<MdlObject *> objects = model->GetObjectList();
 	for (uint i=0;i<objects.size();i++)
 		if (objects[i]->GetPolyMesh ())
 			objects[i]->GetPolyMesh()->Optimize(PolyMesh::IsEqualVertexTCNormal);
@@ -980,7 +980,7 @@ void EditorUI::menuEditOptimizeAll()
 
 void EditorUI::menuEditOptimizeSelected()
 {
-	vector<MdlObject *> objects = model->GetObjectList();
+	std::vector<MdlObject *> objects = model->GetObjectList();
 	for (uint i=0;i<objects.size();i++)
 		if (objects[i]->isSelected && objects[i]->GetPolyMesh())
 			objects[i]->GetPolyMesh()->Optimize(PolyMesh::IsEqualVertexTCNormal);
@@ -1044,7 +1044,7 @@ void EditorUI::menuSettingsShowArchiveList()
 		archives=sui.settings;
 		archives.Save ();
 
-		for (set<string>::iterator arch=archives.archives.begin();arch!=archives.archives.end();++arch)
+		for (std::set<std::string>::iterator arch=archives.archives.begin();arch!=archives.archives.end();++arch)
 			textureHandler->Load (arch->c_str());
 	}
 }
@@ -1085,7 +1085,7 @@ void EditorUI::menuSettingsRestoreViews()
 
 void EditorUI::SaveSettings()
 {
-	string path=applicationPath + ViewSettingsFile;
+	std::string path=applicationPath + ViewSettingsFile;
 	CfgWriter writer(path.c_str());
 	if (writer.IsFailed ()) {
 		fltk::message ("Failed to open %s for writing view settings", path.c_str());
@@ -1098,7 +1098,7 @@ void EditorUI::SaveSettings()
 
 void EditorUI::LoadSettings()
 {
-	string path=applicationPath + ViewSettingsFile;
+	std::string path=applicationPath + ViewSettingsFile;
 	CfgList *cfg = CfgValue::LoadFile (path.c_str());
 	if (cfg) {
 		SerializeConfig (*cfg, false);
@@ -1108,7 +1108,7 @@ void EditorUI::LoadSettings()
 
 void EditorUI::LoadToolWindowSettings()
 {
-	string path=applicationPath + ViewSettingsFile;
+	std::string path=applicationPath + ViewSettingsFile;
 	CfgList *cfg = CfgValue::LoadFile (path.c_str());
 	if (cfg) {
 		// tool window visibility
@@ -1128,7 +1128,7 @@ void EditorUI::SerializeConfig (CfgList& cfg, bool store)
 {
 	// Serialize editor window properties
 	int x=window->x(), y=window->y(), width=window->w(), height=window->h();
-	string& springTexDir = Texture::textureLoadDir;
+	std::string& springTexDir = Texture::textureLoadDir;
 	if (store) {
 		CFG_STOREN(cfg,x);
 		CFG_STOREN(cfg,y);
@@ -1305,18 +1305,18 @@ void PrintCmdLine ()
 		);
 }
 
-string ReadTextFile (const char *name)
+std::string ReadTextFile (const char *name)
 {
 	FILE *f = fopen(name, "rb");
 	if (!f) {
 		logger.Trace (NL_Error, "Can't open file %s\n", name);
-		return string();
+		return std::string();
 	}
 	int l;
 	fseek (f, 0, SEEK_END);
 	l = ftell(f);
 	fseek (f, 0, SEEK_SET);
-	string r;
+	std::string r;
 	r.resize (l);
 	if (fread (&r[0], l, 1, f)) {}
 	fclose (f);

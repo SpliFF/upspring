@@ -889,7 +889,7 @@ const int ViewMergeDistance=4;
 
 void EditorViewWindow::ShowViewModifyMenu (int cx,int cy)
 {
-	vector <EditorViewWindow*> views=editor->GetViews ();
+	std::vector<EditorViewWindow*> views=editor->GetViews ();
 
 	const int d=ViewMergeDistance;
 	EditorViewWindow *candidate = 0;

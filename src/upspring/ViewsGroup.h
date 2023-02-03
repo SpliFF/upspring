@@ -72,7 +72,7 @@ public:
 	}
 
 	int lastWidth, lastHeight;
-	vector <Rectangle> viewDims;
+	std::vector<Rectangle> viewDims;
 	bool wasIconic, suppressRescale;
 };
 

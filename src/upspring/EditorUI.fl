@@ -88,14 +88,14 @@ edit->redraw();}
       }
       {fltk::Browser} archlist {
         callback {fltk::Widget *w=selected();
-if (w) edit->value( ((string*)w->user_data())->c_str() );}
+if (w) edit->value( ((std::string*)w->user_data())->c_str() );}
         xywh {6 8 480 228}
       } {}
       {fltk::Button} {} {
         label Remove
         callback {fltk::Widget *w=selected();
 if (w) {
-settings.archives.erase(*(string*)w->user_data());
+settings.archives.erase(*(std::string*)w->user_data());
 archlist->remove(w);
 archlist->redraw();
 }}
@@ -112,7 +112,7 @@ archlist->redraw();
       }
     }
     code {settings=s;
-for (set<string>::iterator i=settings.archives.begin();i!=settings.archives.end();++i)
+for (std::set<std::string>::iterator i=settings.archives.begin();i!=settings.archives.end();++i)
 { archlist->add(i->c_str(), &*i); }} {}
   }
   decl {ArchiveList settings;} {public

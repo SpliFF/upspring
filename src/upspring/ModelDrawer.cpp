@@ -3,6 +3,8 @@
 //  Copyright 2005 Jelmer Cnossen
 //  This code is released under GPL license, see LICENSE.HTML for info.
 //-----------------------------------------------------------------------
+#include "nv_dds.h"
+
 #include "EditorIncl.h"
 #include "EditorDef.h"
 
@@ -12,8 +14,6 @@
 #include "ModelDrawer.h"
 #include "CurvedSurface.h"
 
-#include "nv_dds.h"
-
 #include <GL/glew.h>
 #include <GL/gl.h>
 
@@ -22,8 +22,8 @@
 
 static const float ObjCenterSize=4.0f;
 
-uint LoadVertexProgram (string fn);
-uint LoadFragmentProgram (string fn);
+uint LoadVertexProgram (std::string fn);
+uint LoadFragmentProgram (std::string fn);
 
 void TestGLError()
 {
@@ -638,8 +638,8 @@ void ModelDrawer::RenderSelection (IView *view)
 	glPolygonOffset (0.0f, -10.0f);
 	glDepthMask (GL_FALSE);
 
-	ulong pattern[32], *i = pattern;
-	ulong val = 0xCCCCCCCC;
+	unsigned long pattern[32], *i = pattern;
+	unsigned long val = 0xCCCCCCCC;
 	for (;i < pattern+32;) {
 		*(i++)=val; *(i++)=val;
 		val = ~val;
@@ -755,7 +755,7 @@ void ModelDrawer::CleanupS3OAdvDrawing ()
 	glDisable (GL_TEXTURE_2D);
 }
 
-char* LoadTextFile (string fn, int &l) 
+char* LoadTextFile (std::string fn, int &l) 
 {
 	FILE *f = fopen(fn.c_str(), "rb");
 	if (!f) {
@@ -771,7 +771,7 @@ char* LoadTextFile (string fn, int &l)
 	return buf;
 }
 
-uint LoadVertexProgram(string fn)
+uint LoadVertexProgram(std::string fn)
 {
 	int l;
     char *buf=LoadTextFile (fn ,l);
@@ -798,7 +798,7 @@ uint LoadVertexProgram(string fn)
 	return ret;
 }
 
-uint LoadFragmentProgram(string fn)
+uint LoadFragmentProgram(std::string fn)
 {
 	int len;
 	char* buf=LoadTextFile (fn, len);

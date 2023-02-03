@@ -3,18 +3,18 @@
 
 namespace std {
 	template<typename T>
-	class list_iterator : public list<T>::iterator
+	class list_iterator : public std::list<T>::iterator
 	{
 	public:
 		list_iterator() {}
-		list_iterator(const typename list<T>::iterator& li) : list<T>::iterator(li) {}
+		list_iterator(const typename std::list<T>::iterator& li) : std::list<T>::iterator(li) {}
 	};
 	template<typename T>
-	class list_reverse_iterator : public list<T>::reverse_iterator
+	class list_reverse_iterator : public std::list<T>::reverse_iterator
 	{
 	public:
 		list_reverse_iterator () {}
-		list_reverse_iterator (const typename list<T>::reverse_iterator& li) : list<T>::reverse_iterator(li) {}
+		list_reverse_iterator (const typename std::list<T>::reverse_iterator& li) : std::list<T>::reverse_iterator(li) {}
 	};
 }
 
@@ -31,7 +31,7 @@ namespace std {
 			T value() { return *(*self); }
 			void next() { ++(*self); }
 			void prev() { --(*self); }
-			bool operator==(const list_iterator<T>& li) { return (list<T>::iterator)li == (list<T>::iterator)*self; }
+			bool operator==(const list_iterator<T>& li) { return (std::list<T>::iterator)li == (std::list<T>::iterator)*self; }
 		}
 	};
 	template<class T>
@@ -42,7 +42,7 @@ namespace std {
 			T value() { return *(*self); }
 			void next() { ++(*self); }
 			void prev() { --(*self); }
-			bool operator==(const list_reverse_iterator<T>& li) { return (list<T>::reverse_iterator)li == (list<T>::reverse_iterator)*self; }
+			bool operator==(const list_reverse_iterator<T>& li) { return (std::list<T>::reverse_iterator)li == (std::list<T>::reverse_iterator)*self; }
 		}
 	};
 
@@ -85,7 +85,7 @@ namespace std {
 }
 
 /*
-Vector<->LuaTable fns
+std::vector<->LuaTable fns
 These look a bit like the array<->LuaTable fns
 but are templated, not %defined
 (you must have template support for STL)
@@ -143,7 +143,7 @@ int SWIG_write_number_vector(lua_State* L,std::list<T> *l)
 
 // in
 %typemap(in) std::vector<T> *INPUT
-%{	$1 = SWIG_read_number_vector<T>(L,$input);
+%{	$1 = SWIG_read_number_std::vector<T>(L,$input);
 	if (!$1) SWIG_fail;%}
 
 %typemap(freearg) std::vector<T> *INPUT

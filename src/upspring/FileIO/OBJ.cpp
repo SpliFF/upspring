@@ -25,7 +25,7 @@ struct wf_face_vert
 
 struct wf_face
 {
-	vector<wf_face_vert> verts;
+	std::vector<wf_face_vert> verts;
 };
 
 struct wf_object
@@ -35,10 +35,10 @@ struct wf_object
 			delete faces[a];
 		faces.clear();
 	}
-	vector<Vector3> vert;
-	vector<Vector3> norm;
-	vector<Vector2> texc;
-	vector<wf_face*> faces;
+	std::vector<Vector3> vert;
+	std::vector<Vector3> norm;
+	std::vector<Vector2> texc;
+	std::vector<wf_face*> faces;
 };
 
 #define whitespace " \t"
@@ -170,7 +170,7 @@ static void get_face(char *line, wf_object *obj)
 
 
 /* line_type - determines the type of 'command' a line contains. Calls
-	strtok() to get the first string on the line, and to prepare it
+	strtok() to get the first std::string on the line, and to prepare it
 	for parsing by other routines. */
 static int line_type(char *line)
 {
@@ -374,15 +374,15 @@ bool SaveWavefrontObject (const char *fn, MdlObject *src)
 
 	fprintf (f, "# %zu vertices, %zu polygons\n", pm->verts.size(), pm->poly.size());
 
-	for (vector<Vertex>::iterator v=pm->verts.begin();v!=pm->verts.end();++v)
+	for (std::vector<Vertex>::iterator v=pm->verts.begin();v!=pm->verts.end();++v)
 		fprintf(f,"v %f %f %f\n",v->pos.x, v->pos.y, v->pos.z);
 
 // write normals
-	for (vector<Vertex>::iterator v=pm->verts.begin();v!=pm->verts.end();++v)
+	for (std::vector<Vertex>::iterator v=pm->verts.begin();v!=pm->verts.end();++v)
 		fprintf(f,"vn %f %f %f\n",v->normal.x, v->normal.y, v->normal.z);
 
 // write tc's
-	for (vector<Vertex>::iterator v=pm->verts.begin();v!=pm->verts.end();++v)
+	for (std::vector<Vertex>::iterator v=pm->verts.begin();v!=pm->verts.end();++v)
 		fprintf(f,"vt %f %f 0.0\n",v->tc[0].x, v->tc[0].y);
 
 // write faces

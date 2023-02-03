@@ -18,7 +18,7 @@ public:
 	}
 
 	void Init() {
-		string fn=applicationPath + "data/palette.pal";
+		std::string fn=applicationPath + "data/palette.pal";
 		FILE *f = fopen (fn.c_str(), "rb");
 		if (!f) {
 			if (!error)	logger.Trace (NL_Error, "Failed to load data/palette.pal");
@@ -333,7 +333,7 @@ bool Model::Save3DO(const char *fn, IProgressCtl& /*progctl*/) {
 	MdlObject *cl = root->Clone();
 	IterateObjects (cl, ApplyOrientationAndScaling);
 	
-	vector<MdlObject*> tmp;
+	std::vector<MdlObject*> tmp;
 	tmp.push_back (cl);
 	save_object (f, 0, tmp.begin());
 	fclose (f);

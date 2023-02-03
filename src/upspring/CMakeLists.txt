@@ -1,5 +1,13 @@
 add_executable (Upspring)
 
+set(CXX_STANDARD_REQUIRED ON)
+set(CXX_STANDARD 20)
+set(CXX_EXTENSIONS ON)
+
+if (WIN32)
+    target_compile_definitions(Upspring PUBLIC _HAS_STD_BYTE=0)
+endif ()
+
 find_package(GLEW REQUIRED)
 find_package(DevIL REQUIRED)
 find_package(ZLIB REQUIRED)
@@ -43,13 +51,7 @@ target_link_libraries (Upspring
 # TODO(jochumdev): I hate those manual directories here.
 target_include_directories(Upspring 
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" 
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../fltk2" 
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../lib3ds/src"
-)
-
-target_link_directories(Upspring
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../fltk2/lib"
-    PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../lib3ds/lib"
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/lib3ds/src"
 )
 
 target_sources(Upspring PRIVATE

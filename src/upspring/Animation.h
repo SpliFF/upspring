@@ -1,6 +1,9 @@
 
 #ifndef SWIG
 
+#include <string>
+#include <vector>
+
 class AnimController
 {
 public:
@@ -54,7 +57,7 @@ public:
 #endif
 	std::string name;
 	int offset, elemSize;
-	std::vector <char> keyData;
+	std::vector<char> keyData;
 };
 
 // Contains animation data(keyframes) for a particular object

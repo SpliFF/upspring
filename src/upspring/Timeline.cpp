@@ -160,7 +160,7 @@ void TimelineUI::cmdPause ()
 
 static void ChopAnimationInfo (MdlObject *o, float time)
 {
-	for (vector<AnimProperty*>::iterator pi = o->animInfo.properties.begin(); pi != o->animInfo.properties.end(); ++pi)
+	for (std::vector<AnimProperty*>::iterator pi = o->animInfo.properties.begin(); pi != o->animInfo.properties.end(); ++pi)
 		(*pi)->ChopAnimation (time);
 
 	for (uint a=0;a<o->childs.size();a++)

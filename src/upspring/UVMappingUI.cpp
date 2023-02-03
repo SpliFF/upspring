@@ -126,7 +126,7 @@ void UVViewWindow::DrawScene ()
 	glEnd ();
 
 	// draw model vertices
-	vector <MdlObject*> objs = mdl->GetObjectList ();
+	std::vector<MdlObject*> objs = mdl->GetObjectList ();
 	for (uint a=0;a<objs.size();a++) {
 		MdlObject *obj = objs[a];
 		for (PolyIterator pi(obj);!pi.End();pi.Next()) {
@@ -225,7 +225,7 @@ void MappingUI::Show ()
 void MappingUI::flipUVs ()
 {
 	Model* mdl = callback->GetMdl ();
-	vector<MdlObject*> obj = mdl->GetObjectList ();
+	std::vector<MdlObject*> obj = mdl->GetObjectList ();
 
 	for (uint a=0;a<obj.size();a++)
 	{
@@ -239,7 +239,7 @@ void MappingUI::flipUVs ()
 void MappingUI::mirrorUVs()
 {
 	Model* mdl = callback->GetMdl ();
-	vector<MdlObject*> obj = mdl->GetObjectList ();
+	std::vector<MdlObject*> obj = mdl->GetObjectList ();
 
 	for (uint a=0;a<obj.size();a++)
 	{

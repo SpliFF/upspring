@@ -12,8 +12,8 @@
 Logger logger;
 
 
-// Printf style string formatting
-string SPrintf(const char *fmt, ...)
+// Printf style std::string formatting
+std::string SPrintf(const char *fmt, ...)
 {
 	va_list vl;
 	va_start(vl, fmt);
@@ -25,7 +25,7 @@ string SPrintf(const char *fmt, ...)
 }
 
 
-string ReadZStr(FILE *f)
+std::string ReadZStr(FILE *f)
 {
 	std::string s;
 	int c/*,i=0*/;
@@ -35,7 +35,7 @@ string ReadZStr(FILE *f)
 }
 
 
-void WriteZStr(FILE *f, const string& s)
+void WriteZStr(FILE *f, const std::string& s)
 {
 	int c;
 	c = s.length ();
@@ -43,14 +43,14 @@ void WriteZStr(FILE *f, const string& s)
 }
 
 
-string GetFilePath (const string& fn)
+std::string GetFilePath (const std::string& fn)
 {
-	string mdlPath = fn;
-	string::size_type pos = mdlPath.rfind ('\\');
-	string::size_type pos2 = mdlPath.rfind ('/');
-	if (pos!=string::npos)
+	std::string mdlPath = fn;
+	std::size_t pos = mdlPath.rfind ('\\');
+	std::size_t pos2 = mdlPath.rfind ('/');
+	if (pos!=std::string::npos)
 		mdlPath.erase (pos+1, mdlPath.size());
-	else if (pos2 != string::npos)
+	else if (pos2 != std::string::npos)
 		mdlPath.erase (pos2+1, mdlPath.size());
 	return mdlPath;
 }
@@ -62,11 +62,11 @@ void AddTrailingSlash(std::string& tld)
 }
 
 
-string ReadString (int offset, FILE *f)
+std::string Readstring (int offset, FILE *f)
 {
 	int oldofs = ftell(f);
 	fseek (f, offset, SEEK_SET);
-	string str= ReadZStr (f);
+	std::string str= ReadZStr (f);
 	fseek (f, oldofs, SEEK_SET);
 	return str;
 }
@@ -216,7 +216,7 @@ void InputBuffer::ShowLocation() const
 	logger.Trace (NL_Debug, Location().c_str());
 }
 
-string InputBuffer::Location() const
+std::string InputBuffer::Location() const
 {
 	return SPrintf("In %s on line %d:", filename, line);
 }
@@ -302,9 +302,9 @@ void InputBuffer::Expecting (const char *s)
 	logger.Trace (NL_Debug, "Expecting %s\n",  s);
 }
 
-string InputBuffer::ParseIdent ()
+std::string InputBuffer::ParseIdent ()
 {
-	string name;
+	std::string name;
 
 	if(isalnum (get()))
 	{

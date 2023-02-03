@@ -3,7 +3,7 @@ class IEditor
 public:
 	void Update(){RedrawViews();}
 	virtual void RedrawViews ()=0;
-	virtual vector<EditorViewWindow *> GetViews () = 0;
+	virtual std::vector<EditorViewWindow *> GetViews () = 0;
 	virtual void MergeView(EditorViewWindow *own, EditorViewWindow *other)=0;
 	virtual void AddView(EditorViewWindow *v)=0;
 	virtual void SelectionUpdated()=0;

@@ -41,6 +41,16 @@
               "CMAKE_CXX_COMPILER": "g++.exe",
               "CMAKE_BUILD_TYPE": "Debug"
           }
+      },
+      {
+          "name": "msys2-mingw64-release",
+          "binaryDir": "${sourceDir}/out/build/${presetName}",
+          "cacheVariables": {
+              "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+              "CMAKE_C_COMPILER": "gcc.exe",
+              "CMAKE_CXX_COMPILER": "g++.exe",
+              "CMAKE_BUILD_TYPE": "Release"
+          }
       }
   ],
   "buildPresets": [
@@ -56,6 +66,10 @@
       {
           "name": "msys2-mingw64-debug",
           "configurePreset": "msys2-mingw64-debug"
+      },
+      {
+          "name": "msys2-mingw64-release",
+          "configurePreset": "msys2-mingw64-release"
       }
   ]
 }

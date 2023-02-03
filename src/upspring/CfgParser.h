@@ -33,7 +33,7 @@ public:
 	~CfgWriter();
 	bool IsFailed();
 
-	CfgWriter& operator<<(const string& s);
+	CfgWriter& operator<<(const std::string& s);
 	CfgWriter& operator<<(char c);
 	CfgWriter& operator<<(const char *str);
 
@@ -63,7 +63,7 @@ public:
 
 	static void AddValueClass (CfgValueClass *vc);
 protected:
-	static vector<CfgValueClass *> classes;
+	static std::vector<CfgValueClass *> classes;
 };
 
 class CfgListElem : public CfgValue
@@ -74,7 +74,7 @@ public:
 	bool Parse (InputBuffer& buf);
 	void Write (CfgWriter& w);
 
-	string name;
+	std::string name;
 	CfgValue *value;
 };
 
@@ -98,21 +98,21 @@ public:
 	void AddNumeric (const char *name, double val);
 	void AddValue (const char *name,CfgValue *val);
 
-	list<CfgListElem> childs;
+	std::list<CfgListElem> childs;
 
 // Serialization macro's and support
 #define CFG_STORE(cfg, val) (cfg).Store(#val, val)
 #define CFG_STOREN(cfg, val) (cfg).AddNumeric(#val, val)
 
 	void Store(const char *name, const char *val) { AddLiteral (name,val); }
-	void Store(const char *name, string& val) { AddLiteral (name,val.c_str()); }
+	void Store(const char *name, std::string& val) { AddLiteral (name,val.c_str()); }
 	void Store(const char *name, CfgValue *val) { AddValue (name,val); }
 	void Store(const char *name, bool val) { AddNumeric (name, val?1:0); }
 
 #define CFG_LOAD(cfg, val) (cfg).Load(#val, val)
 #define CFG_LOADN(cfg, val) (cfg).LoadNVal(#val, val)
 
-	string& Load(const char *name, string& val) { const char *r = GetLiteral(name); if (r) val=r; return val; }
+	std::string& Load(const char *name, std::string& val) { const char *r = GetLiteral(name); if (r) val=r; return val; }
 	CfgValue*& Load(const char *name, CfgValue*& val) { val=GetValue(name); return val; }
 	bool& Load(const char* name, bool& val) { val=GetNumeric(name)!=0.0f; return val; }
 	template<typename T> T& LoadNVal(const char *name, T& val) { val=(T)GetNumeric(name); return val; }
@@ -126,7 +126,7 @@ public:
 	void dbgPrint (int depth);
 
 	bool ident;
-	string value;
+	std::string value;
 };
 
 class CfgNumeric : public CfgValue {

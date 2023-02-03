@@ -12,11 +12,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-#ifdef WIN32
-// NOTE: this is not supplied with gcc (since not defined by either ANSI/ISO C or by POSIX)
-#include <process.h>
-#endif
-
 #include <assert.h>
 
 // STL

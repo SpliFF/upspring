@@ -29,6 +29,8 @@
 // for other system-specific code.
 
 #include <config.h>
+#include <fltk/error.h>
+#include <fltk/run.h>
 #include <fltk/events.h>
 #include <fltk/layout.h>
 #include <fltk/Window.h>
@@ -37,6 +39,7 @@
 #include <fltk/filename.h>
 #include <fltk/utf.h>
 #include <fltk/Monitor.h>
+#include <fltk/damage.h>
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -67,9 +70,9 @@ namespace fltk {
 #endif
 
 #if 1
-# include <winsock.h>
+  #include <winsock.h>
 #else
-# include <winsock2.h>
+  #include <winsock2.h>
 #endif
 
 #include <commctrl.h>
@@ -1235,12 +1238,6 @@ public:
 
 //#define NO_TRACK_MOUSE 1
 
-#ifndef NO_TRACK_MOUSE
-extern "C" {
-  BOOL WINAPI TrackMouseEvent(LPTRACKMOUSEEVENT lpEventTrack);
-};
-#endif
-
 // Return the shift flags for event_state():
 static unsigned long shiftflags(bool ignorealt=false) {
   unsigned long state = 0;
@@ -1273,7 +1270,6 @@ static unsigned recent_keysym = 0;
 static bool mouse_event(Window *window, int what, unsigned button,
 			WPARAM wParam, LPARAM lParam)
 {
-  xmousewin = window;
   if (!window) return false;
 #ifndef NO_TRACK_MOUSE
   TRACKMOUSEEVENT tme;
@@ -1498,7 +1494,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 #endif
 
   case WM_QUIT: // this should not happen?
-    fatal("WM_QUIT message");
+    fltk::fatal("WM_QUIT message");
 
   case WM_CLOSE: // user clicked close box
     if (!window) break;
@@ -1558,17 +1554,17 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     // not pointing at a window belonging to the application. This seems
     // to work, probably because the enter event has already been done
     // and has changed xmousewin to some other window:
-    if (window == xmousewin) {xmousewin = 0; handle(LEAVE, window);}
+    // if (window == xmousewin) {xmousewin = 0; handle(LEAVE, window);}
     break;
 
   case WM_KILLFOCUS:
     window = 0;
   case WM_SETFOCUS:
-    if (xfocus != window) {
-      xfocus = window;
-      fix_focus();
-      MakeWaitReturn();
-    }
+    // if (xfocus != window) {
+    //   xfocus = window;
+    //   fix_focus();
+    //   MakeWaitReturn();
+    // }
     break;
 
   case WM_KEYDOWN:
@@ -1652,7 +1648,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     delta -= (SHORT)(HIWORD(wParam));
     if ((e_dy = delta / WHEEL_DELTA)) {
       delta -= e_dy * WHEEL_DELTA;
-      handle(MOUSEWHEEL, xmousewin ? xmousewin : window);
+      handle(MOUSEWHEEL, window);
     }
     return 0;
   }
@@ -2382,14 +2378,14 @@ void Window::flush() {
     cairo_invalidate_context();
 #endif
     load_identity();
-    if (damage & ~DAMAGE_EXPOSE) {
+    if (damage & ~fltk::DAMAGE_EXPOSE) {
       set_damage(damage & ~DAMAGE_EXPOSE);
       draw();
       i->backbuffer_bad = true;
     }
-    if (i->region && !(damage & DAMAGE_ALL)) {
+    if (i->region && !(damage & fltk::DAMAGE_ALL)) {
       clip_region(i->region); i->region = 0;
-      set_damage(DAMAGE_EXPOSE); draw();
+      set_damage(fltk::DAMAGE_EXPOSE); draw();
       clip_region(0);
     }
   }

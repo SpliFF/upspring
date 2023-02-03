@@ -121,7 +121,7 @@ HRESULT CAVIGenerator::InitEngine()
 
 	// Step 2 : Open the movie file for writing....
 	hr = AVIFileOpen(&m_pAVIFile,			// Address to contain the new file interface pointer
-		       (LPCSTR)m_sFile,				// Null-terminated string containing the name of the file to open
+		       (LPCSTR)m_sFile,				// Null-terminated std::string containing the name of the file to open
 		       OF_WRITE | OF_CREATE,	    // Access mode to use when opening the file. 
 		       NULL);						// use handler determined from file extension.
 											// Name your file .avi -> very important

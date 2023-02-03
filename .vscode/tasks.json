@@ -10,6 +10,11 @@
             "label": "build-debug-gcc",
             "type": "shell",
             "command": "cmake --build --preset debug-gcc"
+        },
+        {
+            "label": "msys2-mingw64-debug",
+            "type": "shell",
+            "command": "cmake --build --preset msys2-mingw64-debug"
         }
     ]
 }

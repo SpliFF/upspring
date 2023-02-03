@@ -1,7 +1,7 @@
 project(fltk2)
 
-set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-Wno-unused-parameter -Wno-unused-label -fno-strict-aliasing -Wno-deprecated -Wall -g -DUSE_IK -O2")
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wno-non-virtual-dtor -Wno-unused-parameter -Wno-unused-label -fno-strict-aliasing -Wno-deprecated -Wall -g -DUSE_IK -O2")
+set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-Wno-unused-parameter -Wno-unused-label -fno-strict-aliasing -Wno-deprecated -Wall -DUSE_IK -O2 -fpermissive -Wint-to-pointer-cast")
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wdelete-non-virtual-dtor -Wno-unused-parameter -Wno-unused-label -fno-strict-aliasing -Wno-deprecated -Wall -DUSE_IK -O2 -fpermissive -Wint-to-pointer-cast")
 
 set(FLTK_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/Fl_Gl_Choice.cxx
@@ -249,17 +249,17 @@ elseif (WIN32)
     set(FLTK_SOURCES 
         ${FLTK_SOURCES}
         ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/scandir.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/Font.cxx
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/Image.cxx
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/WinMain.cxx
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/dnd.cxx
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/event_key_state.cxx
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/fltk_theme.cxx
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/list_fonts.cxx
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/lock.cxx
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/readimage.cxx
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/Font.cxx
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/Image.cxx
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/WinMain.cxx
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/dnd.cxx
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/event_key_state.cxx
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/fltk_theme.cxx
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/list_fonts.cxx
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/lock.cxx
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/readimage.cxx
         ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/run.cxx
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/setcolor.cxx
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/setcolor.cxx
     )
 endif ()
 
@@ -272,7 +272,11 @@ target_link_directories(fltk2
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib
 )
 
-if (UNIX)
+if (WIN32)
+    target_link_libraries(fltk2 wsock32 ws2_32 msimg32 pthread)
+elseif (UNIX)
+    target_compile_definitions(fltk2 PUBLIC HAVE_SCANDIR HAVE_SCANDIR_POSIX)
+
     find_package(X11 COMPONENTS Xft Xinerama Xcursor Xi Xext)
 
     target_link_libraries (fltk2 

@@ -71,7 +71,7 @@ void Model::InsertModel (MdlObject *obj, Model *sub)
 
 
 // TODO: Abstract file formats
-Model* Model::Load(const string& _fn, bool /*Optimize*/, IProgressCtl& progctl) {
+Model* Model::Load(const std::string& _fn, bool /*Optimize*/, IProgressCtl& progctl) {
 	const char *fn = _fn.c_str();
 	const char *ext=fltk::filename_ext(fn);
 	Model *mdl = 0;
@@ -111,7 +111,7 @@ Model* Model::Load(const string& _fn, bool /*Optimize*/, IProgressCtl& progctl) 
 	}
 }
 
-bool Model::Save(Model* mdl, const string& _fn, IProgressCtl& progctl)
+bool Model::Save(Model* mdl, const std::string& _fn, IProgressCtl& progctl)
 {
 	bool r = false;
 	const char *fn = _fn.c_str();
@@ -139,7 +139,7 @@ bool Model::Save(Model* mdl, const string& _fn, IProgressCtl& progctl)
 	return r;
 }
 
-static void GetSelectedObjectsHelper( MdlObject *obj, vector<MdlObject*>& sel)
+static void GetSelectedObjectsHelper( MdlObject *obj, std::vector<MdlObject*>& sel)
 {
 	if (obj->isSelected)
 		sel.push_back (obj);
@@ -148,9 +148,9 @@ static void GetSelectedObjectsHelper( MdlObject *obj, vector<MdlObject*>& sel)
 		GetSelectedObjectsHelper(obj->childs[a],sel);
 }
 
-vector <MdlObject*> Model::GetSelectedObjects ()
+std::vector<MdlObject*> Model::GetSelectedObjects ()
 {
-	vector<MdlObject*> sel;
+	std::vector<MdlObject*> sel;
 	if (root)
 		GetSelectedObjectsHelper (root,sel);
 	return sel;
@@ -159,7 +159,7 @@ vector <MdlObject*> Model::GetSelectedObjects ()
 void Model::DeleteObject(MdlObject *obj)
 {
 	if (obj->parent) {
-		vector<MdlObject*>::iterator i=find (obj->parent->childs.begin(),obj->parent->childs.end(), obj);
+		std::vector<MdlObject*>::iterator i=find (obj->parent->childs.begin(),obj->parent->childs.end(), obj);
 		if (i != obj->parent->childs.end()) obj->parent->childs.erase (i);
 	} else {
 		assert (obj == root);
@@ -181,9 +181,9 @@ void Model::SwapObjects (MdlObject *a, MdlObject *b)
 	// Swap childs
 	swap(a->childs,b->childs);
 	// assign parents again on the swapped childs
-	for (vector<MdlObject*>::iterator ci=a->childs.begin();ci!=a->childs.end();ci++)
+	for (std::vector<MdlObject*>::iterator ci=a->childs.begin();ci!=a->childs.end();ci++)
 		(*ci)->parent = a;
-	for (vector<MdlObject*>::iterator ci=b->childs.begin();ci!=b->childs.end();ci++)
+	for (std::vector<MdlObject*>::iterator ci=b->childs.begin();ci!=b->childs.end();ci++)
 		(*ci)->parent = b;
 
 	if (b == ap) { // was b originally the parent of a?
@@ -245,7 +245,7 @@ void Model::EstimateMidPosition ()
 
 void Model::CalculateRadius ()
 {
-	vector<MdlObject*> objs = GetObjectList();
+	std::vector<MdlObject*> objs = GetObjectList();
 	radius=0.0f;
 	for (unsigned int o=0;o<objs.size();o++) {
 		MdlObject *obj = objs[o];
@@ -268,9 +268,9 @@ bool Model::ExportUVMesh (const char *fn)
 
 	// merge all objects in the clone
 	while (!mdl.root->childs.empty()) {
-		vector<MdlObject*> childs=mdl.root->childs;
+		std::vector<MdlObject*> childs=mdl.root->childs;
 
-		for (vector<MdlObject*>::iterator ci=childs.begin(); ci!=childs.end(); ++ci)
+		for (std::vector<MdlObject*>::iterator ci=childs.begin(); ci!=childs.end(); ++ci)
 			mdl.root->MergeChild(*ci);
 	}
 
@@ -291,7 +291,7 @@ bool Model::ImportUVMesh(const char *fn, IProgressCtl& progctl) {
 }
 
 
-int MatchPolygon (MdlObject *root, vector<Vector3>& pverts, int& startVertex)
+int MatchPolygon (MdlObject *root, std::vector<Vector3>& pverts, int& startVertex)
 {
 	int index = 0;
 	for (PolyIterator pi(root); !pi.End();pi.Next(),index++) {
@@ -333,10 +333,10 @@ int MatchPolygon (MdlObject *root, vector<Vector3>& pverts, int& startVertex)
 }
 
 bool Model::ImportUVCoords(Model* other, IProgressCtl &progctl) {
-	vector <MdlObject*> objects=GetObjectList ();
+	std::vector<MdlObject*> objects=GetObjectList ();
 	MdlObject *srcobj = other->root;
 
-	vector <Vector3> pverts;
+	std::vector<Vector3> pverts;
 
 	int numPl = 0, curPl=0;
 	for (uint a=0;a<objects.size();a++) {
@@ -352,7 +352,7 @@ bool Model::ImportUVCoords(Model* other, IProgressCtl &progctl) {
 		PolyMesh *pm = obj->GetPolyMesh();
 
 		// give each polygon an independent set of vertices, this will be optimized back to normal later
-		vector <Vertex> nverts;
+		std::vector<Vertex> nverts;
 		for (PolyIterator pi(obj);!pi.End();pi.Next()) {
 			for (uint v=0;v<pi->verts.size();v++) {
 				nverts.push_back (pm->verts[pi->verts[v]]);
@@ -390,25 +390,25 @@ bool Model::ImportUVCoords(Model* other, IProgressCtl &progctl) {
 	return true;
 }
 
-static void GetObjectListHelper (MdlObject *obj, vector<MdlObject*>& list)
+static void GetObjectListHelper (MdlObject *obj, std::vector<MdlObject*>& list)
 {
 	list.push_back (obj);
 	for (uint a=0;a<obj->childs.size();a++)
 		GetObjectListHelper (obj->childs [a], list);
 }
 
-vector<MdlObject*> Model::GetObjectList ()
+std::vector<MdlObject*> Model::GetObjectList ()
 {
-	vector<MdlObject*> objlist;
+	std::vector<MdlObject*> objlist;
 	if (root)
 		GetObjectListHelper (root, objlist);
 	return objlist;
 }
 
-vector<PolyMesh*> Model::GetPolyMeshList ()
+std::vector<PolyMesh*> Model::GetPolyMeshList ()
 {
-	vector<MdlObject*> objlist = GetObjectList();
-	vector<PolyMesh*> pmlist;
+	std::vector<MdlObject*> objlist = GetObjectList();
+	std::vector<PolyMesh*> pmlist;
 	for (uint a=0;a<objlist.size();a++)
 		if (objlist[a]->GetPolyMesh ())
 			pmlist.push_back (objlist[a]->GetPolyMesh());
@@ -448,14 +448,14 @@ Model* Model::Clone()
 
 
 
-ulong Model::ObjectSelectionHash()
+unsigned long Model::ObjectSelectionHash()
 {
-	ulong ch = 0;
-	ulong a = 63689;
-	vector<MdlObject*> sel = GetSelectedObjects();
+	unsigned long ch = 0;
+	unsigned long a = 63689;
+	std::vector<MdlObject*> sel = GetSelectedObjects();
 	
 	for (uint x=0;x<sel.size();x++) {
-		ch = ch * a + (ulong)sel[x];
+		ch = ch * a + (intptr_t)sel[x];
 		a *= 378551;
 	}
 
@@ -474,8 +474,8 @@ bool Model::ConvertToS3O(std::string textureName, int texw, int texh)
 	std::set<Texture *> textures;
 	std::map<uint, RefPtr<Texture> > coltextures;
 
-	vector<PolyMesh*> pmlist = GetPolyMeshList();
-	vector<Poly*> polygons = GetElementList(&PolyMesh::poly, pmlist.begin(), pmlist.end());
+	std::vector<PolyMesh*> pmlist = GetPolyMeshList();
+	std::vector<Poly*> polygons = GetElementList(&PolyMesh::poly, pmlist.begin(), pmlist.end());
 
 	for (uint a=0;a<polygons.size();a++)
 	{
@@ -543,7 +543,7 @@ bool Model::ConvertToS3O(std::string textureName, int texw, int texh)
 	// now set new texture coordinates. 
 	// Vertices might need to be split, so vertices are calculated per frame and then optimized again
 
-	for (vector<PolyMesh*>::iterator pmi = pmlist.begin(); pmi != pmlist.end(); ++pmi)
+	for (std::vector<PolyMesh*>::iterator pmi = pmlist.begin(); pmi != pmlist.end(); ++pmi)
 	{
 		PolyMesh *pm = *pmi;
 		std::vector<Vertex> vertices;

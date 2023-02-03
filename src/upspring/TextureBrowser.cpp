@@ -120,9 +120,9 @@ void TextureBrowser::SelectItem(Item *i)
 	redraw();
 }
 
-vector<Texture*> TextureBrowser::GetSelection()
+std::vector<Texture*> TextureBrowser::GetSelection()
 {
-	vector <Texture*> sel;
+	std::vector<Texture*> sel;
 
 	int nc=children();
 	for (int a=0;a<nc;a++) {

@@ -20,8 +20,6 @@ namespace csurf {
 	class Object;
 };
 
-using namespace std;
-
 class Texture;
 
 struct Poly;
@@ -49,13 +47,13 @@ struct Poly
 	Poly ();
 	~Poly ();
 
-	Plane CalcPlane(const vector<Vertex>& verts);
+	Plane CalcPlane(const std::vector<Vertex>& verts);
 	void Flip();
 	Poly* Clone();
 	void RotateVerts();
 
-	vector <int> verts;
-	string texname;
+	std::vector<int> verts;
+	std::string texname;
 	Vector3 color;
 	int taColor; // TA indexed color
 	RefPtr<Texture> texture;
@@ -156,14 +154,14 @@ class PolyMesh : public Geometry
 public:
 	~PolyMesh();
 
-	vector <Vertex> verts;
-	vector <Poly*> poly;
+	std::vector<Vertex> verts;
+	std::vector<Poly*> poly;
 
 	void Draw(ModelDrawer* drawer, Model* mdl, MdlObject* o);
 	Geometry* Clone();
 	void Transform(const Matrix& transform);
 	PolyMesh* ToPolyMesh(); // clones
-	vector<Triangle> MakeTris();
+	std::vector<Triangle> MakeTris();
 
 	static bool IsEqualVertexTC(Vertex& a, Vertex& b);
 	static bool IsEqualVertexTCNormal(Vertex& a, Vertex& b);
@@ -190,7 +188,7 @@ struct MdlObject {
 	void FullMerge (); // merge all childs and their subchilds
 	void GetTransform (Matrix& tr); // calculates the object space -> parent space transform
 	void GetFullTransform (Matrix& tr); // object space -> world space
-	vector<MdlObject*> GetChildObjects (); // returns all child objects (recursively)
+	std::vector<MdlObject*> GetChildObjects (); // returns all child objects (recursively)
 
 	void UnlinkFromParent ();
 	void LinkToParent (MdlObject *p);
@@ -246,13 +244,13 @@ struct MdlObject {
 
 	AnimationInfo animInfo;
 
-	string name;
+	std::string name;
 	bool isSelected;
 	bool isOpen; // childs visible in object browser
 	IKinfo ikInfo;
 
 	MdlObject *parent;
-	vector <MdlObject*> childs;
+	std::vector<MdlObject*> childs;
 
 #ifndef SWIG
 	csurf::Object* csurfobj;
@@ -317,8 +315,8 @@ struct Model {
 	bool LoadS3O(const char *filename, IProgressCtl& progctl = defprogctl);
 	bool SaveS3O(const char *filename, IProgressCtl& progctl = defprogctl);
 
-	static Model* Load(const string& fn, bool Optimize=true, IProgressCtl& progctl = defprogctl);
-	static bool Save(Model *mdl, const string& fn, IProgressCtl& progctl = defprogctl);
+	static Model* Load(const std::string& fn, bool Optimize=true, IProgressCtl& progctl = defprogctl);
+	static bool Save(Model *mdl, const std::string& fn, IProgressCtl& progctl = defprogctl);
 
 	// exports merged version of the model
 	bool ExportUVMesh(const char *fn);
@@ -329,9 +327,9 @@ struct Model {
 
 
 	void InsertModel(MdlObject *obj, Model *sub);
-	vector<MdlObject*> GetSelectedObjects();
-	vector<MdlObject*> GetObjectList(); // returns all objects
-	vector<PolyMesh*> GetPolyMeshList();
+	std::vector<MdlObject*> GetSelectedObjects();
+	std::vector<MdlObject*> GetObjectList(); // returns all objects
+	std::vector<PolyMesh*> GetPolyMeshList();
 	void DeleteObject(MdlObject *obj);
 	void ReplaceObject(MdlObject *oldObj, MdlObject *newObj);
 	void EstimateMidPosition();
@@ -339,7 +337,7 @@ struct Model {
 	void SwapObjects(MdlObject *a, MdlObject *b);
 	Model* Clone();
 
-	ulong ObjectSelectionHash();
+	unsigned long ObjectSelectionHash();
 
 	void SetTextureName(uint index, const char *name);
 	void SetTexture(uint index, Texture* tex);

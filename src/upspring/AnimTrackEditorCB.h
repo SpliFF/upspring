@@ -38,7 +38,7 @@
 			AnimTrackEditorUI* ui;
 		} item;
 		AnimTrackEditorUI* ui;
-		string itemLabel;
+		std::string itemLabel;
 	} browserList;
 
 	void toggleMoveView();

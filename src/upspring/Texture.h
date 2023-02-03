@@ -16,12 +16,12 @@ class Texture : public Referenced
 {
 public:
 	Texture ();
-	Texture (const string& filename);
-	Texture (const string& filename, const string& hintpath);
+	Texture (const std::string& filename);
+	Texture (const std::string& filename, const std::string& hintpath);
 	Texture (void *buf, int len, const char *fn);
 	~Texture ();
 
-	bool Load (const string& filename, const string& hintpath);
+	bool Load (const std::string& filename, const std::string& hintpath);
 	bool IsLoaded() { return image; }
 	bool VideoInit ();
 	void SetImage (Image *img);
@@ -29,10 +29,10 @@ public:
 	int Height() { return image->h; }
 
 	uint glIdent;
-	string name;
+	std::string name;
 	RefPtr<Image> image;
 
-	static string textureLoadDir;
+	static std::string textureLoadDir;
 };
 
 // manages 3do textures
@@ -56,8 +56,8 @@ protected:
 		RefPtr<Texture> texture;
 	};
 
-	vector <ZipFile *> zips;
-	map <string, TexRef> textures;
+	std::vector<ZipFile *> zips;
+	std::map<std::string, TexRef> textures;
 
 	friend class TexGroupUI;
 };
@@ -66,8 +66,8 @@ protected:
 class TextureGroup
 {
 public:
-	string name;
-	set <Texture *> textures;
+	std::string name;
+	std::set<Texture *> textures;
 };
 
 class TextureGroupHandler
@@ -83,7 +83,7 @@ public:
 	TextureGroup* LoadGroup (CfgList *cfg);
 
 
-	vector <TextureGroup*> groups;
+	std::vector<TextureGroup*> groups;
 	TextureHandler *textureHandler;
 };
 

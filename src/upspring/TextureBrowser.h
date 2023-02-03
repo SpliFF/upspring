@@ -30,7 +30,7 @@ public:
 	void AddTexture (Texture *t);
 	void RemoveTexture (Texture *t);
 	void UpdatePositions (bool bRedraw=true);
-	vector<Texture*> GetSelection();
+	std::vector<Texture*> GetSelection();
 	void SelectAll();
 	void SetSelectCallback (TextureSelectCallback cb, void *data);
 

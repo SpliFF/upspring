@@ -220,7 +220,7 @@ AnimProperty* AnimProperty::Clone()
 
 AnimationInfo::~AnimationInfo()
 {
-	for (vector<AnimProperty*>::iterator i=properties.begin();i!=properties.end();++i)
+	for (std::vector<AnimProperty*>::iterator i=properties.begin();i!=properties.end();++i)
 		delete *i;
 }
 
@@ -231,7 +231,7 @@ void AnimationInfo::AddProperty (AnimController *ctl, const char *name, int offs
 
 void AnimationInfo::InsertKeyFrames (void *obj, float time)
 {
-	for (vector<AnimProperty*>::iterator ppi = properties.begin(); ppi != properties.end(); ++ppi)
+	for (std::vector<AnimProperty*>::iterator ppi = properties.begin(); ppi != properties.end(); ++ppi)
 	{
 		bool edited=false;
 		AnimProperty *pi = *ppi;
@@ -261,13 +261,13 @@ void AnimationInfo::InsertKeyFrames (void *obj, float time)
 
 void AnimationInfo::Evaluate (void *obj, float time)
 {
-	for (vector<AnimProperty*>::iterator pi = properties.begin(); pi != properties.end(); ++pi)
+	for (std::vector<AnimProperty*>::iterator pi = properties.begin(); pi != properties.end(); ++pi)
 		(*pi)->Evaluate (time, (char*)obj + (*pi)->offset);
 }
 
 void AnimationInfo::ClearAnimData()
 {
-	for (vector<AnimProperty*>::iterator pi = properties.begin(); pi != properties.end(); ++pi)
+	for (std::vector<AnimProperty*>::iterator pi = properties.begin(); pi != properties.end(); ++pi)
 		(*pi)->Clear();
 }
 
@@ -275,7 +275,7 @@ void AnimationInfo::ClearAnimData()
 void AnimationInfo::CopyTo(AnimationInfo& animInfo)
 {
 	// free anim data of the destination object
-	for (vector<AnimProperty*>::iterator i=animInfo.properties.begin();i!=animInfo.properties.end();++i)
+	for (std::vector<AnimProperty*>::iterator i=animInfo.properties.begin();i!=animInfo.properties.end();++i)
 		delete *i;
 
 	animInfo.properties.resize (properties.size());

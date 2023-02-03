@@ -48,7 +48,7 @@ void CopyBuffer::Copy (Model *mdl)
 {
 	Clear ();
 
-	vector<MdlObject*> sel = mdl->GetSelectedObjects();
+	std::vector<MdlObject*> sel = mdl->GetSelectedObjects();
 	for (uint a=0;a<sel.size();a++) {
 		if (sel[a]->HasSelectedParent ()) 
 			continue; // the parent will be copied anyway
@@ -62,7 +62,7 @@ void CopyBuffer::Cut (Model *mdl)
 	Clear ();
 
 	for (;;) {
-		vector <MdlObject *> sel = mdl->GetSelectedObjects ();
+		std::vector<MdlObject *> sel = mdl->GetSelectedObjects ();
 		if (sel.empty()) 
 			break;
 

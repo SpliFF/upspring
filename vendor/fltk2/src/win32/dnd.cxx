@@ -45,6 +45,8 @@ class FLDropSource : public IDropSource
   DWORD m_cRefCount;
 public:
   FLDropSource() { m_cRefCount = 0; }
+  virtual ~FLDropSource() = default;
+
   HRESULT STDMETHODCALLTYPE QueryInterface( REFIID riid, LPVOID *ppvObject ) {
     if (IID_IUnknown==riid || IID_IDropSource==riid)
     {
@@ -82,6 +84,8 @@ class FLDataObject : public IDataObject
   DWORD m_cRefCount;
 public:
   FLDataObject() { m_cRefCount = 1; }
+  virtual ~FLDataObject() = default;
+
   HRESULT STDMETHODCALLTYPE QueryInterface( REFIID riid, LPVOID *ppvObject ) {
     if (IID_IUnknown==riid || IID_IDataObject==riid)
     {

@@ -75,7 +75,7 @@ void Update ();
 void Initialize ();
 void UpdateTitle ();
 bool Save ();
-bool Load (const string& fn);
+bool Load (const std::string& fn);
 void SetModel (Model *mdl);
 void SetTool (Tool *t);
 void RenderScene (IView *view);
@@ -97,7 +97,7 @@ void LoadToolWindowSettings();
 void SerializeConfig(CfgList& cfg, bool store);
 
 fltk::Color teamColor;
-string filename, windowTitle;
+std::string filename, windowTitle;
 Model *model;
 ModelDrawer* modelDrawer;
 Tool *currentTool;
@@ -112,7 +112,7 @@ public:
 	EditorUI *ui;
 
 	void RedrawViews () { ui->Update(); }
-	vector<EditorViewWindow *> GetViews ();
+	std::vector<EditorViewWindow *> GetViews ();
 	void SelectionUpdated() {ui->SelectionUpdated();}
 	Model* GetMdl() { return ui->model; }
 	Tool* GetTool();
