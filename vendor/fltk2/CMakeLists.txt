@@ -273,10 +273,10 @@ target_link_directories(fltk2
 )
 
 if (WIN32)
-target_compile_definitions(fltk2 PUBLIC HAVE_SCANDIR=0 HAVE_SCANDIR_POSIX=0)
+target_compile_definitions(fltk2 PUBLIC HAVE_SCANDIR=0 HAVE_SCANDIR_POSIX=0 HAVE_DIRENT_H=1)
     target_link_libraries(fltk2 wsock32 ws2_32 msimg32 pthread)
 elseif (UNIX)
-    target_compile_definitions(fltk2 PUBLIC HAVE_SCANDIR=1 HAVE_SCANDIR_POSIX=1)
+    target_compile_definitions(fltk2 PUBLIC HAVE_SCANDIR=1 HAVE_SCANDIR_POSIX=1 HAVE_DIRENT_H=1)
 
     find_package(X11 COMPONENTS Xft Xinerama Xcursor Xi Xext)
 
