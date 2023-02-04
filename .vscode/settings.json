@@ -80,7 +80,9 @@
         "*.inc": "cpp",
         "*.rh": "cpp",
         "shared_mutex": "cpp",
-        "csignal": "cpp"
+        "csignal": "cpp",
+        "utf.h": "c",
+        "dirent.h": "c"
     },
     "cmake.copyCompileCommands": "${workspaceFolder}/compile_commands.json",
     "C_Cpp.default.compileCommands": "${workspaceFolder}/compile_commands.json",

@@ -38,6 +38,8 @@ FL_API int	utf8encode(unsigned, char*);
 FL_API const char* utf8fwd(const char*, const char* start, const char* end);
 FL_API const char* utf8back(const char*, const char* start, const char* end);
 
+FL_API unsigned utf8toUtf16(const char* src, unsigned srclen, unsigned short* dst, unsigned dstlen);
+
 FL_API unsigned	utf8towc(const char*, unsigned, wchar_t*, unsigned);
 FL_API unsigned utf8tomb(const char*, unsigned, char*, unsigned);
 FL_API unsigned utf8toa (const char*, unsigned, char*, unsigned);

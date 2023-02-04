@@ -4,10 +4,8 @@ set(CXX_STANDARD_REQUIRED ON)
 set(CXX_STANDARD 20)
 set(CXX_EXTENSIONS ON)
 
-if (UNIX AND NOT APPLE)
-    target_compile_definitions(Upspring PUBLIC HAVE_SCANDIR=1 HAVE_SCANDIR_POSIX=1)
-elseif (WIN32)
-    target_compile_definitions(Upspring PUBLIC _HAS_STD_BYTE=0 HAVE_SCANDIR=1)
+if (WIN32)
+    target_compile_definitions(Upspring PUBLIC _HAS_STD_BYTE=0)
 endif ()
 
 find_package(GLEW REQUIRED)

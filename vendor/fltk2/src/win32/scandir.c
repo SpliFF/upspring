@@ -16,9 +16,9 @@
 
 #ifndef __CYGWIN__
 /* Emulation of POSIX scandir() call with error messages */
-#include <FL/platform_types.h>
-#include <fltk/utf8.h>
-#include "flstring.h"
+#include <dirent.h>
+#include <fltk/utf.h>
+#include <fltk/string.h>
 #include <windows.h>
 #include <stdlib.h>
 
@@ -45,12 +45,12 @@ static void get_ms_errmsg(char *errmsg, int errmsg_sz) {
   /* Get error message from Windows */
   msize = FormatMessageW(flags, 0, lastErr, langid, (LPWSTR)&mbuf, 0, NULL);
   if ( msize == 0 ) {
-    fl_snprintf(errmsg, errmsg_sz, "Error #%lu", (unsigned long)lastErr);
+    snprintf(errmsg, errmsg_sz, "Error #%lu", (unsigned long)lastErr);
   } else {
     char *src;
     char *dst;
     /* convert message to UTF-8 */
-    fl_utf8fromwc(errmsg, errmsg_sz, mbuf, msize);
+    utf8fromwc(errmsg, errmsg_sz, mbuf, msize);
     /* Remove '\r's -- they screw up fl_alert()) */
     src = dst = errmsg;
     for ( ; 1; src++ ) {
@@ -66,7 +66,7 @@ static void get_ms_errmsg(char *errmsg, int errmsg_sz) {
  *
  * Returns -1 on error, errmsg returns error string (if non-NULL)
  */
-int fl_scandir(const char *dirname, struct dirent ***namelist,
+int scandir(const char *dirname, struct dirent ***namelist,
                int (*select)(struct dirent *),
                int (*compar)(struct dirent **, struct dirent **),
                char *errmsg, int errmsg_sz) {
@@ -83,7 +83,7 @@ int fl_scandir(const char *dirname, struct dirent ***namelist,
   findIn = (char *)malloc((size_t)(len+10));
   if (!findIn) {
     /* win32 malloc() docs: "malloc sets errno to ENOMEM if allocation fails" */
-    if (errmsg) fl_snprintf(errmsg, errmsg_sz, "%s", strerror(errno));
+    if (errmsg) snprintf(errmsg, errmsg_sz, "%s", strerror(errno));
     return -1;
   }
   strcpy(findIn, dirname);
@@ -98,10 +98,10 @@ int fl_scandir(const char *dirname, struct dirent ***namelist,
      /* unsigned short * wbuf = (unsigned short*)malloc(sizeof(short) *(len + 10)); */
      /* wbuf[fl_utf2unicode(findIn, strlen(findIn), wbuf)] = 0; */
         unsigned short *wbuf = NULL;
-        unsigned wlen = fl_utf8toUtf16(findIn, (unsigned) strlen(findIn), NULL, 0); /* Pass NULL to query length */
+        unsigned wlen = utf8toUtf16(findIn, (unsigned) strlen(findIn), NULL, 0); /* Pass NULL to query length */
         wlen++; /* add a little extra for termination etc. */
         wbuf = (unsigned short*)malloc(sizeof(unsigned short)*(wlen+2));
-        wlen = fl_utf8toUtf16(findIn, (unsigned) strlen(findIn), wbuf, wlen); /* actually convert the filename */
+        wlen = utf8toUtf16(findIn, (unsigned) strlen(findIn), wbuf, wlen); /* actually convert the filename */
         wbuf[wlen] = 0; /* NULL terminate the resultant string */
         if (!is_dir) { /* this file may still be a directory that we need to list */
           DWORD attr = GetFileAttributesW(wbuf);
@@ -109,7 +109,7 @@ int fl_scandir(const char *dirname, struct dirent ***namelist,
             wbuf[wlen] = '\\'; wbuf[wlen+1] = '*'; wbuf[wlen+2] = 0;
           }
         }
-        h = FindFirstFileW(wbuf, &findw); /* get a handle to the first filename in the search */
+        h = FindFirstFileW((wchar_t *)wbuf, &findw); /* get a handle to the first filename in the search */
         free(wbuf); /* release the "wide" buffer before the pointer goes out of scope */
   }
 
@@ -129,7 +129,7 @@ int fl_scandir(const char *dirname, struct dirent ***namelist,
     selectDir=(struct dirent*)malloc(sizeof(struct dirent)+dstlen);
 
  /* l = fl_unicode2utf(findw.cFileName, l, selectDir->d_name); */
-    l = fl_utf8fromwc(selectDir->d_name, dstlen, findw.cFileName, l);
+    l = utf8fromwc(selectDir->d_name, dstlen, findw.cFileName, l);
 
     selectDir->d_name[l] = 0;
     if (findw.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {

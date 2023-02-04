@@ -37,9 +37,12 @@
 
 #if ! HAVE_SCANDIR
 extern "C" {
-int scandir (const char *dir, dirent ***namelist,
-	 int (*select)(dirent *),
-	 int (*compar)(const dirent*const*, const dirent*const*));
+  #include "scandir.c"
+
+int scandir(const char *dirname, struct dirent ***namelist,
+               int (*select)(struct dirent *),
+               int (*compar)(struct dirent **, struct dirent **),
+               char *errmsg, int errmsg_sz);
 }
 #endif
 
@@ -61,7 +64,7 @@ int fltk::filename_list(const char *d, dirent ***list,
 #if !HAVE_SCANDIR
   // This version is when we define our own scandir (WIN32 and perhaps
   // some Unix systems):
-  int n = scandir(d, list, 0, sort);
+  int n = scandir(d, list, 0, sort, (char *)("\0"), 0);
 #elif defined(HAVE_SCANDIR_POSIX)
   // POSIX (2008) defines the comparison function like this:
   int n = scandir(d, list, 0, (int(*)(const dirent **, const dirent **))sort);

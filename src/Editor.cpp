@@ -748,7 +748,7 @@ void EditorUI::ConvertToS3O()
 	texH = atoi (fltk::input ("Enter texture height: ", SPrintf("%d", texH).c_str()));
 	std::string name_ext = fltk::filename_name (filename.c_str());
 	std::string name (name_ext.c_str(), fltk::filename_ext (name_ext.c_str()));
-	if (model->ConvertToS3O(GetFilePath(filename) + "/" + name + "_tex.bmp", texW, texH)) {
+	if (model->ConvertToS3O(GetFilePath(filename) + "/" + name + "_tex", texW, texH)) {
 		// Update the UI
 		SetModelTexture (0, model->texBindings[0].texture.Get());
 		SetMapping (MAPPING_S3O);	

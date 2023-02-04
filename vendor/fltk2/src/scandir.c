@@ -32,9 +32,9 @@ linking) can be used on all such machines.
 #include <config.h>
 
 #if ! HAVE_SCANDIR
-# if defined(_WIN32) && !defined(__CYGWIN__)
-#  include "win32/scandir.c"
-# else
+  #if defined(_WIN32) && !defined(__CYGWIN__)
+    #include "win32/scandir.c"
+  #else
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -123,8 +123,6 @@ scandir (const char *dir, dirent ***namelist,
   return i;
 }
 
-#endif /* !_WIN32 */
-
 /* This function is not used by fltk, but is usually provided with scandir
    implementations: */
 
@@ -132,7 +130,9 @@ int alphasort (struct dirent **a, struct dirent **b) {
   return strcmp ((*a)->d_name, (*b)->d_name);
 }
 
-#endif
+#endif /* !_WIN32 */
+
+#endif // #if ! HAVE_SCANDIR
 
 //
 // $Id: scandir.c 5576 2007-01-03 00:20:28Z spitzak $

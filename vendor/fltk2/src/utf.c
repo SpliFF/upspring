@@ -782,6 +782,66 @@ int utf8test(const char* src, unsigned srclen) {
   return ret;
 }
 
+/** Convert a UTF-8 sequence into an array of 16-bit characters. These
+  are used by some system calls, especially on Windows.
+  \p src points at the UTF-8, and \p srclen is the number of bytes to
+  convert.
+  \p dst points at an array to write, and \p dstlen is the number of
+  locations in this array. At most \p dstlen-1 words will be
+  written there, plus a 0 terminating word. Thus this function
+  will never overwrite the buffer and will always return a
+  zero-terminated string. If \p dstlen is zero then \p dst can be
+  null and no data is written, but the length is returned.
+  The return value is the number of 16-bit words that \e would be written
+  to \p dst if it were long enough, not counting the terminating
+  zero. If the return value is greater or equal to \p dstlen it
+  indicates truncation, you can then allocate a new array of size
+  return+1 and call this again.
+  Errors in the UTF-8 are converted as though each byte in the
+  erroneous string is in the Microsoft CP1252 encoding. This allows
+  ISO-8859-1 text mistakenly identified as UTF-8 to be printed
+  correctly.
+  Unicode characters in the range 0x10000 to 0x10ffff are converted to
+  "surrogate pairs" which take two words each (this is called UTF-16
+  encoding).
+*/
+unsigned utf8toUtf16(const char* src, unsigned srclen,
+                        unsigned short* dst, unsigned dstlen)
+{
+  const char* p = src;
+  const char* e = src+srclen;
+  unsigned count = 0;
+  if (dstlen) for (;;) {
+    if (p >= e) {dst[count] = 0; return count;}
+    if (!(*p & 0x80)) { /* ascii */
+      dst[count] = *p++;
+    } else {
+      int len; unsigned ucs = utf8decode(p,e,&len);
+      p += len;
+      if (ucs < 0x10000) {
+        dst[count] = ucs;
+      } else {
+        /* make a surrogate pair: */
+        if (count+2 >= dstlen) {dst[count] = 0; count += 2; break;}
+        dst[count] = (((ucs-0x10000u)>>10)&0x3ff) | 0xd800;
+        dst[++count] = (ucs&0x3ff) | 0xdc00;
+      }
+    }
+    if (++count == dstlen) {dst[count-1] = 0; break;}
+  }
+  /* we filled dst, measure the rest: */
+  while (p < e) {
+    if (!(*p & 0x80)) p++;
+    else {
+      int len; unsigned ucs = utf8decode(p,e,&len);
+      p += len;
+      if (ucs >= 0x10000) ++count;
+    }
+    ++count;
+  }
+  return count;
+}
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,7 +1,7 @@
 project(fltk2)
 
-set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-Wno-unused-parameter -Wno-unused-label -fno-strict-aliasing -Wno-deprecated -Wall -DUSE_IK -O2 -fpermissive -Wint-to-pointer-cast")
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wdelete-non-virtual-dtor -Wno-unused-parameter -Wno-unused-label -fno-strict-aliasing -Wno-deprecated -Wall -DUSE_IK -O2 -fpermissive -Wint-to-pointer-cast")
+set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-Wno-unused-parameter -Wno-unused-label -fno-strict-aliasing -Wno-deprecated -Wall -DUSE_IK -Wint-to-pointer-cast")
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wdelete-non-virtual-dtor -Wno-unused-parameter -Wno-unused-label -fno-strict-aliasing -Wno-deprecated -Wall -DUSE_IK -fpermissive -Wint-to-pointer-cast")
 
 set(FLTK_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/Fl_Gl_Choice.cxx
@@ -273,9 +273,10 @@ target_link_directories(fltk2
 )
 
 if (WIN32)
+target_compile_definitions(fltk2 PUBLIC HAVE_SCANDIR=0 HAVE_SCANDIR_POSIX=0)
     target_link_libraries(fltk2 wsock32 ws2_32 msimg32 pthread)
 elseif (UNIX)
-    target_compile_definitions(fltk2 PUBLIC HAVE_SCANDIR HAVE_SCANDIR_POSIX)
+    target_compile_definitions(fltk2 PUBLIC HAVE_SCANDIR=1 HAVE_SCANDIR_POSIX=1)
 
     find_package(X11 COMPONENTS Xft Xinerama Xcursor Xi Xext)
 
