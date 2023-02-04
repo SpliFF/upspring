@@ -1,0 +1,60 @@
+name: "Release 'upspring-windows-x86_64' on Tag"
+
+on:
+  push:
+    tags:
+    - '*'
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { icon: '🟦', sys: mingw64 }
+    name: 🚧${{ matrix.icon }} ${{ matrix.sys }}
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+
+    - name: '🧰 Checkout'
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: '${{ matrix.icon }} Setup MSYS2'
+      with:
+        msystem: ${{matrix.sys}}
+        update: true
+        install: >-
+          git
+          make
+        pacboy: >-
+          toolchain:p
+          ninja:p
+          cmake:p
+          glew:p
+          freeglut:p
+          devil:p
+          boost:p
+          lua:p
+          swig:p
+    - name: '🚧 Build'
+      run: |
+        export PRESET=msys2-mingw64-release
+        cmake --preset ${PRESET}
+        cmake --build --preset ${PRESET}
+        # Thanks to: https://github.com/msys2/MINGW-packages/issues/5204#issuecomment-1013818547
+        ldd out/build/${PRESET}/src/*.exe | grep -iv system32|grep -vi windows|grep -v :$  | cut -f2 -d\> | cut -f1 -d\( | tr \\ / |while read a; do ! [ -e "out/build/${PRESET}/src/`basename $a`" ] && cp -v "$a" out/build/${PRESET}/src/; done
+    - name: 'Archive'
+      uses: actions/upload-artifact@v3
+      with:
+        name: upspring-windows-x86_64
+        path: |
+          out/build/${PRESET}/src/
